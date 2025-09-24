@@ -1,0 +1,13 @@
+{
+  "extends": "@zinkawaii/tsconfig",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@dxup/unimport"
+      }
+    ]
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}

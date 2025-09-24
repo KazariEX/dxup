@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "unimport",
+      "type": "node",
+      "request": "launch",
+      "autoAttachChildProcesses": true,
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--folder-uri=${workspaceRoot}/packages/unimport/playground"
+      ],
+      "outFiles": [
+        "${workspaceRoot}/packages/unimport/dist/**/*.cjs"
+      ]
+    }
+  ]
+}

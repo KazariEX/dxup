@@ -1,0 +1,25 @@
+{
+  "name": "@dxup/unimport",
+  "type": "module",
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.17.1",
+  "description": "TypeScript plugin for unimport",
+  "author": "KazariEX",
+  "license": "MIT",
+  "repository": "KazariEX/dxup",
+  "exports": {
+    ".": "./dist/index.cjs",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown -w --sourcemap",
+    "prepack": "pnpm run build",
+    "release": "bumpp --no-push -c \"release: v%s\""
+  }
+}

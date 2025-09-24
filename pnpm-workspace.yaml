@@ -2,6 +2,7 @@ shamefullyHoist: true
 
 packages:
   - packages/*
+  - packages/*/playground
 
 catalog:
   "@zinkawaii/eslint-config": ^0.4.1
@@ -9,6 +10,7 @@ catalog:
   bumpp: ^10.2.2
   eslint: ^9.33.0
   tsdown: ^0.14.0
+  typescript: ^5.9.2
   vitest: ^3.2.4
 
 onlyBuiltDependencies:

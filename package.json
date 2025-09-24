@@ -13,6 +13,7 @@
     "bumpp": "catalog:",
     "eslint": "catalog:",
     "tsdown": "catalog:",
+    "typescript": "catalog:",
     "vitest": "catalog:"
   }
 }

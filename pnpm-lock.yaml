@@ -21,6 +21,9 @@ catalogs:
     tsdown:
       specifier: ^0.14.0
       version: 0.14.2
+    typescript:
+      specifier: ^5.9.2
+      version: 5.9.2
     vitest:
       specifier: ^3.2.4
       version: 3.2.4
@@ -44,9 +47,23 @@ importers:
       tsdown:
         specifier: 'catalog:'
         version: 0.14.2(typescript@5.9.2)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
       vitest:
         specifier: 'catalog:'
         version: 3.2.4(@types/debug@4.1.12)(jiti@2.6.0)(yaml@2.8.1)
+
+  packages/unimport: {}
+
+  packages/unimport/playground:
+    devDependencies:
+      '@dxup/unimport':
+        specifier: file:../
+        version: link:..
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
 
 packages:
 
