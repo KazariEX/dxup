@@ -1,0 +1,15 @@
+shamefullyHoist: true
+
+packages:
+  - packages/*
+
+catalog:
+  "@zinkawaii/eslint-config": ^0.4.1
+  "@zinkawaii/tsconfig": ^0.0.2
+  bumpp: ^10.2.2
+  eslint: ^9.33.0
+  tsdown: ^0.14.0
+  vitest: ^3.2.4
+
+onlyBuiltDependencies:
+  - esbuild
