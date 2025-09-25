@@ -1,20 +1,44 @@
 import { defineNuxtModule } from "@nuxt/kit";
-import packageJson from "../../package.json";
+import * as packageJson from "../../package.json";
 
-export default defineNuxtModule({
+interface Plugin {
+    name: string;
+    options?: Record<string, any>;
+}
+
+export interface ModuleOptions {
+    nitroRoutes?: boolean;
+    runtimeConfig?: boolean;
+    unimport?: boolean;
+}
+
+export default defineNuxtModule<ModuleOptions>({
     meta: {
         name: packageJson.name,
         configKey: "dxup",
     },
+    defaults: {
+        nitroRoutes: true,
+        runtimeConfig: true,
+        unimport: true,
+    },
     async setup(options, nuxt) {
-        const pluginsTs = [
-            { name: "@dxup/nuxt" },
-            { name: "@dxup/unimport" },
-        ];
+        const pluginsTs: Plugin[] = [];
+        const pluginsVue: string[] = [];
 
-        const pluginsVue = [
-            "@dxup/nuxt/vue/nitro-routes",
-        ];
+        pluginsTs.push({
+            name: "@dxup/nuxt",
+            options: {
+                nitroRoutes: options.nitroRoutes,
+                runtimeConfig: options.runtimeConfig,
+            },
+        });
+        if (options.nitroRoutes) {
+            pluginsVue.push("@dxup/nuxt/vue/nitro-routes");
+        }
+        if (options.unimport) {
+            pluginsTs.push({ name: "@dxup/unimport" });
+        }
 
         append(pluginsTs, nuxt.options, "typescript", "tsConfig", "compilerOptions");
         append(pluginsTs, nuxt.options.nitro, "typescript", "tsConfig", "compilerOptions");

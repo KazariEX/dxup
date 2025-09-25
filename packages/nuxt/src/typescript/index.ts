@@ -43,10 +43,10 @@ function getDefinitionAndBoundSpan(
             }
 
             let result: ts.DefinitionInfo[] = [];
-            if (definition.fileName.endsWith("nitro-routes.d.ts")) {
+            if (info.config.nitroRoutes && definition.fileName.endsWith("nitro-routes.d.ts")) {
                 result = visitNitroRoutes(ts, sourceFile, definition, getDefinitionAndBoundSpan);
             }
-            else if (definition.fileName.endsWith("runtime-config.d.ts")) {
+            else if (info.config.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
                 result = visitRuntimeConfig(ts, info, sourceFile, definition);
             }
 
