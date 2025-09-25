@@ -2,8 +2,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "nuxt dev",
-    "prepare": "nuxt prepare"
+    "dev": "nuxt dev"
   },
   "dependencies": {
     "@dxup/nuxt": "workspace:",
