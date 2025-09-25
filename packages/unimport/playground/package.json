@@ -2,7 +2,6 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@dxup/unimport": "workspace:",
-    "typescript": "catalog:"
+    "@dxup/unimport": "workspace:"
   }
 }
