@@ -24,6 +24,7 @@
     "release": "bumpp"
   },
   "dependencies": {
+    "@dxup/unimport": "workspace:^",
     "@nuxt/kit": "catalog:"
   },
   "devDependencies": {
