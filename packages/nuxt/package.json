@@ -1,18 +1,19 @@
 {
-  "name": "@dxup/unimport",
+  "name": "@dxup/nuxt",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "packageManager": "pnpm@10.17.1",
-  "description": "TypeScript plugin for unimport",
+  "description": "TypeScript and Vue plugins for Nuxt",
   "author": "KazariEX",
   "license": "MIT",
   "repository": "KazariEX/dxup",
   "exports": {
-    ".": "./dist/index.cjs",
+    "./typescript": "./dist/typescript.cjs",
+    "./vue/nitro-routes": "./dist/vue/nitro-routes.cjs",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.cts",
+  "main": "./dist/typescript.cjs",
+  "types": "./dist/typescript.d.cts",
   "files": [
     "dist"
   ],
@@ -23,6 +24,6 @@
     "release": "bumpp"
   },
   "devDependencies": {
-    "typescript": "catalog:"
+    "@vue/language-core": "catalog:"
   }
 }

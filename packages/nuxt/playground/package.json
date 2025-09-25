@@ -1,0 +1,17 @@
+{
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt dev",
+    "prepare": "nuxt prepare"
+  },
+  "dependencies": {
+    "@dxup/nuxt": "workspace:",
+    "nuxt": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}
