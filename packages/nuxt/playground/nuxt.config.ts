@@ -2,6 +2,9 @@ const runtimeConfig = {
     foo: {
         bar: 1,
     },
+    public: {
+        baz: 2,
+    },
 };
 
 export default defineNuxtConfig({
