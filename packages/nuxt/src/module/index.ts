@@ -14,11 +14,12 @@ export default defineNuxtModule({
 
         const pluginsVue = [
             "@dxup/nuxt/vue/nitro-routes",
-        ]
+        ];
 
         append(pluginsTs, nuxt.options, "typescript", "tsConfig", "compilerOptions");
-        append(pluginsTs, nuxt.options, "typescript", "sharedTsConfig", "compilerOptions");
         append(pluginsTs, nuxt.options.nitro, "typescript", "tsConfig", "compilerOptions");
+        append(pluginsTs, nuxt.options, "typescript", "sharedTsConfig", "compilerOptions");
+        append(pluginsTs, nuxt.options, "typescript", "nodeTsConfig", "compilerOptions");
         append(pluginsVue, nuxt.options, "typescript", "tsConfig", "vueCompilerOptions");
     },
 });

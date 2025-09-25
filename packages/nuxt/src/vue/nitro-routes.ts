@@ -1,5 +1,5 @@
 import type { Code, VueLanguagePlugin } from "@vue/language-core";
-import type ts from "typescript";
+import { forEachNode } from "../utils/ast";
 
 const functionNames = new Set([
     "$fetch",
@@ -21,16 +21,7 @@ const plugin: VueLanguagePlugin = ({ modules: { typescript: ts } }) => {
             }
 
             const codes: Code[] = [];
-            visit(scriptSetup.ast);
-
-            if (codes.length) {
-                embeddedFile.content.push(
-                    `import type { InternalApi as __VLS_InternalApi } from 'nitropack/types';\n`,
-                    ...codes,
-                );
-            }
-
-            function visit(node: ts.Node) {
+            for (const node of forEachNode(scriptSetup.ast)) {
                 if (
                     ts.isCallExpression(node) &&
                     ts.isIdentifier(node.expression) &&
@@ -52,7 +43,13 @@ const plugin: VueLanguagePlugin = ({ modules: { typescript: ts } }) => {
                         `]} */;\n`,
                     );
                 }
-                node.forEachChild(visit);
+            }
+
+            if (codes.length) {
+                embeddedFile.content.push(
+                    `import type { InternalApi as __VLS_InternalApi } from 'nitropack/types';\n`,
+                    ...codes,
+                );
             }
         },
     };
