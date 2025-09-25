@@ -2,13 +2,24 @@ import { dirname, join } from "node:path";
 import type ts from "typescript";
 import { forEachNode, walkNodes } from "../utils/ast";
 
+export interface Options {
+    nitroRoutes?: boolean;
+    runtimeConfig?: boolean;
+}
+
 const plugin: ts.server.PluginModuleFactory = (module) => {
     const { typescript: ts } = module;
 
     return {
         create(info) {
+            const options: Options = {
+                nitroRoutes: true,
+                runtimeConfig: true,
+                ...info.config.options,
+            };
+
             for (const [key, method] of [
-                ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, ts, info)],
+                ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, ts, info, options)],
             ] as const) {
                 const original = info.languageService[key];
                 info.languageService[key] = method(original);
@@ -24,6 +35,7 @@ export default plugin;
 function getDefinitionAndBoundSpan(
     ts: typeof import("typescript"),
     info: ts.server.PluginCreateInfo,
+    options: Options,
     getDefinitionAndBoundSpan: ts.LanguageService["getDefinitionAndBoundSpan"],
 ): ts.LanguageService["getDefinitionAndBoundSpan"] {
     return (fileName, position) => {
@@ -43,10 +55,10 @@ function getDefinitionAndBoundSpan(
             }
 
             let result: ts.DefinitionInfo[] = [];
-            if (info.config.nitroRoutes && definition.fileName.endsWith("nitro-routes.d.ts")) {
+            if (options.nitroRoutes && definition.fileName.endsWith("nitro-routes.d.ts")) {
                 result = visitNitroRoutes(ts, sourceFile, definition, getDefinitionAndBoundSpan);
             }
-            else if (info.config.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
+            else if (options.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
                 result = visitRuntimeConfig(ts, info, sourceFile, definition);
             }
 

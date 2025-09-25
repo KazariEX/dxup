@@ -1,14 +1,13 @@
 import { defineNuxtModule } from "@nuxt/kit";
 import * as packageJson from "../../package.json";
+import type { Options } from "../typescript";
 
 interface Plugin {
     name: string;
     options?: Record<string, any>;
 }
 
-export interface ModuleOptions {
-    nitroRoutes?: boolean;
-    runtimeConfig?: boolean;
+export interface ModuleOptions extends Options {
     unimport?: boolean;
 }
 
