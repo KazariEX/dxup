@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@vue/language-core": "catalog:",
-    "nuxt": "catalog:"
+    "nuxt": "catalog:",
+    "typescript": "catalog:"
   }
 }

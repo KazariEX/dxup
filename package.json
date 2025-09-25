@@ -5,6 +5,8 @@
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm -r dev --parallel",
+    "debug:nuxt": "TSS_DEBUG=5859 code-insiders packages/nuxt",
+    "debug:unimport": "TSS_DEBUG=5859 code-insiders packages/unimport",
     "release": "node scripts/release.ts",
     "test": "vitest"
   },

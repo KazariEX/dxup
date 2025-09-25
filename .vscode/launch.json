@@ -2,29 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "nuxt",
+      "name": "Attach to TS Server",
       "type": "node",
-      "request": "launch",
-      "autoAttachChildProcesses": true,
-      "runtimeExecutable": "${execPath}",
-      "args": [
-        "--folder-uri=${workspaceRoot}/packages/nuxt/playground"
-      ],
+      "request": "attach",
+      "port": 5859,
+      "restart": true,
       "outFiles": [
-        "${workspaceRoot}/packages/nuxt/dist/**/*.cjs"
-      ]
-    },
-    {
-      "name": "unimport",
-      "type": "node",
-      "request": "launch",
-      "autoAttachChildProcesses": true,
-      "runtimeExecutable": "${execPath}",
-      "args": [
-        "--folder-uri=${workspaceRoot}/packages/unimport/playground"
-      ],
-      "outFiles": [
-        "${workspaceRoot}/packages/unimport/dist/**/*.cjs"
+        "${workspaceRoot}/packages/*/dist/**/*.{c|m|}js"
       ]
     }
   ]

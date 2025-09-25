@@ -24,6 +24,6 @@ Add the following to your `nuxt.config.ts`:
 export default defineNuxtConfig({
   modules: [
     "@dxup/nuxt",
-  ]
-})
+  ],
+});
 ```
