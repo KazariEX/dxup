@@ -9,6 +9,7 @@ This is a collection of TypeScript and Vue plugins that improves Nuxt DX.
 ## Features
 
 - Go to definition for nitro routes on data fetching methods
+- Go to definition for runtime config
 
 ## Installation
 
