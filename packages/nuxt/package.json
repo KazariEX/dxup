@@ -8,7 +8,7 @@
   "license": "MIT",
   "repository": "KazariEX/dxup",
   "exports": {
-    "./typescript": "./dist/typescript.cjs",
+    ".": "./dist/module.js",
     "./vue/nitro-routes": "./dist/vue/nitro-routes.cjs",
     "./package.json": "./package.json"
   },
@@ -23,7 +23,11 @@
     "prepack": "pnpm run build",
     "release": "bumpp"
   },
+  "dependencies": {
+    "@nuxt/kit": "catalog:"
+  },
   "devDependencies": {
-    "@vue/language-core": "catalog:"
+    "@vue/language-core": "catalog:",
+    "nuxt": "catalog:"
   }
 }

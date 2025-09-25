@@ -1,6 +1,10 @@
 import { defineConfig } from "tsdown";
 
-export default defineConfig({
+export default defineConfig([{
+    entry: {
+        module: "src/module/index.ts",
+    },
+}, {
     entry: {
         typescript: "src/typescript/index.ts",
         "vue/nitro-routes": "src/vue/nitro-routes.ts",
@@ -8,5 +12,4 @@ export default defineConfig({
     format: [
         "cjs",
     ],
-    exports: true,
-});
+}]);
