@@ -1,0 +1,51 @@
+{
+  "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Debug",
+      "configurations": [
+        "Launch Playground",
+        "Attach to TS Server"
+      ],
+      "presentation": {
+        "order": 0
+      }
+    }
+  ],
+  "configurations": [
+    {
+      "name": "Launch Playground",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "code-insiders",
+      "sourceMaps": true,
+      "args": [
+        "packages/${input:package}/playground"
+      ],
+      "env": {
+        "TSS_DEBUG": "5859"
+      }
+    },
+    {
+      "name": "Attach to TS Server",
+      "type": "node",
+      "request": "attach",
+      "port": 5859,
+      "restart": true,
+      "outFiles": [
+        "${workspaceRoot}/packages/*/dist/**/*.{c|m|}js"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "package",
+      "type": "pickString",
+      "description": "Select a package",
+      "options": [
+        "nuxt",
+        "unimport"
+      ]
+    }
+  ]
+}
