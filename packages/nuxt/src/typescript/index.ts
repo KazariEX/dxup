@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import type ts from "typescript";
 import { forEachNode, walkNodes } from "../utils/ast";
 
@@ -18,12 +19,13 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 
     return {
         create(info) {
+            const path = join(info.languageServiceHost.getCurrentDirectory(), info.config.options.data);
             const data: Data = {
                 nitroRoutes: true,
                 runtimeConfig: true,
                 configFiles: [],
                 ...JSON.parse(
-                    ts.sys.readFile(info.config.options.data) ?? "{}",
+                    ts.sys.readFile(path) ?? "{}",
                 ),
             };
 

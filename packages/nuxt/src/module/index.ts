@@ -1,4 +1,3 @@
-import { join } from "node:path";
 import { addTemplate, defineNuxtModule } from "@nuxt/kit";
 import * as packageJson from "../../package.json";
 
@@ -30,7 +29,7 @@ export default defineNuxtModule<ModuleOptions>({
         pluginsTs.push({
             name: "@dxup/nuxt",
             options: {
-                data: join(nuxt.options.buildDir, "dxup.json"),
+                data: "./dxup.json",
             },
         });
         if (options.nitroRoutes) {
