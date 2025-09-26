@@ -15,7 +15,6 @@ catalog:
   nuxt: ^4.1.2
   tsdown: ^0.15.4
   typescript: ^5.9.2
-  vitest: ^3.2.4
   vue: ^3.5.22
   vue-router: ^4.5.1
   zx: ^8.8.3
