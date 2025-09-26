@@ -8,8 +8,9 @@ This is a collection of TypeScript and Vue plugins that improves Nuxt DX.
 
 ## Features
 
-- Go to definition for nitro routes on data fetching methods
+- Go to definition for nitro routes in data fetching methods within Vue files
 - Go to definition for runtime config
+- [@dxup/unimport](/packages/unimport)
 
 ## Installation
 
