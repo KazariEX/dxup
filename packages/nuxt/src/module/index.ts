@@ -23,15 +23,9 @@ export default defineNuxtModule<ModuleOptions>({
         unimport: true,
     },
     async setup(options, nuxt) {
-        const pluginsTs: Plugin[] = [];
+        const pluginsTs: Plugin[] = [{ name: "@dxup/nuxt" }];
         const pluginsVue: string[] = [];
 
-        pluginsTs.push({
-            name: "@dxup/nuxt",
-            options: {
-                data: "./dxup.json",
-            },
-        });
         if (options.nitroRoutes) {
             pluginsVue.push("@dxup/nuxt/vue/nitro-routes");
         }

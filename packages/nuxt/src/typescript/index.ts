@@ -19,7 +19,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 
     return {
         create(info) {
-            const path = join(info.languageServiceHost.getCurrentDirectory(), info.config.options.data);
+            const path = join(info.languageServiceHost.getCurrentDirectory(), "dxup.json");
             const data: Data = {
                 nitroRoutes: true,
                 runtimeConfig: true,
