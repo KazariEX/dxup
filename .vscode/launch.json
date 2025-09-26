@@ -18,7 +18,6 @@
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "code-insiders",
-      "sourceMaps": true,
       "args": [
         "packages/${input:package}/playground"
       ],
