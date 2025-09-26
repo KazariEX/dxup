@@ -1,9 +1,11 @@
 const runtimeConfig = {
     foo: {
         bar: 1,
+        baz: 2,
+        qux: 3,
     },
     public: {
-        baz: 2,
+        hello: 2333,
     },
 };
 

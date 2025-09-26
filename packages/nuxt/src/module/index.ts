@@ -53,7 +53,10 @@ export default defineNuxtModule<ModuleOptions>({
                 const data = {
                     nitroRoutes: options.nitroRoutes,
                     runtimeConfig: options.runtimeConfig,
-                    configFiles: nuxt.options._nuxtConfigFiles,
+                    configFiles: [
+                        ...nuxt.options._nuxtConfigFiles,
+                        ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
+                    ],
                 };
                 return JSON.stringify(data, null, 2);
             },

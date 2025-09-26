@@ -70,9 +70,7 @@ function getDefinitionAndBoundSpan(
                 result = visitNitroRoutes(context, sourceFile, definition, getDefinitionAndBoundSpan);
             }
             else if (data.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
-                console.time("[VVVIP]");
                 result = visitRuntimeConfig(context, sourceFile, definition);
-                console.timeEnd("[VVVIP]");
             }
 
             if (result?.length) {
@@ -219,33 +217,38 @@ function* proxyRuntimeConfig(
     if (!nodeProgram) {
         return;
     }
-    const sourceFile = nodeProgram.getSourceFile(configFile);
-    if (!sourceFile) {
-        return;
-    }
 
     const checker = nodeProgram.getTypeChecker();
-    for (const node of sourceFile.statements) {
-        if (
-            ts.isExportAssignment(node) &&
-            ts.isCallExpression(node.expression) &&
-            node.expression.arguments.length
-        ) {
+    for (const configFile of data.configFiles) {
+        const sourceFile = nodeProgram.getSourceFile(configFile);
+        if (!sourceFile) {
+            continue;
+        }
+
+        outer: for (const node of sourceFile.statements) {
+            if (
+                !ts.isExportAssignment(node) ||
+                !ts.isCallExpression(node.expression) ||
+                !node.expression.arguments.length
+            ) {
+                continue;
+            }
+
             const arg = node.expression.arguments[0];
-            let currentSymbol!: ts.Symbol;
+            let currentSymbol: ts.Symbol | undefined;
             let currentType = checker.getTypeAtLocation(arg);
 
             for (const key of ["runtimeConfig", ...path]) {
                 const properties = currentType.getProperties();
                 const symbol = properties.find((s) => s.name === key);
                 if (!symbol) {
-                    return;
+                    break outer;
                 }
                 currentSymbol = symbol;
                 currentType = checker.getTypeOfSymbol(symbol);
             }
 
-            for (const decl of currentSymbol.declarations ?? []) {
+            for (const decl of currentSymbol?.declarations ?? []) {
                 const sourceFile = decl.getSourceFile();
                 const contextSpan = {
                     start: decl.getStart(sourceFile),
