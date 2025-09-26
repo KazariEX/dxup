@@ -1,13 +1,15 @@
-import { defineNuxtModule } from "@nuxt/kit";
+import { join } from "node:path";
+import { addTemplate, defineNuxtModule } from "@nuxt/kit";
 import * as packageJson from "../../package.json";
-import type { Options } from "../typescript";
 
 interface Plugin {
     name: string;
     options?: Record<string, any>;
 }
 
-export interface ModuleOptions extends Options {
+export interface ModuleOptions {
+    nitroRoutes?: boolean;
+    runtimeConfig?: boolean;
     unimport?: boolean;
 }
 
@@ -28,8 +30,7 @@ export default defineNuxtModule<ModuleOptions>({
         pluginsTs.push({
             name: "@dxup/nuxt",
             options: {
-                nitroRoutes: options.nitroRoutes,
-                runtimeConfig: options.runtimeConfig,
+                data: join(nuxt.options.buildDir, "dxup.json"),
             },
         });
         if (options.nitroRoutes) {
@@ -44,6 +45,19 @@ export default defineNuxtModule<ModuleOptions>({
         append(pluginsTs, nuxt.options, "typescript", "sharedTsConfig", "compilerOptions");
         append(pluginsTs, nuxt.options, "typescript", "nodeTsConfig", "compilerOptions");
         append(pluginsVue, nuxt.options, "typescript", "tsConfig", "vueCompilerOptions");
+
+        addTemplate({
+            filename: "dxup.json",
+            write: true,
+            getContents() {
+                const data = {
+                    nitroRoutes: options.nitroRoutes,
+                    runtimeConfig: options.runtimeConfig,
+                    configFiles: nuxt.options._nuxtConfigFiles,
+                };
+                return JSON.stringify(data, null, 2);
+            },
+        });
     },
 });
 

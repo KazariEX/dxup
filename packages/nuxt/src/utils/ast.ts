@@ -12,14 +12,9 @@ export function* forEachNode(node: ts.Node): Generator<ts.Node> {
 }
 
 export function walkNodes(node: ts.Node, callback: (node: ts.Node, next: () => void) => void) {
-    function next() {
-        const children: ts.Node[] = [];
+    callback(node, () => {
         node.forEachChild((child) => {
-            children.push(child);
+            walkNodes(child, callback);
         });
-        for (const child of children) {
-            walkNodes(child, callback!);
-        }
-    }
-    callback(node, next);
+    });
 }

@@ -1,10 +1,16 @@
-import { dirname, join } from "node:path";
 import type ts from "typescript";
 import { forEachNode, walkNodes } from "../utils/ast";
 
-export interface Options {
-    nitroRoutes?: boolean;
-    runtimeConfig?: boolean;
+interface Data {
+    nitroRoutes: boolean;
+    runtimeConfig: boolean;
+    configFiles: string[];
+}
+
+interface Context {
+    ts: typeof import("typescript");
+    info: ts.server.PluginCreateInfo;
+    data: Data;
 }
 
 const plugin: ts.server.PluginModuleFactory = (module) => {
@@ -12,14 +18,19 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 
     return {
         create(info) {
-            const options: Options = {
+            const data: Data = {
                 nitroRoutes: true,
                 runtimeConfig: true,
-                ...info.config.options,
+                configFiles: [],
+                ...JSON.parse(
+                    ts.sys.readFile(info.config.options.data) ?? "{}",
+                ),
             };
 
+            const context = { ts, info, data };
+
             for (const [key, method] of [
-                ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, ts, info, options)],
+                ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, context)],
             ] as const) {
                 const original = info.languageService[key];
                 info.languageService[key] = method(original);
@@ -33,11 +44,11 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 export default plugin;
 
 function getDefinitionAndBoundSpan(
-    ts: typeof import("typescript"),
-    info: ts.server.PluginCreateInfo,
-    options: Options,
+    context: Context,
     getDefinitionAndBoundSpan: ts.LanguageService["getDefinitionAndBoundSpan"],
 ): ts.LanguageService["getDefinitionAndBoundSpan"] {
+    const { info, data } = context;
+
     return (fileName, position) => {
         const result = getDefinitionAndBoundSpan(fileName, position);
         if (!result?.definitions?.length) {
@@ -55,11 +66,13 @@ function getDefinitionAndBoundSpan(
             }
 
             let result: ts.DefinitionInfo[] = [];
-            if (options.nitroRoutes && definition.fileName.endsWith("nitro-routes.d.ts")) {
-                result = visitNitroRoutes(ts, sourceFile, definition, getDefinitionAndBoundSpan);
+            if (data.nitroRoutes && definition.fileName.endsWith("nitro-routes.d.ts")) {
+                result = visitNitroRoutes(context, sourceFile, definition, getDefinitionAndBoundSpan);
             }
-            else if (options.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
-                result = visitRuntimeConfig(ts, info, sourceFile, definition);
+            else if (data.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
+                console.time("[VVVIP]");
+                result = visitRuntimeConfig(context, sourceFile, definition);
+                console.timeEnd("[VVVIP]");
             }
 
             if (result?.length) {
@@ -82,11 +95,12 @@ function getDefinitionAndBoundSpan(
 }
 
 function visitNitroRoutes(
-    ts: typeof import("typescript"),
+    context: Context,
     sourceFile: ts.SourceFile,
     definition: ts.DefinitionInfo,
     getDefinitionAndBoundSpan: ts.LanguageService["getDefinitionAndBoundSpan"],
 ) {
+    const { ts } = context;
     const definitions: ts.DefinitionInfo[] = [];
 
     for (const node of forEachNode(sourceFile)) {
@@ -130,11 +144,12 @@ function visitNitroRoutes(
 }
 
 function visitRuntimeConfig(
-    ts: typeof import("typescript"),
-    info: ts.server.PluginCreateInfo,
+    context: Context,
     sourceFile: ts.SourceFile,
     definition: ts.DefinitionInfo,
 ) {
+    const { ts } = context;
+
     let definitions: ts.DefinitionInfo[] = [];
     const path: string[] = [];
 
@@ -152,7 +167,7 @@ function visitRuntimeConfig(
 
             if (start === textSpan.start && end - start === textSpan.length) {
                 path.push(key);
-                definitions = [...proxyRuntimeConfig(ts, info, definition, path)];
+                definitions = [...proxyRuntimeConfig(context, definition, path)];
                 return;
             }
         }
@@ -170,11 +185,12 @@ function visitRuntimeConfig(
 }
 
 function* proxyRuntimeConfig(
-    ts: typeof import("typescript"),
-    info: ts.server.PluginCreateInfo,
+    context: Context,
     definition: ts.DefinitionInfo,
     path: string[],
 ): Generator<ts.DefinitionInfo> {
+    const { ts, info, data } = context;
+
     switch (path[0]) {
         case "SharedRuntimeConfig": {
             path.shift();
@@ -187,8 +203,15 @@ function* proxyRuntimeConfig(
         default: return;
     }
 
-    const configName = join(dirname(info.project.getProjectName()), "tsconfig.node.json");
-    const nodeProject = info.project.projectService.findProject(configName);
+    const configFile = data.configFiles[0];
+    if (configFile === void 0) {
+        return;
+    }
+    const { configFileName } = info.project.projectService.openClientFile(configFile);
+    if (configFileName === void 0) {
+        return;
+    }
+    const nodeProject = info.project.projectService.findProject(configFileName);
     if (!nodeProject) {
         return;
     }
@@ -196,11 +219,7 @@ function* proxyRuntimeConfig(
     if (!nodeProgram) {
         return;
     }
-    const nuxtConfigName = nodeProgram.getRootFileNames().find((name) => name.endsWith("nuxt.config.ts"));
-    if (!nuxtConfigName) {
-        return;
-    }
-    const sourceFile = nodeProgram.getSourceFile(nuxtConfigName);
+    const sourceFile = nodeProgram.getSourceFile(configFile);
     if (!sourceFile) {
         return;
     }
