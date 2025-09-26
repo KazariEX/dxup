@@ -256,14 +256,20 @@ function* proxyRuntimeConfig(
                     start: decl.getStart(sourceFile),
                     length: decl.getWidth(sourceFile),
                 };
-                yield {
-                    ...definition,
-                    contextSpan,
-                    fileName: sourceFile.fileName,
-                    textSpan: ts.isPropertyAssignment(decl) ? {
+
+                let textSpan = contextSpan;
+                if (ts.isPropertyAssignment(decl) || ts.isPropertySignature(decl)) {
+                    textSpan = {
                         start: decl.name.getStart(sourceFile),
                         length: decl.name.getWidth(sourceFile),
-                    } : contextSpan,
+                    };
+                }
+
+                yield {
+                    ...definition,
+                    fileName: sourceFile.fileName,
+                    textSpan,
+                    contextSpan,
                 };
             }
         }
