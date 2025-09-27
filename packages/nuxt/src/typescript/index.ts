@@ -1,6 +1,6 @@
 import { join } from "node:path";
+import { forEachNode, walkNodes } from "@dxup/shared";
 import type ts from "typescript";
-import { forEachNode, walkNodes } from "../utils/ast";
 
 interface Data {
     nitroRoutes: boolean;

@@ -1,0 +1,11 @@
+{
+  "name": "@dxup/shared",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

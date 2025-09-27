@@ -23,6 +23,7 @@
     "release": "bumpp"
   },
   "devDependencies": {
+    "@dxup/shared": "workspace:",
     "typescript": "catalog:"
   }
 }

@@ -28,6 +28,7 @@
     "@nuxt/kit": "catalog:"
   },
   "devDependencies": {
+    "@dxup/shared": "workspace:",
     "@vue/language-core": "catalog:",
     "nuxt": "catalog:",
     "typescript": "catalog:"

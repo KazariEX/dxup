@@ -81,6 +81,9 @@ importers:
         specifier: 'catalog:'
         version: 4.1.2(magicast@0.3.5)
     devDependencies:
+      '@dxup/shared':
+        specifier: 'workspace:'
+        version: link:../shared
       '@vue/language-core':
         specifier: 'catalog:'
         version: 3.0.8(typescript@5.9.2)
@@ -110,8 +113,17 @@ importers:
         specifier: 'catalog:'
         version: 5.9.2
 
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
+
   packages/unimport:
     devDependencies:
+      '@dxup/shared':
+        specifier: 'workspace:'
+        version: link:../shared
       typescript:
         specifier: 'catalog:'
         version: 5.9.2

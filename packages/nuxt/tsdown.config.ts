@@ -12,4 +12,7 @@ export default defineConfig([{
     format: [
         "cjs",
     ],
+    noExternal: [
+        "@dxup/shared",
+    ],
 }]);

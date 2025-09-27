@@ -1,5 +1,5 @@
+import { forEachNode } from "@dxup/shared";
 import type { Code, VueLanguagePlugin } from "@vue/language-core";
-import { forEachNode } from "../utils/ast";
 
 const functionNames = new Set([
     "$fetch",
