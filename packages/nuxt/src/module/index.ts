@@ -44,12 +44,13 @@ export default defineNuxtModule<ModuleOptions>({
             write: true,
             getContents() {
                 const data = {
-                    nitroRoutes: options.nitroRoutes,
-                    runtimeConfig: options.runtimeConfig,
+                    buildDir: nuxt.options.buildDir,
                     configFiles: [
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
+                    nitroRoutes: options.nitroRoutes,
+                    runtimeConfig: options.runtimeConfig,
                 };
                 return JSON.stringify(data, null, 2);
             },

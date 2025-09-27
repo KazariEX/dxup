@@ -3,9 +3,10 @@ import { forEachNode, walkNodes } from "@dxup/shared";
 import type ts from "typescript";
 
 interface Data {
+    buildDir: string;
+    configFiles: string[];
     nitroRoutes: boolean;
     runtimeConfig: boolean;
-    configFiles: string[];
 }
 
 interface Context {
@@ -19,11 +20,13 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 
     return {
         create(info) {
-            const path = join(info.languageServiceHost.getCurrentDirectory(), "dxup.json");
+            const currentDirectory = info.languageServiceHost.getCurrentDirectory();
+            const path = join(currentDirectory, "dxup.json");
             const data: Data = {
+                buildDir: currentDirectory,
+                configFiles: [],
                 nitroRoutes: true,
                 runtimeConfig: true,
-                configFiles: [],
                 ...JSON.parse(
                     ts.sys.readFile(path) ?? "{}",
                 ),
@@ -33,9 +36,10 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 
             for (const [key, method] of [
                 ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, context)],
+                ["getEditsForFileRename", getEditsForFileRename.bind(null, context)],
             ] as const) {
                 const original = info.languageService[key];
-                info.languageService[key] = method(original);
+                info.languageService[key] = method(original as any) as any;
             }
 
             return info.languageService;
@@ -274,4 +278,19 @@ function* proxyRuntimeConfig(
             }
         }
     }
+}
+
+function getEditsForFileRename(
+    context: Context,
+    getEditsForFileRename: ts.LanguageService["getEditsForFileRename"],
+): ts.LanguageService["getEditsForFileRename"] {
+    const { data } = context;
+
+    return (...args) => {
+        const result = getEditsForFileRename(...args);
+
+        return result.filter((edit) => {
+            return !edit.fileName.startsWith(data.buildDir);
+        });
+    };
 }
