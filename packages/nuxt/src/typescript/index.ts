@@ -20,11 +20,13 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 
     return {
         create(info) {
-            const path = join(info.languageServiceHost.getCurrentDirectory(), "dxup.json");
+            const currentDirectory = info.languageServiceHost.getCurrentDirectory();
+            const path = join(currentDirectory, "dxup.json");
             const data: Data = {
+                buildDir: currentDirectory,
+                configFiles: [],
                 nitroRoutes: true,
                 runtimeConfig: true,
-                configFiles: [],
                 ...JSON.parse(
                     ts.sys.readFile(path) ?? "{}",
                 ),
@@ -282,11 +284,13 @@ function getEditsForFileRename(
     context: Context,
     getEditsForFileRename: ts.LanguageService["getEditsForFileRename"],
 ): ts.LanguageService["getEditsForFileRename"] {
+    const { data } = context;
+
     return (...args) => {
         const result = getEditsForFileRename(...args);
 
         return result.filter((edit) => {
-            return !edit.fileName.startsWith(context.data.buildDir);
+            return !edit.fileName.startsWith(data.buildDir);
         });
     };
 }
