@@ -51,8 +51,8 @@ function getDefinitionAndBoundSpan(
 ): ts.LanguageService["getDefinitionAndBoundSpan"] {
     const { info, data } = context;
 
-    return (fileName, position) => {
-        const result = getDefinitionAndBoundSpan(fileName, position);
+    return (...args) => {
+        const result = getDefinitionAndBoundSpan(...args);
         if (!result?.definitions?.length) {
             return result;
         }

@@ -27,8 +27,8 @@ function getDefinitionAndBoundSpan(
     info: ts.server.PluginCreateInfo,
     getDefinitionAndBoundSpan: ts.LanguageService["getDefinitionAndBoundSpan"],
 ): ts.LanguageService["getDefinitionAndBoundSpan"] {
-    return (fileName, position) => {
-        const result = getDefinitionAndBoundSpan(fileName, position);
+    return (...args) => {
+        const result = getDefinitionAndBoundSpan(...args);
         if (!result?.definitions?.length) {
             return result;
         }
