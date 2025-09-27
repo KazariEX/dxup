@@ -3,9 +3,10 @@ import { forEachNode, walkNodes } from "@dxup/shared";
 import type ts from "typescript";
 
 interface Data {
+    buildDir: string;
+    configFiles: string[];
     nitroRoutes: boolean;
     runtimeConfig: boolean;
-    configFiles: string[];
 }
 
 interface Context {
@@ -33,9 +34,10 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 
             for (const [key, method] of [
                 ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, context)],
+                ["getEditsForFileRename", getEditsForFileRename.bind(null, context)],
             ] as const) {
                 const original = info.languageService[key];
-                info.languageService[key] = method(original);
+                info.languageService[key] = method(original as any) as any;
             }
 
             return info.languageService;
@@ -274,4 +276,17 @@ function* proxyRuntimeConfig(
             }
         }
     }
+}
+
+function getEditsForFileRename(
+    context: Context,
+    getEditsForFileRename: ts.LanguageService["getEditsForFileRename"],
+): ts.LanguageService["getEditsForFileRename"] {
+    return (...args) => {
+        const result = getEditsForFileRename(...args);
+
+        return result.filter((edit) => {
+            return !edit.fileName.startsWith(context.data.buildDir);
+        });
+    };
 }
