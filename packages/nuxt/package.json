@@ -21,7 +21,7 @@
     "build": "tsdown",
     "dev": "tsdown -w --sourcemap",
     "prepack": "pnpm run build",
-    "release": "bumpp"
+    "release": "node ../../scripts/bump.ts"
   },
   "dependencies": {
     "@dxup/unimport": "workspace:^",
