@@ -21,7 +21,7 @@ const plugin: VueLanguagePlugin = ({ modules: { typescript: ts } }) => {
             }
 
             const codes: Code[] = [];
-            for (const node of forEachNode(scriptSetup.ast)) {
+            for (const node of forEachNode(ts, scriptSetup.ast)) {
                 if (
                     ts.isCallExpression(node) &&
                     ts.isIdentifier(node.expression) &&

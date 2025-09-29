@@ -75,7 +75,7 @@ function visitImports(
 ) {
     const definitions: ts.DefinitionInfo[] = [];
 
-    for (const node of forEachNode(sourceFile)) {
+    for (const node of forEachNode(ts, sourceFile)) {
         let pos: number | undefined;
 
         if (ts.isBindingElement(node)) {

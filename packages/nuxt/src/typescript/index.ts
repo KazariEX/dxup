@@ -107,7 +107,7 @@ function visitNitroRoutes(
     const { ts } = context;
     const definitions: ts.DefinitionInfo[] = [];
 
-    for (const node of forEachNode(sourceFile)) {
+    for (const node of forEachNode(ts, sourceFile)) {
         if (!ts.isPropertySignature(node) || !node.type || !ts.isTypeLiteralNode(node.type)) {
             continue;
         }
@@ -157,7 +157,7 @@ function visitRuntimeConfig(
     let definitions: ts.DefinitionInfo[] = [];
     const path: string[] = [];
 
-    walkNodes(sourceFile, (node, next) => {
+    walkNodes(ts, sourceFile, (node, next) => {
         let key: string | undefined;
         if (ts.isInterfaceDeclaration(node) && ts.isIdentifier(node.name)) {
             key = node.name.text;
