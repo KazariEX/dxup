@@ -19,7 +19,7 @@
       "request": "launch",
       "runtimeExecutable": "code-insiders",
       "args": [
-        "packages/${input:package}/playground"
+        "playground"
       ],
       "env": {
         "TSS_DEBUG": "5859"
@@ -33,17 +33,6 @@
       "restart": true,
       "outFiles": [
         "${workspaceRoot}/packages/*/dist/**/*.{c|m|}js"
-      ]
-    }
-  ],
-  "inputs": [
-    {
-      "id": "package",
-      "type": "pickString",
-      "description": "Select a package",
-      "options": [
-        "nuxt",
-        "unimport"
       ]
     }
   ]
