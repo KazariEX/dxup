@@ -4,7 +4,7 @@
   "packageManager": "pnpm@10.17.1",
   "scripts": {
     "build": "pnpm -r build",
-    "dev": "pnpm -r dev --parallel",
+    "dev": "pnpm --parallel -r dev",
     "release": "node scripts/release.ts"
   },
   "devDependencies": {
