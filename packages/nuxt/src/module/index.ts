@@ -34,7 +34,7 @@ export default defineNuxtModule<ModuleOptions>({
             pluginsVue.push("@dxup/nuxt/vue/nitro-routes");
         }
         if (options.unimport) {
-            pluginsTs.push({ name: "@dxup/unimport" });
+            pluginsTs.unshift({ name: "@dxup/unimport" });
         }
 
         append(pluginsTs, nuxt.options, "typescript", "tsConfig", "compilerOptions");
