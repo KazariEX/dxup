@@ -5,7 +5,7 @@
   "scripts": {
     "build": "pnpm --filter @dxup/* build",
     "dev": "pnpm --filter @dxup/* --parallel dev",
-    "release": "node scripts/release.ts"
+    "publish": "node scripts/publish.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",

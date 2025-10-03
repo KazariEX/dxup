@@ -1,9 +1,13 @@
-import { resolve } from "node:path";
-import { $ } from "zx";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { versionBump } from "bumpp";
 
-const tag = process.env.GITHUB_REF_NAME!;
-const packageName = tag.split("@")[1].slice("dxup/".length);
+const path = join(process.cwd(), "package.json");
+const text = await readFile(path, "utf-8");
+const { name } = JSON.parse(text);
 
-await $({
-    cwd: resolve(import.meta.dirname, "../packages", packageName),
-})`pnpm publish --access public --no-git-checks`;
+await versionBump({
+    push: false,
+    tag: `${name}@%s`,
+    commit: `release(${name.slice("@dxup/".length)}): v%s`,
+});

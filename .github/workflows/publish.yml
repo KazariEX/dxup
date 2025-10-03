@@ -1,4 +1,4 @@
-name: release
+name: publish
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ permissions:
   id-token: write
 
 jobs:
-  release:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -28,5 +28,5 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      - name: Release
-        run: pnpm run release
+      - name: Publish
+        run: pnpm run publish
