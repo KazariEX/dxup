@@ -25,10 +25,13 @@
   },
   "dependencies": {
     "@dxup/unimport": "workspace:^",
-    "@nuxt/kit": "catalog:"
+    "@nuxt/kit": "catalog:",
+    "chokidar": "catalog:"
   },
   "devDependencies": {
     "@dxup/shared": "workspace:",
+    "@volar/language-core": "catalog:",
+    "@volar/typescript": "catalog:",
     "@vue/language-core": "catalog:",
     "nuxt": "catalog:",
     "typescript": "catalog:"

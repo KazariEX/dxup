@@ -1,5 +1,7 @@
 import { addTemplate, defineNuxtModule } from "@nuxt/kit";
 import * as packageJson from "../../package.json";
+import { createEventClient } from "../event/client";
+import { onComponentsRename } from "./events";
 
 interface Plugin {
     name: string;
@@ -7,6 +9,7 @@ interface Plugin {
 }
 
 export interface ModuleOptions {
+    components?: boolean;
     nitroRoutes?: boolean;
     runtimeConfig?: boolean;
     unimport?: boolean;
@@ -18,6 +21,7 @@ export default defineNuxtModule<ModuleOptions>({
         configKey: "dxup",
     },
     defaults: {
+        components: true,
         nitroRoutes: true,
         runtimeConfig: true,
         unimport: true,
@@ -40,7 +44,7 @@ export default defineNuxtModule<ModuleOptions>({
         append(pluginsVue, nuxt.options, "typescript", "tsConfig", "vueCompilerOptions");
 
         addTemplate({
-            filename: "dxup.json",
+            filename: "dxup/data.json",
             write: true,
             getContents() {
                 const data = {
@@ -49,12 +53,16 @@ export default defineNuxtModule<ModuleOptions>({
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
+                    components: options.components,
                     nitroRoutes: options.nitroRoutes,
                     runtimeConfig: options.runtimeConfig,
                 };
                 return JSON.stringify(data, null, 2);
             },
         });
+
+        const client = await createEventClient(nuxt);
+        client.on("components:rename", (data) => onComponentsRename(nuxt, data));
     },
 });
 

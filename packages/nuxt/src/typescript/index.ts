@@ -1,10 +1,16 @@
+/// <reference types="@volar/typescript"/>
+
 import { join } from "node:path";
 import { forEachNode, walkNodes } from "@dxup/shared";
+import type { Language } from "@volar/language-core";
 import type ts from "typescript";
+import { createEventServer } from "../event/server";
+import type { ComponentReferenceInfo } from "../event/types";
 
 interface Data {
     buildDir: string;
     configFiles: string[];
+    components: boolean;
     nitroRoutes: boolean;
     runtimeConfig: boolean;
 }
@@ -13,6 +19,8 @@ interface Context {
     ts: typeof import("typescript");
     info: ts.server.PluginCreateInfo;
     data: Data;
+    server: ReturnType<typeof createEventServer>;
+    language?: Language;
 }
 
 const plugin: ts.server.PluginModuleFactory = (module) => {
@@ -21,18 +29,24 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
     return {
         create(info) {
             const currentDirectory = info.languageServiceHost.getCurrentDirectory();
-            const path = join(currentDirectory, "dxup.json");
+            const path = join(currentDirectory, "dxup/data.json");
             const data: Data = {
                 buildDir: currentDirectory,
                 configFiles: [],
+                components: true,
                 nitroRoutes: true,
                 runtimeConfig: true,
                 ...JSON.parse(
                     ts.sys.readFile(path) ?? "{}",
                 ),
             };
+            const server = createEventServer(info);
 
-            const context = { ts, info, data };
+            const context: Context = { ts, info, data, server };
+            setTimeout(() => {
+                // eslint-disable-next-line dot-notation
+                context.language = ((info.project as any).__vue__ ?? info.project["program"]?.__vue__)?.language;
+            }, 500);
 
             for (const [key, method] of [
                 ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, context)],
@@ -284,13 +298,111 @@ function getEditsForFileRename(
     context: Context,
     getEditsForFileRename: ts.LanguageService["getEditsForFileRename"],
 ): ts.LanguageService["getEditsForFileRename"] {
-    const { data } = context;
+    const { ts, info, data, server } = context;
 
     return (...args) => {
         const result = getEditsForFileRename(...args);
+        if (!result?.length) {
+            return result;
+        }
 
-        return result.filter((edit) => {
-            return !edit.fileName.startsWith(data.buildDir);
-        });
+        const program = info.languageService.getProgram()!;
+        const changes: ts.FileTextChanges[] = [];
+        const references: Record<string, ComponentReferenceInfo[]> = {};
+
+        for (const change of result) {
+            const { fileName, textChanges } = change;
+
+            if (data.components && fileName.endsWith("components.d.ts")) {
+                const sourceFile = program.getSourceFile(fileName);
+                if (!sourceFile) {
+                    continue;
+                }
+
+                const nodes: (ts.PropertySignature | ts.VariableDeclaration)[] = [];
+                if (fileName.endsWith("types/components.d.ts")) {
+                    for (const node of forEachNode(ts, sourceFile)) {
+                        if (ts.isPropertySignature(node)) {
+                            nodes.push(node);
+                        }
+                    }
+                }
+                else {
+                    for (const node of forEachNode(ts, sourceFile)) {
+                        if (ts.isVariableDeclaration(node)) {
+                            nodes.push(node);
+                        }
+                    }
+                }
+
+                for (const node of nodes) {
+                    const start = node.getStart(sourceFile);
+                    const end = node.getEnd();
+                    if (textChanges.every(({ span }) => span.start < start || span.start + span.length > end)) {
+                        continue;
+                    }
+
+                    const symbols = info.languageService.findReferences(fileName, start);
+                    const lazy = node.type &&
+                        ts.isTypeReferenceNode(node.type) &&
+                        ts.isIdentifier(node.type.typeName) &&
+                        node.type.typeName.text === "LazyComponent";
+
+                    for (const reference of symbols?.flatMap(({ references }) => references) ?? []) {
+                        if (reference.isDefinition) {
+                            continue;
+                        }
+
+                        const { fileName, textSpan } = reference;
+                        (references[fileName] ??= []).push({
+                            textSpan: toSourceSpan(context.language, fileName, textSpan) ?? textSpan,
+                            lazy: lazy || void 0,
+                        });
+                    }
+                }
+            }
+
+            if (!fileName.startsWith(data.buildDir)) {
+                changes.push(change);
+            }
+        }
+
+        if (Object.keys(references).length) {
+            server.write("components:rename", {
+                fileName: args[1],
+                references,
+            });
+        }
+
+        return changes;
     };
+}
+
+function toSourceSpan(language: Language | undefined, fileName: string, textSpan: ts.TextSpan) {
+    const sourceScript = language?.scripts.get(fileName);
+    if (!sourceScript?.generated) {
+        return;
+    }
+
+    const serviceScript = sourceScript.generated.languagePlugin.typescript?.getServiceScript(
+        sourceScript.generated.root,
+    );
+    if (!serviceScript) {
+        return;
+    }
+
+    const map = language!.maps.get(serviceScript.code, sourceScript);
+    const leadingOffset = sourceScript.snapshot.getLength();
+
+    // eslint-disable-next-line no-unreachable-loop
+    for (const [start, end] of map.toSourceRange(
+        textSpan.start - leadingOffset,
+        textSpan.start + textSpan.length - leadingOffset,
+        false,
+    )) {
+        return {
+            start,
+            length: end - start,
+        };
+    }
 }
