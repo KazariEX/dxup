@@ -7,10 +7,7 @@ export function createEventServer(info: ts.server.PluginCreateInfo) {
     const path = join(info.project.getCurrentDirectory(), "dxup/events.md");
 
     function write<K extends keyof EventMap>(key: K, data: EventMap[K][0]) {
-        try {
-            return appendFile(path, `\`\`\`json {${key}}\n${JSON.stringify(data, null, 2)}\n\`\`\`\n`);
-        }
-        catch {}
+        return appendFile(path, `\`\`\`json {${key}}\n${JSON.stringify(data, null, 2)}\n\`\`\`\n`).catch();
     }
 
     return {
