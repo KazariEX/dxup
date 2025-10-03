@@ -7,7 +7,7 @@ import type { Nuxt } from "nuxt/schema";
 import type { EventMap } from "./types";
 
 export async function createEventClient(nuxt: Nuxt) {
-    const path = join(nuxt.options.buildDir, "dxup/data.md");
+    const path = join(nuxt.options.buildDir, "dxup/events.md");
     await mkdir(dirname(path), { recursive: true });
     await writeFile(path, "");
 

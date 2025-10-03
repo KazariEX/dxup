@@ -5,7 +5,7 @@ import type ts from "typescript";
 import type { EventMap } from "./types";
 
 export function createEventServer(info: ts.server.PluginCreateInfo) {
-    const path = join(info.project.getCurrentDirectory(), "dxup/data.md");
+    const path = join(info.project.getCurrentDirectory(), "dxup/events.md");
     if (!existsSync(path)) {
         writeFileSync(path, "");
     }
