@@ -7,10 +7,11 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
     return {
         create(info) {
             for (const [key, method] of [
+                ["findRenameLocations", findRenameLocations.bind(null, ts, info)],
                 ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, ts, info)],
             ] as const) {
                 const original = info.languageService[key];
-                info.languageService[key] = method(original);
+                info.languageService[key] = method(original as any) as any;
             }
 
             return info.languageService;
@@ -21,6 +22,45 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 export default plugin;
 
 const declarationRE = /\.d\.(?:c|m)?ts$/;
+
+function findRenameLocations(
+    ts: typeof import("typescript"),
+    info: ts.server.PluginCreateInfo,
+    findRenameLocations: ts.LanguageService["findRenameLocations"],
+): ts.LanguageService["findRenameLocations"] {
+    return (...args) => {
+        // @ts-expect-error union args cannot satisfy deprecated overload
+        const result = findRenameLocations(...args);
+        if (!result?.length) {
+            return result;
+        }
+
+        const program = info.languageService.getProgram()!;
+        const preferences = typeof args[4] === "object" ? args[4] : {};
+        const locations = [...result];
+
+        for (const location of result) {
+            const sourceFile = program.getSourceFile(location.fileName);
+            if (!sourceFile) {
+                continue;
+            }
+
+            if (!declarationRE.test(location.fileName)) {
+                continue;
+            }
+
+            const positions = visitImports(ts, location.textSpan, sourceFile);
+            for (const pos of positions) {
+                const res = findRenameLocations(location.fileName, pos, false, false, preferences);
+                if (res?.length) {
+                    locations.push(...res);
+                }
+            }
+        }
+
+        return locations;
+    };
+}
 
 function getDefinitionAndBoundSpan(
     ts: typeof import("typescript"),
@@ -43,16 +83,19 @@ function getDefinitionAndBoundSpan(
                 continue;
             }
 
-            let result: ts.DefinitionInfo[] = [];
-            if (declarationRE.test(definition.fileName)) {
-                result = visitImports(ts, definition.textSpan, sourceFile, getDefinitionAndBoundSpan);
+            if (!declarationRE.test(definition.fileName)) {
+                continue;
             }
 
-            if (result?.length) {
-                for (const definition of result) {
-                    definitions.add(definition);
+            const positions = visitImports(ts, definition.textSpan, sourceFile);
+            for (const pos of positions) {
+                const res = getDefinitionAndBoundSpan(definition.fileName, pos);
+                if (res?.definitions?.length) {
+                    for (const def of res.definitions) {
+                        definitions.add(def);
+                    }
+                    skippedDefinitions.push(definition);
                 }
-                skippedDefinitions.push(definition);
             }
         }
 
@@ -71,9 +114,8 @@ function visitImports(
     ts: typeof import("typescript"),
     textSpan: ts.TextSpan,
     sourceFile: ts.SourceFile,
-    getDefinitionAndBoundSpan: ts.LanguageService["getDefinitionAndBoundSpan"],
 ) {
-    const definitions: ts.DefinitionInfo[] = [];
+    const positions = new Set<number>();
 
     for (const node of forEachNode(ts, sourceFile)) {
         let pos: number | undefined;
@@ -92,15 +134,12 @@ function visitImports(
         }
 
         if (pos !== void 0) {
-            const res = getDefinitionAndBoundSpan(sourceFile.fileName, pos);
-            if (res?.definitions?.length) {
-                definitions.push(...res?.definitions);
-            }
+            positions.add(pos);
             break;
         }
     }
 
-    return definitions;
+    return positions;
 }
 
 function proxyBindingElement(
