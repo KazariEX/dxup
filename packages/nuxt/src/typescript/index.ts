@@ -49,6 +49,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
             }, 500);
 
             for (const [key, method] of [
+                ["findRenameLocations", findRenameLocations.bind(null, context)],
                 ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, context)],
                 ["getEditsForFileRename", getEditsForFileRename.bind(null, context)],
             ] as const) {
@@ -62,6 +63,22 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 };
 
 export default plugin;
+
+function findRenameLocations(
+    context: Context,
+    findRenameLocations: ts.LanguageService["findRenameLocations"],
+): ts.LanguageService["findRenameLocations"] {
+    const { data } = context;
+
+    return (...args) => {
+        // @ts-expect-error union args cannot satisfy deprecated overload
+        const result = findRenameLocations(...args);
+
+        return result?.filter((edit) => {
+            return !edit.fileName.startsWith(data.buildDir);
+        });
+    };
+}
 
 function getDefinitionAndBoundSpan(
     context: Context,
