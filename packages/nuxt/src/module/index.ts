@@ -60,7 +60,7 @@ export default defineNuxtModule<ModuleOptions>({
 
         const client = await createEventClient(nuxt);
 
-        client.on("references:component", async ({ fileName, references }) => {
+        client.on("components:rename", async ({ fileName, references }) => {
             const groups = new Map<string, typeof references>();
             for (const reference of references) {
                 let group = groups.get(reference.fileName);

@@ -348,7 +348,7 @@ function getEditsForFileRename(
                     );
                 }
                 if (references.length) {
-                    server.write("references:component", {
+                    server.write("components:rename", {
                         fileName: args[1],
                         references,
                     });
