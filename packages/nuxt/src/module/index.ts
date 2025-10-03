@@ -1,5 +1,7 @@
+import { readFile, writeFile } from "node:fs/promises";
 import { addTemplate, defineNuxtModule } from "@nuxt/kit";
 import * as packageJson from "../../package.json";
+import { createEventClient } from "../event/client";
 
 interface Plugin {
     name: string;
@@ -40,7 +42,7 @@ export default defineNuxtModule<ModuleOptions>({
         append(pluginsVue, nuxt.options, "typescript", "tsConfig", "vueCompilerOptions");
 
         addTemplate({
-            filename: "dxup.json",
+            filename: "dxup/data.json",
             write: true,
             getContents() {
                 const data = {
@@ -54,6 +56,44 @@ export default defineNuxtModule<ModuleOptions>({
                 };
                 return JSON.stringify(data, null, 2);
             },
+        });
+
+        const client = await createEventClient(nuxt);
+
+        client.on("references:component", async ({ fileName, references }) => {
+            const groups = new Map<string, typeof references>();
+            for (const reference of references) {
+                let group = groups.get(reference.fileName);
+                if (!group) {
+                    groups.set(reference.fileName, group = []);
+                }
+                group.push(reference);
+            }
+
+            const component = Object.values(nuxt.apps)
+                .flatMap((app) => app.components)
+                .find((c) => c.filePath === fileName);
+            if (!component) {
+                return;
+            }
+
+            for (const [fileName, references] of groups) {
+                const code = await readFile(fileName, "utf-8");
+                const chunks: string[] = [];
+                let offset = 0;
+                for (const { textSpan, lazy } of references) {
+                    const start = textSpan.start;
+                    const end = start + textSpan.length;
+                    const oldName = code.slice(start, end);
+                    const newName = /[A-Z]/.test(oldName)
+                        ? lazy ? "Lazy" + component.pascalName : component.pascalName
+                        : lazy ? "lazy-" + component.kebabName : component.kebabName;
+                    chunks.push(code.slice(offset, start), newName);
+                    offset = end;
+                }
+                chunks.push(code.slice(offset));
+                await writeFile(fileName, chunks.join(""));
+            }
         });
     },
 });

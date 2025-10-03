@@ -1,6 +1,10 @@
+/// <reference types="@volar/typescript"/>
+
 import { join } from "node:path";
 import { forEachNode, walkNodes } from "@dxup/shared";
+import type { Language } from "@volar/language-core";
 import type ts from "typescript";
+import { createEventServer } from "../event/server";
 
 interface Data {
     buildDir: string;
@@ -13,6 +17,8 @@ interface Context {
     ts: typeof import("typescript");
     info: ts.server.PluginCreateInfo;
     data: Data;
+    server: ReturnType<typeof createEventServer>;
+    language?: Language;
 }
 
 const plugin: ts.server.PluginModuleFactory = (module) => {
@@ -21,7 +27,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
     return {
         create(info) {
             const currentDirectory = info.languageServiceHost.getCurrentDirectory();
-            const path = join(currentDirectory, "dxup.json");
+            const path = join(currentDirectory, "dxup/data.json");
             const data: Data = {
                 buildDir: currentDirectory,
                 configFiles: [],
@@ -31,8 +37,13 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                     ts.sys.readFile(path) ?? "{}",
                 ),
             };
+            const server = createEventServer(info);
 
-            const context = { ts, info, data };
+            const context: Context = { ts, info, data, server };
+            setTimeout(() => {
+                // eslint-disable-next-line dot-notation
+                context.language = ((info.project as any).__vue__ ?? info.project["program"]?.__vue__)?.language;
+            }, 1000);
 
             for (const [key, method] of [
                 ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, context)],
@@ -284,13 +295,103 @@ function getEditsForFileRename(
     context: Context,
     getEditsForFileRename: ts.LanguageService["getEditsForFileRename"],
 ): ts.LanguageService["getEditsForFileRename"] {
-    const { data } = context;
+    const { ts, info, data, server } = context;
 
     return (...args) => {
         const result = getEditsForFileRename(...args);
+        if (!result?.length) {
+            return result;
+        }
 
-        return result.filter((edit) => {
-            return !edit.fileName.startsWith(data.buildDir);
-        });
+        const program = info.languageService.getProgram()!;
+        const changes: ts.FileTextChanges[] = [];
+
+        for (const change of result) {
+            const { fileName, textChanges } = change;
+
+            if (fileName.endsWith("types/components.d.ts")) {
+                const sourceFile = program.getSourceFile(fileName);
+                if (!sourceFile) {
+                    continue;
+                }
+
+                const references: Pick<ts.ReferencedSymbolEntry, "fileName" | "textSpan">[] = [];
+
+                for (const node of forEachNode(ts, sourceFile)) {
+                    if (!ts.isPropertySignature(node)) {
+                        continue;
+                    }
+
+                    const start = node.getStart(sourceFile);
+                    const end = node.getEnd();
+                    if (textChanges.every(({ span }) => span.start < start || span.start + span.length > end)) {
+                        continue;
+                    }
+
+                    const symbols = info.languageService.findReferences(fileName, start);
+                    const lazy = node.type &&
+                        ts.isTypeReferenceNode(node.type) &&
+                        ts.isIdentifier(node.type.typeName) &&
+                        node.type.typeName.text === "LazyComponent";
+
+                    references.push(
+                        ...symbols?.flatMap(
+                            ({ references }) => references.filter((ref) => !ref.isDefinition).map((ref) => {
+                                const { fileName, textSpan } = ref;
+                                return {
+                                    fileName,
+                                    textSpan: toSourceSpan(context.language, fileName, textSpan) ?? textSpan,
+                                    lazy: lazy || void 0,
+                                };
+                            }),
+                        ) ?? [],
+                    );
+                }
+                if (references.length) {
+                    server.write("references:component", {
+                        fileName: args[1],
+                        references,
+                    });
+                }
+            }
+
+            if (!fileName.startsWith(data.buildDir)) {
+                changes.push(change);
+            }
+        }
+
+        return changes;
     };
+}
+
+function toSourceSpan(language: Language | undefined, fileName: string, textSpan: ts.TextSpan) {
+    const sourceScript = language?.scripts.get(fileName);
+    if (!sourceScript?.generated) {
+        return;
+    }
+
+    const serviceScript = sourceScript.generated.languagePlugin.typescript?.getServiceScript(
+        sourceScript.generated.root,
+    );
+    if (!serviceScript) {
+        return;
+    }
+
+    const map = language!.maps.get(serviceScript.code, sourceScript);
+    if (!map) {
+        return;
+    }
+
+    const leadingOffset = sourceScript.snapshot.getLength();
+    // eslint-disable-next-line no-unreachable-loop
+    for (const [start, end] of map.toSourceRange(
+        textSpan.start - leadingOffset,
+        textSpan.start + textSpan.length - leadingOffset,
+        false,
+    )) {
+        return {
+            start,
+            length: end - start,
+        };
+    }
 }

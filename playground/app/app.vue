@@ -7,3 +7,9 @@
 
     useFetch("/api/foo");
 </script>
+
+<!-- eslint-disable vue/component-name-in-template-casing -->
+<template>
+    <FooBar />
+    <lazy-foo-bar />
+</template>

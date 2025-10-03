@@ -12,6 +12,12 @@ catalogs:
     '@types/node':
       specifier: ^24.5.2
       version: 24.5.2
+    '@volar/language-core':
+      specifier: ^2.4.23
+      version: 2.4.23
+    '@volar/typescript':
+      specifier: ^2.4.23
+      version: 2.4.23
     '@vue/language-core':
       specifier: ^3.0.8
       version: 3.0.8
@@ -24,6 +30,9 @@ catalogs:
     bumpp:
       specifier: ^10.2.3
       version: 10.2.3
+    chokidar:
+      specifier: ^4.0.3
+      version: 4.0.3
     eslint:
       specifier: ^9.36.0
       version: 9.36.0
@@ -80,10 +89,19 @@ importers:
       '@nuxt/kit':
         specifier: 'catalog:'
         version: 4.1.2(magicast@0.3.5)
+      chokidar:
+        specifier: 'catalog:'
+        version: 4.0.3
     devDependencies:
       '@dxup/shared':
         specifier: 'workspace:'
         version: link:../shared
+      '@volar/language-core':
+        specifier: 'catalog:'
+        version: 2.4.23
+      '@volar/typescript':
+        specifier: 'catalog:'
+        version: 2.4.23
       '@vue/language-core':
         specifier: 'catalog:'
         version: 3.0.8(typescript@5.9.2)
@@ -1508,6 +1526,9 @@ packages:
 
   '@volar/source-map@2.4.23':
     resolution: {integrity: sha512-Z1Uc8IB57Lm6k7q6KIDu/p+JWtf3xsXJqAX/5r18hYOTpJyBn0KXUR8oTJ4WFYOcDzWC9n3IflGgHowx6U6z9Q==}
+
+  '@volar/typescript@2.4.23':
+    resolution: {integrity: sha512-lAB5zJghWxVPqfcStmAP1ZqQacMpe90UrP5RJ3arDyrhy4aCUQqmxPPLB2PWDKugvylmO41ljK7vZ+t6INMTag==}
 
   '@vue-macros/common@3.0.0-beta.16':
     resolution: {integrity: sha512-8O2gWxWFiaoNkk7PGi0+p7NPGe/f8xJ3/INUufvje/RZOs7sJvlI1jnR4lydtRFa/mU0ylMXUXXjSK0fHDEYTA==}
@@ -5839,6 +5860,12 @@ snapshots:
       '@volar/source-map': 2.4.23
 
   '@volar/source-map@2.4.23': {}
+
+  '@volar/typescript@2.4.23':
+    dependencies:
+      '@volar/language-core': 2.4.23
+      path-browserify: 1.0.1
+      vscode-uri: 3.1.0
 
   '@vue-macros/common@3.0.0-beta.16(vue@3.5.22(typescript@5.9.2))':
     dependencies:
