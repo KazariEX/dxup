@@ -308,7 +308,7 @@ function getEditsForFileRename(
 
         const program = info.languageService.getProgram()!;
         const changes: ts.FileTextChanges[] = [];
-        const references: ComponentReferenceInfo[] = [];
+        const references: Record<string, ComponentReferenceInfo[]> = {};
 
         for (const change of result) {
             const { fileName, textChanges } = change;
@@ -348,18 +348,17 @@ function getEditsForFileRename(
                         ts.isIdentifier(node.type.typeName) &&
                         node.type.typeName.text === "LazyComponent";
 
-                    references.push(
-                        ...symbols?.flatMap(
-                            ({ references }) => references.filter((ref) => !ref.isDefinition).map((ref) => {
-                                const { fileName, textSpan } = ref;
-                                return {
-                                    fileName,
-                                    textSpan: toSourceSpan(context.language, fileName, textSpan) ?? textSpan,
-                                    lazy: lazy || void 0,
-                                };
-                            }),
-                        ) ?? [],
-                    );
+                    for (const reference of symbols?.flatMap(({ references }) => references) ?? []) {
+                        if (reference.isDefinition) {
+                            continue;
+                        }
+
+                        const { fileName, textSpan } = reference;
+                        (references[fileName] ??= []).push({
+                            textSpan: toSourceSpan(context.language, fileName, textSpan) ?? textSpan,
+                            lazy: lazy || void 0,
+                        });
+                    }
                 }
             }
 
@@ -368,7 +367,7 @@ function getEditsForFileRename(
             }
         }
 
-        if (references.length) {
+        if (Object.keys(references).length) {
             server.write("components:rename", {
                 fileName: args[1],
                 references,

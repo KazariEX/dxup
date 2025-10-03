@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import type { Nuxt } from "nuxt/schema";
-import type { ComponentReferenceInfo, EventMap } from "../event/types";
+import type { EventMap } from "../event/types";
 
 const uppercaseRE = /[A-Z]/;
 
@@ -8,11 +8,6 @@ export async function onComponentsRename(
     nuxt: Nuxt,
     { fileName, references }: EventMap["components:rename"][0],
 ) {
-    const groups: Record<string, ComponentReferenceInfo[]> = {};
-    for (const reference of references) {
-        (groups[reference.fileName] ??= []).push(reference);
-    }
-
     const component = Object.values(nuxt.apps)
         .flatMap((app) => app.components)
         .find((c) => c.filePath === fileName);
@@ -20,7 +15,7 @@ export async function onComponentsRename(
         return;
     }
 
-    const tasks = Object.entries(groups).map(async ([fileName, references]) => {
+    const tasks = Object.entries(references).map(async ([fileName, references]) => {
         const code = await readFile(fileName, "utf-8");
         const chunks: string[] = [];
         let offset = 0;
