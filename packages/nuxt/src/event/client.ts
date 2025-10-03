@@ -6,6 +6,8 @@ import { watch } from "chokidar";
 import type { Nuxt } from "nuxt/schema";
 import type { EventMap } from "./types";
 
+const responseRE = /^```json \{(?<key>.*)\}\n(?<value>[\s\S]*?)\n```$/;
+
 export async function createEventClient(nuxt: Nuxt) {
     const path = join(nuxt.options.buildDir, "dxup/events.md");
     await mkdir(dirname(path), { recursive: true });
@@ -32,10 +34,10 @@ export async function createEventClient(nuxt: Nuxt) {
         offset = stats.size;
 
         const buffer = Buffer.alloc(offset - pos);
-        const result = await fd.read(buffer, 0, buffer.length, pos);
-        const text = result.buffer.toString("utf-8", 0, result.bytesRead).trim();
+        await fd.read(buffer, 0, buffer.length, pos);
+        const text = buffer.toString("utf-8").trim();
 
-        const match = text.match(/^```json \{(?<key>.*)\}\n(?<value>[\s\S]*?)\n```$/);
+        const match = text.match(responseRE);
         if (match) {
             const { key, value } = match.groups!;
             // @ts-expect-error [any] cannot satisfies never

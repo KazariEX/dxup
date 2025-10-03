@@ -2,6 +2,8 @@ import { readFile, writeFile } from "node:fs/promises";
 import type { Nuxt } from "nuxt/schema";
 import type { ComponentReferenceInfo, EventMap } from "../event/types";
 
+const uppercaseRE = /[A-Z]/;
+
 export async function onComponentsRename(
     nuxt: Nuxt,
     { fileName, references }: EventMap["components:rename"][0],
@@ -30,7 +32,7 @@ export async function onComponentsRename(
             const start = textSpan.start;
             const end = start + textSpan.length;
             const oldName = code.slice(start, end);
-            const newName = /[A-Z]/.test(oldName)
+            const newName = uppercaseRE.test(oldName)
                 ? lazy ? "Lazy" + component.pascalName : component.pascalName
                 : lazy ? "lazy-" + component.kebabName : component.kebabName;
             chunks.push(code.slice(offset, start), newName);
