@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { addTemplate, defineNuxtModule } from "@nuxt/kit";
 import * as packageJson from "../../package.json";
 import { createEventClient } from "../event/client";
+import type { ComponentReferenceInfo } from "../event/types";
 
 interface Plugin {
     name: string;
@@ -61,7 +62,7 @@ export default defineNuxtModule<ModuleOptions>({
         const client = await createEventClient(nuxt);
 
         client.on("components:rename", async ({ fileName, references }) => {
-            const groups = new Map<string, typeof references>();
+            const groups = new Map<string, ComponentReferenceInfo[]>();
             for (const reference of references) {
                 let group = groups.get(reference.fileName);
                 if (!group) {

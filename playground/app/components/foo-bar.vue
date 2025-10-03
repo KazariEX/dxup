@@ -1,3 +1,5 @@
 <script lang="ts" setup>
-    void 0;
+    import { FooBar } from "#components";
+
+    void FooBar;
 </script>

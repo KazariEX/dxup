@@ -5,6 +5,7 @@ import { forEachNode, walkNodes } from "@dxup/shared";
 import type { Language } from "@volar/language-core";
 import type ts from "typescript";
 import { createEventServer } from "../event/server";
+import type { ComponentReferenceInfo } from "../event/types";
 
 interface Data {
     buildDir: string;
@@ -305,23 +306,34 @@ function getEditsForFileRename(
 
         const program = info.languageService.getProgram()!;
         const changes: ts.FileTextChanges[] = [];
+        const references: ComponentReferenceInfo[] = [];
 
         for (const change of result) {
             const { fileName, textChanges } = change;
 
-            if (fileName.endsWith("types/components.d.ts")) {
+            if (fileName.endsWith("components.d.ts")) {
                 const sourceFile = program.getSourceFile(fileName);
                 if (!sourceFile) {
                     continue;
                 }
 
-                const references: Pick<ts.ReferencedSymbolEntry, "fileName" | "textSpan">[] = [];
-
-                for (const node of forEachNode(ts, sourceFile)) {
-                    if (!ts.isPropertySignature(node)) {
-                        continue;
+                const nodes: (ts.PropertySignature | ts.VariableDeclaration)[] = [];
+                if (fileName.endsWith("types/components.d.ts")) {
+                    for (const node of forEachNode(ts, sourceFile)) {
+                        if (ts.isPropertySignature(node)) {
+                            nodes.push(node);
+                        }
                     }
+                }
+                else {
+                    for (const node of forEachNode(ts, sourceFile)) {
+                        if (ts.isVariableDeclaration(node)) {
+                            nodes.push(node);
+                        }
+                    }
+                }
 
+                for (const node of nodes) {
                     const start = node.getStart(sourceFile);
                     const end = node.getEnd();
                     if (textChanges.every(({ span }) => span.start < start || span.start + span.length > end)) {
@@ -347,17 +359,18 @@ function getEditsForFileRename(
                         ) ?? [],
                     );
                 }
-                if (references.length) {
-                    server.write("components:rename", {
-                        fileName: args[1],
-                        references,
-                    });
-                }
             }
 
             if (!fileName.startsWith(data.buildDir)) {
                 changes.push(change);
             }
+        }
+
+        if (references.length) {
+            server.write("components:rename", {
+                fileName: args[1],
+                references,
+            });
         }
 
         return changes;
@@ -378,11 +391,8 @@ function toSourceSpan(language: Language | undefined, fileName: string, textSpan
     }
 
     const map = language!.maps.get(serviceScript.code, sourceScript);
-    if (!map) {
-        return;
-    }
-
     const leadingOffset = sourceScript.snapshot.getLength();
+
     // eslint-disable-next-line no-unreachable-loop
     for (const [start, end] of map.toSourceRange(
         textSpan.start - leadingOffset,
