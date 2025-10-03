@@ -8,13 +8,9 @@ export async function onComponentsRename(
     nuxt: Nuxt,
     { fileName, references }: EventMap["components:rename"][0],
 ) {
-    const groups = new Map<string, ComponentReferenceInfo[]>();
+    const groups: Record<string, ComponentReferenceInfo[]> = {};
     for (const reference of references) {
-        let group = groups.get(reference.fileName);
-        if (!group) {
-            groups.set(reference.fileName, group = []);
-        }
-        group.push(reference);
+        (groups[reference.fileName] ??= []).push(reference);
     }
 
     const component = Object.values(nuxt.apps)
@@ -24,7 +20,7 @@ export async function onComponentsRename(
         return;
     }
 
-    for (const [fileName, references] of groups) {
+    const tasks = Object.entries(groups).map(async ([fileName, references]) => {
         const code = await readFile(fileName, "utf-8");
         const chunks: string[] = [];
         let offset = 0;
@@ -40,5 +36,7 @@ export async function onComponentsRename(
         }
         chunks.push(code.slice(offset));
         await writeFile(fileName, chunks.join(""));
-    }
+    });
+
+    await Promise.all(tasks);
 }
