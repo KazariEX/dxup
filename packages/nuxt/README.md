@@ -8,9 +8,9 @@ This is a collection of TypeScript and Vue plugins that improves Nuxt DX.
 
 ## Features
 
+- Update references when renaming auto imported component files
 - Go to definition for nitro routes in data fetching methods within Vue files
 - Go to definition for runtime config
-- Skip file rename edits within `.nuxt`
 - [@dxup/unimport](/packages/unimport)
 
 ## Installation
