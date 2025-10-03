@@ -13,6 +13,7 @@
     "@zinkawaii/tsconfig": "catalog:",
     "bumpp": "catalog:",
     "eslint": "catalog:",
+    "pathe": "catalog:",
     "tsdown": "catalog:",
     "zx": "catalog:"
   }

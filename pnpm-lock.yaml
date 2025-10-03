@@ -39,6 +39,9 @@ catalogs:
     nuxt:
       specifier: ^4.1.2
       version: 4.1.2
+    pathe:
+      specifier: 2.0.3
+      version: 2.0.3
     tsdown:
       specifier: ^0.15.4
       version: 0.15.4
@@ -74,6 +77,9 @@ importers:
       eslint:
         specifier: 'catalog:'
         version: 9.36.0(jiti@2.6.0)
+      pathe:
+        specifier: 'catalog:'
+        version: 2.0.3
       tsdown:
         specifier: 'catalog:'
         version: 0.15.4(typescript@5.9.2)
@@ -92,6 +98,9 @@ importers:
       chokidar:
         specifier: 'catalog:'
         version: 4.0.3
+      pathe:
+        specifier: 'catalog:'
+        version: 2.0.3
     devDependencies:
       '@dxup/shared':
         specifier: 'workspace:'

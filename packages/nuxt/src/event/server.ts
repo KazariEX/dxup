@@ -1,5 +1,5 @@
 import { appendFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join } from "pathe";
 import type ts from "typescript";
 import type { EventMap } from "./types";
 

@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import { versionBump } from "bumpp";
+import { join } from "pathe";
 
 const path = join(process.cwd(), "package.json");
 const text = await readFile(path, "utf-8");

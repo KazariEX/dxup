@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { resolve } from "pathe";
 import { $ } from "zx";
 
 const tag = process.env.GITHUB_REF_NAME!;

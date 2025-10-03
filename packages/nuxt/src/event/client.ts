@@ -1,8 +1,8 @@
 import { Buffer } from "node:buffer";
 import EventEmitter from "node:events";
 import { mkdir, open, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
 import { watch } from "chokidar";
+import { dirname, join } from "pathe";
 import type { Nuxt } from "nuxt/schema";
 import type { EventMap } from "./types";
 

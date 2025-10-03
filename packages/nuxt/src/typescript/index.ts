@@ -1,7 +1,7 @@
 /// <reference types="@volar/typescript"/>
 
-import { join } from "node:path";
 import { forEachNode, walkNodes } from "@dxup/shared";
+import { join } from "pathe";
 import type { Language } from "@volar/language-core";
 import type ts from "typescript";
 import { createEventServer } from "../event/server";
