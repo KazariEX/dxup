@@ -10,6 +10,7 @@ interface Plugin {
 }
 
 export interface ModuleOptions {
+    components?: boolean;
     nitroRoutes?: boolean;
     runtimeConfig?: boolean;
     unimport?: boolean;
@@ -21,6 +22,7 @@ export default defineNuxtModule<ModuleOptions>({
         configKey: "dxup",
     },
     defaults: {
+        components: true,
         nitroRoutes: true,
         runtimeConfig: true,
         unimport: true,
@@ -52,6 +54,7 @@ export default defineNuxtModule<ModuleOptions>({
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
+                    components: options.components,
                     nitroRoutes: options.nitroRoutes,
                     runtimeConfig: options.runtimeConfig,
                 };

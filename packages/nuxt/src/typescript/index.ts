@@ -10,6 +10,7 @@ import type { ComponentReferenceInfo } from "../event/types";
 interface Data {
     buildDir: string;
     configFiles: string[];
+    components: boolean;
     nitroRoutes: boolean;
     runtimeConfig: boolean;
 }
@@ -32,6 +33,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
             const data: Data = {
                 buildDir: currentDirectory,
                 configFiles: [],
+                components: true,
                 nitroRoutes: true,
                 runtimeConfig: true,
                 ...JSON.parse(
@@ -311,7 +313,7 @@ function getEditsForFileRename(
         for (const change of result) {
             const { fileName, textChanges } = change;
 
-            if (fileName.endsWith("components.d.ts")) {
+            if (data.components && fileName.endsWith("components.d.ts")) {
                 const sourceFile = program.getSourceFile(fileName);
                 if (!sourceFile) {
                     continue;
