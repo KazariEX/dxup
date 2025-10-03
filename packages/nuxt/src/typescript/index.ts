@@ -46,7 +46,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
             setTimeout(() => {
                 // eslint-disable-next-line dot-notation
                 context.language = ((info.project as any).__vue__ ?? info.project["program"]?.__vue__)?.language;
-            }, 1000);
+            }, 500);
 
             for (const [key, method] of [
                 ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, context)],
