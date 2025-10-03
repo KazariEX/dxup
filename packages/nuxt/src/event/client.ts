@@ -40,7 +40,7 @@ export async function createEventClient(nuxt: Nuxt) {
         const match = text.match(responseRE);
         if (match) {
             const { key, value } = match.groups!;
-            // @ts-expect-error [any] cannot satisfies never
+            // @ts-expect-error [any] cannot satisfy never
             client.emit(key, JSON.parse(value));
         }
     });
