@@ -353,18 +353,16 @@ function getEditsForFileRename(
                         continue;
                     }
 
-                    const symbols = info.languageService.findReferences(fileName, start);
+                    const position = node.name.getStart(sourceFile);
+                    const res = info.languageService.getReferencesAtPosition(fileName, position)
+                        ?.filter((entry) => !entry.fileName.startsWith(data.buildDir));
+
                     const lazy = node.type &&
                         ts.isTypeReferenceNode(node.type) &&
                         ts.isIdentifier(node.type.typeName) &&
                         node.type.typeName.text === "LazyComponent";
 
-                    for (const reference of symbols?.flatMap(({ references }) => references) ?? []) {
-                        if (reference.isDefinition) {
-                            continue;
-                        }
-
-                        const { fileName, textSpan } = reference;
+                    for (const { fileName, textSpan } of res ?? []) {
                         (references[fileName] ??= []).push({
                             textSpan: toSourceSpan(context.language, fileName, textSpan) ?? textSpan,
                             lazy: lazy || void 0,
