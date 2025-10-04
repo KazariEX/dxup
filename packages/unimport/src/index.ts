@@ -78,9 +78,8 @@ function findReferences(
         }
 
         const program = info.languageService.getProgram()!;
-        const symbols = [...result];
 
-        for (const symbol of symbols) {
+        for (const symbol of result) {
             const references = new Set(symbol.references);
 
             for (const reference of symbol.references) {
