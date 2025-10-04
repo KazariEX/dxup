@@ -8,6 +8,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
         create(info) {
             for (const [key, method] of [
                 ["findRenameLocations", findRenameLocations.bind(null, ts, info)],
+                ["findReferences", findReferences.bind(null, ts, info)],
                 ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, ts, info)],
             ] as const) {
                 const original = info.languageService[key];
@@ -59,6 +60,53 @@ function findRenameLocations(
         }
 
         return locations;
+    };
+}
+
+function findReferences(
+    ts: typeof import("typescript"),
+    info: ts.server.PluginCreateInfo,
+    findReferences: ts.LanguageService["findReferences"],
+): ts.LanguageService["findReferences"] {
+    return (...args) => {
+        const result = findReferences(...args);
+        if (!result?.length) {
+            return result;
+        }
+
+        const program = info.languageService.getProgram()!;
+        const symbols = [...result];
+
+        for (const symbol of symbols) {
+            const references = [];
+
+            for (const reference of symbol.references) {
+                const sourceFile = program.getSourceFile(reference.fileName);
+                if (!sourceFile) {
+                    continue;
+                }
+
+                if (!declarationRE.test(reference.fileName)) {
+                    continue;
+                }
+
+                const positions = visitImports(ts, reference.textSpan, sourceFile);
+                const result = [...positions].flatMap((pos) => {
+                    const entries = info.languageService.getReferencesAtPosition(reference.fileName, pos);
+                    return entries?.filter((entry) => entry.textSpan.start !== pos) ?? [];
+                });
+
+                if (result.length) {
+                    references.push(...result);
+                }
+                else {
+                    references.push(reference);
+                }
+            }
+            symbol.references = references;
+        }
+
+        return result;
     };
 }
 
@@ -120,17 +168,13 @@ function visitImports(
     for (const node of forEachNode(ts, sourceFile)) {
         let pos: number | undefined;
 
-        if (ts.isBindingElement(node)) {
-            const name = node.propertyName ?? node.name;
-            if (ts.isIdentifier(name)) {
-                pos = proxyBindingElement(name, textSpan, sourceFile);
-            }
-        }
-        else if (ts.isPropertySignature(node) && node.type) {
-            pos = proxyTypeofImport(ts, node.name, node.type, textSpan, sourceFile);
+        if (ts.isPropertySignature(node) && node.type) {
+            const args = [ts, node.name, node.type, textSpan, sourceFile] as const;
+            pos = forwardTypeofImport(...args) ?? backwardTypeofImport(...args);
         }
         else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.type) {
-            pos = proxyTypeofImport(ts, node.name, node.type, textSpan, sourceFile);
+            const args = [ts, node.name, node.type, textSpan, sourceFile] as const;
+            pos = forwardTypeofImport(...args) ?? backwardTypeofImport(...args);
         }
 
         if (pos !== void 0) {
@@ -142,22 +186,7 @@ function visitImports(
     return positions;
 }
 
-function proxyBindingElement(
-    name: ts.Identifier,
-    textSpan: ts.TextSpan,
-    sourceFile: ts.SourceFile,
-) {
-    const start = name.getStart(sourceFile);
-    const end = name.getEnd();
-
-    if (start !== textSpan.start || end - start !== textSpan.length) {
-        return;
-    }
-
-    return name.getStart(sourceFile);
-}
-
-function proxyTypeofImport(
+function forwardTypeofImport(
     ts: typeof import("typescript"),
     name: ts.PropertyName,
     type: ts.TypeNode,
@@ -175,6 +204,33 @@ function proxyTypeofImport(
         return type.indexType.getStart(sourceFile);
     }
     else if (ts.isImportTypeNode(type)) {
-        return type.argument.getStart(sourceFile);
+        return (type.qualifier ?? type.argument).getStart(sourceFile);
+    }
+}
+
+function backwardTypeofImport(
+    ts: typeof import("typescript"),
+    name: ts.PropertyName,
+    type: ts.TypeNode,
+    textSpan: ts.TextSpan,
+    sourceFile: ts.SourceFile,
+) {
+    let start: number;
+    let end: number;
+
+    if (ts.isIndexedAccessTypeNode(type)) {
+        start = type.indexType.getStart(sourceFile);
+        end = type.indexType.getEnd();
+    }
+    else if (ts.isImportTypeNode(type)) {
+        start = (type.qualifier ?? type.argument).getStart(sourceFile);
+        end = (type.qualifier ?? type.argument).getEnd();
+    }
+    else {
+        return;
+    }
+
+    if (start === textSpan.start && end - start === textSpan.length) {
+        return name.getStart(sourceFile);
     }
 }
