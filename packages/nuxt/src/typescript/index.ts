@@ -94,7 +94,6 @@ function getDefinitionAndBoundSpan(
 
         const program = info.languageService.getProgram()!;
         const definitions = new Set<ts.DefinitionInfo>(result.definitions);
-        const skippedDefinitions: ts.DefinitionInfo[] = [];
 
         for (const definition of result.definitions) {
             const sourceFile = program.getSourceFile(definition.fileName);
@@ -114,12 +113,8 @@ function getDefinitionAndBoundSpan(
                 for (const definition of result) {
                     definitions.add(definition);
                 }
-                skippedDefinitions.push(definition);
+                definitions.delete(definition);
             }
-        }
-
-        for (const definition of skippedDefinitions) {
-            definitions.delete(definition);
         }
 
         return {
@@ -202,7 +197,7 @@ function visitRuntimeConfig(
 
             if (start === textSpan.start && end - start === textSpan.length) {
                 path.push(key);
-                definitions = [...proxyRuntimeConfig(context, definition, path)];
+                definitions = [...forwardRuntimeConfig(context, definition, path)];
                 return;
             }
         }
@@ -219,7 +214,7 @@ function visitRuntimeConfig(
     return definitions;
 }
 
-function* proxyRuntimeConfig(
+function* forwardRuntimeConfig(
     context: Context,
     definition: ts.DefinitionInfo,
     path: string[],
@@ -324,7 +319,6 @@ function getEditsForFileRename(
         }
 
         const program = info.languageService.getProgram()!;
-        const changes: ts.FileTextChanges[] = [];
         const references: Record<string, ComponentReferenceInfo[]> = {};
 
         for (const change of result) {
@@ -378,10 +372,6 @@ function getEditsForFileRename(
                     }
                 }
             }
-
-            if (!fileName.startsWith(data.buildDir)) {
-                changes.push(change);
-            }
         }
 
         if (Object.keys(references).length) {
@@ -391,7 +381,9 @@ function getEditsForFileRename(
             });
         }
 
-        return changes;
+        return result.filter((change) => {
+            return !change.fileName.startsWith(data.buildDir);
+        });
     };
 }
 
