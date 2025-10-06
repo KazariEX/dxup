@@ -150,6 +150,10 @@ function proxyTypeofImport(
         return;
     }
 
+    while (ts.isTypeReferenceNode(type) && type.typeArguments?.length) {
+        type = type.typeArguments[0];
+    }
+
     if (ts.isIndexedAccessTypeNode(type)) {
         return type.indexType.getStart(sourceFile);
     }
