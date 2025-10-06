@@ -197,6 +197,10 @@ function forwardTypeofImport(
         return;
     }
 
+    while (ts.isTypeReferenceNode(type) && type.typeArguments?.length) {
+        type = type.typeArguments[0];
+    }
+
     if (ts.isIndexedAccessTypeNode(type)) {
         return type.indexType;
     }
@@ -212,6 +216,10 @@ function backwardTypeofImport(
     textSpan: ts.TextSpan,
     sourceFile: ts.SourceFile,
 ) {
+    while (ts.isTypeReferenceNode(type) && type.typeArguments?.length) {
+        type = type.typeArguments[0];
+    }
+
     let start: number;
     let end: number;
 
