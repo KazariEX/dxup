@@ -120,13 +120,7 @@ function visitImports(
     for (const node of forEachNode(ts, sourceFile)) {
         let pos: number | undefined;
 
-        if (ts.isBindingElement(node)) {
-            const name = node.propertyName ?? node.name;
-            if (ts.isIdentifier(name)) {
-                pos = proxyBindingElement(name, textSpan, sourceFile);
-            }
-        }
-        else if (ts.isPropertySignature(node) && node.type) {
+        if (ts.isPropertySignature(node) && node.type) {
             pos = proxyTypeofImport(ts, node.name, node.type, textSpan, sourceFile);
         }
         else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.type) {
@@ -140,21 +134,6 @@ function visitImports(
     }
 
     return positions;
-}
-
-function proxyBindingElement(
-    name: ts.Identifier,
-    textSpan: ts.TextSpan,
-    sourceFile: ts.SourceFile,
-) {
-    const start = name.getStart(sourceFile);
-    const end = name.getEnd();
-
-    if (start !== textSpan.start || end - start !== textSpan.length) {
-        return;
-    }
-
-    return name.getStart(sourceFile);
 }
 
 function proxyTypeofImport(
