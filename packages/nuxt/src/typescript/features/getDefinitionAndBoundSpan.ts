@@ -1,15 +1,85 @@
 import { forEachTouchNode } from "@dxup/shared";
+import { join } from "pathe";
 import type ts from "typescript";
 import type { Context } from "../types";
+
+const fetchFunctions = new Set([
+    "$fetch",
+    "useFetch",
+    "useLazyFetch",
+]);
+
+const nonApiRE = /^(?!\/api)/;
 
 export function getDefinitionAndBoundSpan(
     context: Context,
     getDefinitionAndBoundSpan: ts.LanguageService["getDefinitionAndBoundSpan"],
 ): ts.LanguageService["getDefinitionAndBoundSpan"] {
-    const { info, data } = context;
+    const { ts, info, data } = context;
 
     return (...args) => {
         const result = getDefinitionAndBoundSpan(...args);
+
+        if (!result && data.nitroRoutes) {
+            const program = info.languageService.getProgram()!;
+            const sourceFile = program.getSourceFile(args[0]);
+            if (!sourceFile) {
+                return;
+            }
+
+            const checker = program.getTypeChecker();
+            for (const node of forEachTouchNode(ts, sourceFile, args[1])) {
+                if (
+                    !ts.isCallExpression(node) ||
+                    !ts.isIdentifier(node.expression) ||
+                    !fetchFunctions.has(node.expression.text) ||
+                    !node.arguments.length
+                ) {
+                    continue;
+                }
+
+                const firstArg = node.arguments[0];
+                const start = firstArg.getStart(sourceFile);
+                const end = firstArg.getEnd();
+
+                if (args[1] < start || args[1] > end) {
+                    continue;
+                }
+
+                const resolvedSignature = checker.getResolvedSignature(node);
+                if (!resolvedSignature) {
+                    break;
+                }
+
+                const typeArguments = checker.getTypeArgumentsForResolvedSignature(resolvedSignature);
+                const routeType = typeArguments?.[2];
+                const methodtype = typeArguments?.[3];
+                if (!routeType?.isStringLiteral() || !methodtype?.isStringLiteral()) {
+                    break;
+                }
+
+                const route = routeType.value.replace(nonApiRE, "/routes");
+                const method = methodtype.value;
+                const path = join(data.serverDir, `${route}.${method}.ts`);
+
+                return {
+                    textSpan: {
+                        start,
+                        length: end - start,
+                    },
+                    definitions: [{
+                        fileName: path,
+                        textSpan: { start: 0, length: 0 },
+                        kind: ts.ScriptElementKind.scriptElement,
+                        name: path,
+                        containerKind: ts.ScriptElementKind.unknown,
+                        containerName: "",
+                    }],
+                };
+            }
+            return;
+        }
+
         if (!result?.definitions?.length) {
             return result;
         }
@@ -25,10 +95,7 @@ export function getDefinitionAndBoundSpan(
             }
 
             let result: ts.DefinitionInfo[] = [];
-            if (data.nitroRoutes && definition.fileName.endsWith("nitro-routes.d.ts")) {
-                result = visitNitroRoutes(context, sourceFile, definition, getDefinitionAndBoundSpan);
-            }
-            else if (data.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
+            if (data.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
                 result = visitRuntimeConfig(context, sourceFile, definition);
             }
 
@@ -49,54 +116,6 @@ export function getDefinitionAndBoundSpan(
             textSpan: result.textSpan,
         };
     };
-}
-
-function visitNitroRoutes(
-    context: Context,
-    sourceFile: ts.SourceFile,
-    definition: ts.DefinitionInfo,
-    getDefinitionAndBoundSpan: ts.LanguageService["getDefinitionAndBoundSpan"],
-) {
-    const { ts } = context;
-    const definitions: ts.DefinitionInfo[] = [];
-
-    for (const node of forEachTouchNode(ts, sourceFile, definition.textSpan.start)) {
-        if (!ts.isPropertySignature(node) || !node.type || !ts.isTypeLiteralNode(node.type)) {
-            continue;
-        }
-
-        const { textSpan } = definition;
-        const start = node.name.getStart(sourceFile);
-        const end = node.name.getEnd();
-        if (textSpan.start !== start || textSpan.length !== end - start) {
-            continue;
-        }
-
-        for (const member of node.type.members) {
-            if (!ts.isPropertySignature(member)) {
-                continue;
-            }
-
-            const qualifier = (((((
-                member.type as ts.TypeReferenceNode // Simplify<...>
-            )?.typeArguments?.[0] as ts.TypeReferenceNode // Serialize<...>
-            )?.typeArguments?.[0] as ts.TypeReferenceNode // Awaited<...>
-            )?.typeArguments?.[0] as ts.TypeReferenceNode // ReturnType<...>
-            )?.typeArguments?.[0] as ts.ImportTypeNode // typeof import("...").default
-            )?.qualifier;
-
-            const pos = qualifier?.getStart(sourceFile);
-            if (pos !== void 0) {
-                const res = getDefinitionAndBoundSpan(definition.fileName, pos);
-                if (res?.definitions?.length) {
-                    definitions.push(...res.definitions);
-                }
-            }
-        }
-        break;
-    }
-
-    return definitions;
 }
 
 function visitRuntimeConfig(

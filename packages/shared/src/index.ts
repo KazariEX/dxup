@@ -1,31 +1,23 @@
 import type ts from "typescript";
 
-export function* forEachNode(
-    ts: typeof import("typescript"),
-    node: ts.Node,
-): Generator<ts.Node> {
-    yield node;
-    const children = getChildren(ts, node);
-    for (const child of children) {
-        yield* forEachNode(ts, child);
-    }
-}
-
 export function* forEachTouchNode(
     ts: typeof import("typescript"),
     sourceFile: ts.SourceFile,
     position: number,
 ) {
-    yield* binaryForEach(ts, sourceFile, sourceFile, position);
+    yield* binaryVisit(ts, sourceFile, sourceFile, position);
 }
 
-function* binaryForEach(
+function* binaryVisit(
     ts: typeof import("typescript"),
     sourceFile: ts.SourceFile,
     node: ts.Node,
     position: number,
 ): Generator<ts.Node> {
-    const nodes = getChildren(ts, node);
+    const nodes: ts.Node[] = [];
+    ts.forEachChild(node, (child) => {
+        nodes.push(child);
+    });
 
     let left = 0;
     let right = nodes.length - 1;
@@ -44,19 +36,8 @@ function* binaryForEach(
         }
         else {
             yield node;
-            yield* binaryForEach(ts, sourceFile, node, position);
+            yield* binaryVisit(ts, sourceFile, node, position);
             return;
         }
     }
-}
-
-function getChildren(
-    ts: typeof import("typescript"),
-    node: ts.Node,
-) {
-    const children: ts.Node[] = [];
-    ts.forEachChild(node, (child) => {
-        children.push(child);
-    });
-    return children;
 }
