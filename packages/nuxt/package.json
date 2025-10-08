@@ -9,7 +9,6 @@
   "repository": "KazariEX/dxup",
   "exports": {
     ".": "./dist/module.js",
-    "./vue/nitro-routes": "./dist/vue/nitro-routes.cjs",
     "./package.json": "./package.json"
   },
   "main": "./dist/typescript.cjs",

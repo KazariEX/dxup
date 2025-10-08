@@ -28,11 +28,7 @@ export default defineNuxtModule<ModuleOptions>({
     },
     async setup(options, nuxt) {
         const pluginsTs: Plugin[] = [{ name: "@dxup/nuxt" }];
-        const pluginsVue: string[] = [];
 
-        if (options.nitroRoutes) {
-            pluginsVue.push("@dxup/nuxt/vue/nitro-routes");
-        }
         if (options.unimport) {
             pluginsTs.unshift({ name: "@dxup/unimport" });
         }
@@ -41,7 +37,6 @@ export default defineNuxtModule<ModuleOptions>({
         append(pluginsTs, nuxt.options.nitro, "typescript", "tsConfig", "compilerOptions");
         append(pluginsTs, nuxt.options, "typescript", "sharedTsConfig", "compilerOptions");
         append(pluginsTs, nuxt.options, "typescript", "nodeTsConfig", "compilerOptions");
-        append(pluginsVue, nuxt.options, "typescript", "tsConfig", "vueCompilerOptions");
 
         addTemplate({
             filename: "dxup/data.json",
@@ -49,6 +44,7 @@ export default defineNuxtModule<ModuleOptions>({
             getContents() {
                 const data = {
                     buildDir: nuxt.options.buildDir,
+                    serverDir: nuxt.options.serverDir,
                     configFiles: [
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),

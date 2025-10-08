@@ -11,6 +11,8 @@
 
     // nitro routes
     useFetch("/api/foo");
+    useFetch("/api/foo", { method: "post" });
+    useFetch("/sitemap");
 </script>
 
 <!-- eslint-disable vue/component-name-in-template-casing -->
