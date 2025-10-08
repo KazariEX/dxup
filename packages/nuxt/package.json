@@ -1,9 +1,9 @@
 {
   "name": "@dxup/nuxt",
   "type": "module",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "packageManager": "pnpm@10.17.1",
-  "description": "TypeScript and Vue plugins for Nuxt",
+  "description": "TypeScript plugins for Nuxt",
   "author": "KazariEX",
   "license": "MIT",
   "repository": "KazariEX/dxup",
