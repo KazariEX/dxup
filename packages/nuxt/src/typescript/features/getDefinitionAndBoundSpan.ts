@@ -9,7 +9,7 @@ const fetchFunctions = new Set([
     "useLazyFetch",
 ]);
 
-const nonApiRE = /^(?!\/api)/;
+const nonApiRE = /^(?!\/api\/)/;
 
 export function getDefinitionAndBoundSpan(
     context: Context,
