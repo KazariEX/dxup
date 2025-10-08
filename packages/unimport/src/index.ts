@@ -1,4 +1,4 @@
-import { forEachNode } from "@dxup/shared";
+import { forEachTouchNode } from "@dxup/shared";
 import type ts from "typescript";
 
 const plugin: ts.server.PluginModuleFactory = (module) => {
@@ -49,12 +49,15 @@ function findRenameLocations(
                 continue;
             }
 
-            const positions = visitImports(ts, location.textSpan, sourceFile);
-            for (const pos of positions) {
-                const res = findRenameLocations(location.fileName, pos, false, false, preferences);
-                if (res?.length) {
-                    locations.push(...res);
-                }
+            const node = visitImports(ts, location.textSpan, sourceFile);
+            if (!node) {
+                continue;
+            }
+
+            const position = node.getStart(sourceFile);
+            const res = findRenameLocations(location.fileName, position, false, false, preferences);
+            if (res?.length) {
+                locations.push(...res);
             }
         }
 
@@ -87,15 +90,18 @@ function getDefinitionAndBoundSpan(
                 continue;
             }
 
-            const positions = visitImports(ts, definition.textSpan, sourceFile);
-            for (const pos of positions) {
-                const res = getDefinitionAndBoundSpan(definition.fileName, pos);
-                if (res?.definitions?.length) {
-                    for (const def of res.definitions) {
-                        definitions.add(def);
-                    }
-                    skippedDefinitions.push(definition);
+            const node = visitImports(ts, definition.textSpan, sourceFile);
+            if (!node) {
+                continue;
+            }
+
+            const position = node.getStart(sourceFile);
+            const res = getDefinitionAndBoundSpan(definition.fileName, position);
+            if (res?.definitions?.length) {
+                for (const def of res.definitions) {
+                    definitions.add(def);
                 }
+                skippedDefinitions.push(definition);
             }
         }
 
@@ -115,28 +121,23 @@ function visitImports(
     textSpan: ts.TextSpan,
     sourceFile: ts.SourceFile,
 ) {
-    const positions = new Set<number>();
-
-    for (const node of forEachNode(ts, sourceFile)) {
-        let pos: number | undefined;
+    for (const node of forEachTouchNode(ts, sourceFile, textSpan.start)) {
+        let target: ts.Node | undefined;
 
         if (ts.isPropertySignature(node) && node.type) {
-            pos = proxyTypeofImport(ts, node.name, node.type, textSpan, sourceFile);
+            target = forwardTypeofImport(ts, node.name, node.type, textSpan, sourceFile);
         }
         else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.type) {
-            pos = proxyTypeofImport(ts, node.name, node.type, textSpan, sourceFile);
+            target = forwardTypeofImport(ts, node.name, node.type, textSpan, sourceFile);
         }
 
-        if (pos !== void 0) {
-            positions.add(pos);
-            break;
+        if (target) {
+            return target;
         }
     }
-
-    return positions;
 }
 
-function proxyTypeofImport(
+function forwardTypeofImport(
     ts: typeof import("typescript"),
     name: ts.PropertyName,
     type: ts.TypeNode,
@@ -155,9 +156,9 @@ function proxyTypeofImport(
     }
 
     if (ts.isIndexedAccessTypeNode(type)) {
-        return type.indexType.getStart(sourceFile);
+        return type.indexType;
     }
     else if (ts.isImportTypeNode(type)) {
-        return type.argument.getStart(sourceFile);
+        return type.argument;
     }
 }
