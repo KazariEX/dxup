@@ -99,7 +99,9 @@ function findReferences(
 
                 const position = node.getStart(sourceFile);
                 const res = info.languageService.getReferencesAtPosition(reference.fileName, position)
-                    ?.filter((entry) => entry.textSpan.start !== position);
+                    ?.filter((entry) => entry.fileName !== reference.fileName ||
+                        position < entry.textSpan.start ||
+                        position > entry.textSpan.start + entry.textSpan.length);
 
                 if (res?.length) {
                     for (const reference of res) {
