@@ -1,6 +1,6 @@
 /// <reference types="@volar/typescript"/>
 
-import { forEachNode, walkNodes } from "@dxup/shared";
+import { forEachTouchNode } from "@dxup/shared";
 import { join } from "pathe";
 import type { Language } from "@volar/language-core";
 import type ts from "typescript";
@@ -133,7 +133,7 @@ function visitNitroRoutes(
     const { ts } = context;
     const definitions: ts.DefinitionInfo[] = [];
 
-    for (const node of forEachNode(ts, sourceFile)) {
+    for (const node of forEachTouchNode(ts, sourceFile, definition.textSpan.start)) {
         if (!ts.isPropertySignature(node) || !node.type || !ts.isTypeLiteralNode(node.type)) {
             continue;
         }
@@ -141,8 +141,7 @@ function visitNitroRoutes(
         const { textSpan } = definition;
         const start = node.name.getStart(sourceFile);
         const end = node.name.getEnd();
-
-        if (start !== textSpan.start || end - start !== textSpan.length) {
+        if (textSpan.start !== start || textSpan.length !== end - start) {
             continue;
         }
 
@@ -183,7 +182,7 @@ function visitRuntimeConfig(
     let definitions: ts.DefinitionInfo[] = [];
     const path: string[] = [];
 
-    walkNodes(ts, sourceFile, (node, next) => {
+    for (const node of forEachTouchNode(ts, sourceFile, definition.textSpan.start)) {
         let key: string | undefined;
         if (ts.isInterfaceDeclaration(node) && ts.isIdentifier(node.name)) {
             key = node.name.text;
@@ -198,18 +197,14 @@ function visitRuntimeConfig(
             if (start === textSpan.start && end - start === textSpan.length) {
                 path.push(key);
                 definitions = [...forwardRuntimeConfig(context, definition, path)];
-                return;
+                break;
             }
         }
 
         if (key !== void 0) {
             path.push(key);
         }
-        next();
-        if (key !== void 0) {
-            path.pop();
-        }
-    });
+    }
 
     return definitions;
 }
@@ -330,43 +325,28 @@ function getEditsForFileRename(
                     continue;
                 }
 
-                const nodes: (ts.PropertySignature | ts.VariableDeclaration)[] = [];
-                if (fileName.endsWith("types/components.d.ts")) {
-                    for (const node of forEachNode(ts, sourceFile)) {
-                        if (ts.isPropertySignature(node)) {
-                            nodes.push(node);
+                for (const { span } of textChanges) {
+                    for (const node of forEachTouchNode(ts, sourceFile, span.start)) {
+                        if (!ts.isPropertySignature(node) && !ts.isVariableDeclaration(node)) {
+                            continue;
                         }
-                    }
-                }
-                else {
-                    for (const node of forEachNode(ts, sourceFile)) {
-                        if (ts.isVariableDeclaration(node)) {
-                            nodes.push(node);
+
+                        const position = node.name.getStart(sourceFile);
+                        const res = info.languageService.getReferencesAtPosition(fileName, position)
+                            ?.filter((entry) => !entry.fileName.startsWith(data.buildDir));
+
+                        const lazy = node.type &&
+                            ts.isTypeReferenceNode(node.type) &&
+                            ts.isIdentifier(node.type.typeName) &&
+                            node.type.typeName.text === "LazyComponent";
+
+                        for (const { fileName, textSpan } of res ?? []) {
+                            (references[fileName] ??= []).push({
+                                textSpan: toSourceSpan(context.language, fileName, textSpan) ?? textSpan,
+                                lazy: lazy || void 0,
+                            });
                         }
-                    }
-                }
-
-                for (const node of nodes) {
-                    const start = node.getStart(sourceFile);
-                    const end = node.getEnd();
-                    if (textChanges.every(({ span }) => span.start < start || span.start + span.length > end)) {
-                        continue;
-                    }
-
-                    const position = node.name.getStart(sourceFile);
-                    const res = info.languageService.getReferencesAtPosition(fileName, position)
-                        ?.filter((entry) => !entry.fileName.startsWith(data.buildDir));
-
-                    const lazy = node.type &&
-                        ts.isTypeReferenceNode(node.type) &&
-                        ts.isIdentifier(node.type.typeName) &&
-                        node.type.typeName.text === "LazyComponent";
-
-                    for (const { fileName, textSpan } of res ?? []) {
-                        (references[fileName] ??= []).push({
-                            textSpan: toSourceSpan(context.language, fileName, textSpan) ?? textSpan,
-                            lazy: lazy || void 0,
-                        });
+                        break;
                     }
                 }
             }
