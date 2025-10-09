@@ -9,8 +9,8 @@ This is a TypeScript plugin that reduces user friction when using navigation fea
 ## Features
 
 - [x] Go to Definition
-- [ ] Go to References
-- [ ] Rename Symbol (WIP)
+- [x] Go to References
+- [x] Rename Symbol
 
 ## Installation
 

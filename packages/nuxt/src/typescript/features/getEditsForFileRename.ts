@@ -17,7 +17,6 @@ export function getEditsForFileRename(
         }
 
         const program = info.languageService.getProgram()!;
-        const changes: ts.FileTextChanges[] = [];
         const references: Record<string, ComponentReferenceInfo[]> = {};
 
         for (const change of result) {
@@ -54,10 +53,6 @@ export function getEditsForFileRename(
                     }
                 }
             }
-
-            if (!fileName.startsWith(data.buildDir)) {
-                changes.push(change);
-            }
         }
 
         if (Object.keys(references).length) {
@@ -67,6 +62,8 @@ export function getEditsForFileRename(
             });
         }
 
-        return changes;
+        return result.filter((change) => {
+            return !change.fileName.startsWith(data.buildDir);
+        });
     };
 }
