@@ -1,4 +1,4 @@
-import { forEachTouchNode } from "@dxup/shared";
+import { forEachTouchingNode } from "@dxup/shared";
 import { join } from "pathe";
 import type ts from "typescript";
 import type { Context } from "../types";
@@ -28,7 +28,7 @@ export function getDefinitionAndBoundSpan(
             }
 
             const checker = program.getTypeChecker();
-            for (const node of forEachTouchNode(ts, sourceFile, args[1])) {
+            for (const node of forEachTouchingNode(ts, sourceFile, args[1])) {
                 if (
                     !ts.isCallExpression(node) ||
                     !ts.isIdentifier(node.expression) ||
@@ -128,7 +128,7 @@ function visitRuntimeConfig(
     let definitions: ts.DefinitionInfo[] = [];
     const path: string[] = [];
 
-    for (const node of forEachTouchNode(ts, sourceFile, definition.textSpan.start)) {
+    for (const node of forEachTouchingNode(ts, sourceFile, definition.textSpan.start)) {
         let key: string | undefined;
         if (ts.isInterfaceDeclaration(node) && ts.isIdentifier(node.name)) {
             key = node.name.text;

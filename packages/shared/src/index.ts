@@ -1,6 +1,6 @@
 import type ts from "typescript";
 
-export function* forEachTouchNode(
+export function* forEachTouchingNode(
     ts: typeof import("typescript"),
     sourceFile: ts.SourceFile,
     position: number,

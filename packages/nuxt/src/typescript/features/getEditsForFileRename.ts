@@ -1,4 +1,4 @@
-import { forEachTouchNode } from "@dxup/shared";
+import { forEachTouchingNode } from "@dxup/shared";
 import type ts from "typescript";
 import { toSourceSpan } from "../utils";
 import type { ComponentReferenceInfo } from "../../event/types";
@@ -30,7 +30,7 @@ export function getEditsForFileRename(
                 }
 
                 for (const { span } of textChanges) {
-                    for (const node of forEachTouchNode(ts, sourceFile, span.start)) {
+                    for (const node of forEachTouchingNode(ts, sourceFile, span.start)) {
                         if (!ts.isPropertySignature(node) && !ts.isVariableDeclaration(node)) {
                             continue;
                         }
