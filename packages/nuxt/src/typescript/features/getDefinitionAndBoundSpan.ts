@@ -52,14 +52,18 @@ export function getDefinitionAndBoundSpan(
                 }
 
                 const typeArguments = checker.getTypeArgumentsForResolvedSignature(resolvedSignature);
-                const routeType = typeArguments?.[2];
-                const methodtype = typeArguments?.[3];
-                if (!routeType?.isStringLiteral() || !methodtype?.isStringLiteral()) {
+                const [routeType, methodType] = (
+                    node.expression.text === "$fetch"
+                        ? typeArguments?.[2] && checker.getTypeArguments(typeArguments?.[2] as ts.TypeReference)
+                        : typeArguments?.slice(2)
+                ) ?? [];
+
+                if (!routeType?.isStringLiteral() || !methodType?.isStringLiteral()) {
                     break;
                 }
 
                 const route = routeType.value.replace(nonApiRE, "/routes");
-                const method = methodtype.value;
+                const method = methodType.value;
                 const path = join(data.serverDir, `${route}.${method}.ts`);
 
                 return {

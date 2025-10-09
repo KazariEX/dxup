@@ -10,9 +10,9 @@
     void foo;
 
     // nitro routes
+    $fetch("/sitemap");
     useFetch("/api/foo");
-    useFetch("/api/foo", { method: "post" });
-    useFetch("/sitemap");
+    useLazyFetch("/api/foo", { method: "post" });
 </script>
 
 <!-- eslint-disable vue/component-name-in-template-casing -->
