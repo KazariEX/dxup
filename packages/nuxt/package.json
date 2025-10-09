@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.5",
   "packageManager": "pnpm@10.17.1",
-  "description": "TypeScript plugins for Nuxt",
+  "description": "TypeScript plugin for Nuxt",
   "author": "KazariEX",
   "license": "MIT",
   "repository": "KazariEX/dxup",
