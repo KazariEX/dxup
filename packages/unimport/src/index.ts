@@ -1,4 +1,4 @@
-import { forEachTouchNode } from "@dxup/shared";
+import { forEachTouchingNode } from "@dxup/shared";
 import type ts from "typescript";
 
 const plugin: ts.server.PluginModuleFactory = (module) => {
@@ -168,7 +168,7 @@ function visitImports(
     textSpan: ts.TextSpan,
     sourceFile: ts.SourceFile,
 ) {
-    for (const node of forEachTouchNode(ts, sourceFile, textSpan.start)) {
+    for (const node of forEachTouchingNode(ts, sourceFile, textSpan.start)) {
         let target: ts.Node | undefined;
 
         if (ts.isPropertySignature(node) && node.type) {
