@@ -9,9 +9,25 @@ interface Plugin {
 }
 
 export interface ModuleOptions {
+    /**
+     * Whether to update references when renaming auto imported component files.
+     * @default true
+     */
     components?: boolean;
+    /**
+     * Whether to enable Go to Definition for nitro routes in data fetching methods.
+     * @default true
+     */
     nitroRoutes?: boolean;
+    /**
+     * Whether to enable Go to Definition for runtime config.
+     * @default true
+     */
     runtimeConfig?: boolean;
+    /**
+     * Whether to enable enhanced navigation for auto imported APIs.
+     * @default true
+     */
     unimport?: boolean;
 }
 
