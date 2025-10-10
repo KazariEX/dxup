@@ -49,19 +49,31 @@ export function getDefinitionAndBoundSpan(
                 }
 
                 const typeArguments = checker.getTypeArgumentsForResolvedSignature(resolvedSignature);
-                const [routeType, methodType] = (
-                    node.expression.text === "$fetch"
-                        ? typeArguments?.[2] && checker.getTypeArguments(typeArguments?.[2] as ts.TypeReference)
-                        : typeArguments?.slice(2)
-                ) ?? [];
+                let routeType: ts.Type | undefined;
+                let methodType: ts.Type | undefined;
 
-                if (!routeType?.isStringLiteral() || !methodType?.isStringLiteral()) {
+                if (node.expression.text === "$fetch") {
+                    routeType = typeArguments?.[1];
+                    const symbol = typeArguments?.[2].getProperty("method");
+                    methodType = symbol ? checker.getTypeOfSymbol(symbol) : void 0;
+                }
+                else {
+                    routeType = typeArguments?.[2];
+                    methodType = typeArguments?.[3];
+                }
+
+                if (!routeType?.isStringLiteral()) {
                     continue;
                 }
 
-                const path = data.nitroRoutes[`${routeType.value}+${methodType.value}`];
-                if (path === void 0) {
-                    continue;
+                const paths: string[] = [];
+                for (const type of methodType?.isUnion() ? methodType.types : [methodType]) {
+                    if (type?.isStringLiteral()) {
+                        const path = data.nitroRoutes[`${routeType.value}+${type.value}`];
+                        if (path !== void 0) {
+                            paths.push(path);
+                        }
+                    }
                 }
 
                 return {
@@ -69,17 +81,16 @@ export function getDefinitionAndBoundSpan(
                         start,
                         length: end - start,
                     },
-                    definitions: [{
+                    definitions: paths.map((path) => ({
                         fileName: path,
                         textSpan: { start: 0, length: 0 },
                         kind: ts.ScriptElementKind.scriptElement,
                         name: path,
                         containerKind: ts.ScriptElementKind.unknown,
                         containerName: "",
-                    }],
+                    })),
                 };
             }
-            return;
         }
 
         if (!result?.definitions?.length) {
