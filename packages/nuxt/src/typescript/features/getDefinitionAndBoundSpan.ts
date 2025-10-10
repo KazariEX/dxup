@@ -1,4 +1,4 @@
-import { forEachTouchingNode } from "@dxup/shared";
+import { forEachTouchingNode, isTextSpanEqual } from "@dxup/shared";
 import { join } from "pathe";
 import type ts from "typescript";
 import type { Context } from "../types";
@@ -135,11 +135,7 @@ function visitRuntimeConfig(
         else if (ts.isPropertySignature(node) && ts.isIdentifier(node.name)) {
             key = node.name.text;
 
-            const { textSpan } = definition;
-            const start = node.name.getStart(sourceFile);
-            const end = node.name.getEnd();
-
-            if (start === textSpan.start && end - start === textSpan.length) {
+            if (isTextSpanEqual(node.name, definition.textSpan, sourceFile)) {
                 path.push(key);
                 definitions = [...forwardRuntimeConfig(context, definition, path)];
                 break;

@@ -25,14 +25,12 @@ function* binaryVisit(
     while (left <= right) {
         const mid = Math.floor((left + right) / 2);
         const node = nodes[mid];
-        const start = node.getStart(sourceFile);
-        const end = node.getEnd();
 
-        if (position < start) {
-            right = mid - 1;
-        }
-        else if (position > end) {
+        if (position > node.getEnd()) {
             left = mid + 1;
+        }
+        else if (position < node.getStart(sourceFile)) {
+            right = mid - 1;
         }
         else {
             yield node;
@@ -40,4 +38,15 @@ function* binaryVisit(
             return;
         }
     }
+}
+
+export function isTextSpanEqual(
+    node: ts.Node,
+    textSpan: ts.TextSpan,
+    sourceFile: ts.SourceFile,
+) {
+    return (
+        textSpan.start + textSpan.length === node.getEnd() &&
+        textSpan.start === node.getStart(sourceFile)
+    );
 }

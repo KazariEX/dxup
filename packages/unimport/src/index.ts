@@ -1,4 +1,4 @@
-import { forEachTouchingNode } from "@dxup/shared";
+import { forEachTouchingNode, isTextSpanEqual } from "@dxup/shared";
 import type ts from "typescript";
 
 const plugin: ts.server.PluginModuleFactory = (module) => {
@@ -193,9 +193,7 @@ function forwardTypeofImport(
     textSpan: ts.TextSpan,
     sourceFile: ts.SourceFile,
 ) {
-    const [start, end] = getStartEnd(name, sourceFile);
-
-    if (start !== textSpan.start || end - start !== textSpan.length) {
+    if (!isTextSpanEqual(name, textSpan, sourceFile)) {
         return;
     }
 
@@ -222,26 +220,19 @@ function backwardTypeofImport(
         type = type.typeArguments[0];
     }
 
-    let start: number;
-    let end: number;
+    let target: ts.Node;
 
     if (ts.isIndexedAccessTypeNode(type)) {
-        [start, end] = getStartEnd(type.objectType, sourceFile);
+        target = type.objectType;
     }
     else if (ts.isImportTypeNode(type)) {
-        [start, end] = getStartEnd(type.qualifier ?? type.argument, sourceFile);
+        target = type.qualifier ?? type.argument;
     }
     else {
         return;
     }
 
-    if (start === textSpan.start && end - start === textSpan.length) {
+    if (isTextSpanEqual(target, textSpan, sourceFile)) {
         return name;
     }
-}
-
-function getStartEnd(node: ts.Node, sourceFile: ts.SourceFile) {
-    const start = node.getStart(sourceFile);
-    const end = node.getEnd();
-    return [start, end] as const;
 }
