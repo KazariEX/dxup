@@ -51,12 +51,8 @@ function createData(ts: typeof import("typescript"), info: ts.server.PluginCreat
     const path = join(currentDirectory, "dxup/data.json");
     const data = {} as Data;
 
-    ts.sys.watchFile?.(path, (fileName, eventKind) => {
-        if (eventKind !== ts.FileWatcherEventKind.Deleted) {
-            update();
-        }
-    });
     update();
+    ts.sys.watchFile?.(path, update);
 
     return data;
 
