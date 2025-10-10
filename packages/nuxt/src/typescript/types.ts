@@ -4,10 +4,9 @@ import type { createEventServer } from "../event/server";
 
 export interface Data {
     buildDir: string;
-    serverDir: string;
     configFiles: string[];
     components: boolean;
-    nitroRoutes: boolean;
+    nitroRoutes: false | Record<string, string>;
     runtimeConfig: boolean;
 }
 

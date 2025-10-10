@@ -1,5 +1,4 @@
 import { forEachTouchingNode, isTextSpanEqual } from "@dxup/shared";
-import { join } from "pathe";
 import type ts from "typescript";
 import type { Context } from "../types";
 
@@ -8,8 +7,6 @@ const fetchFunctions = new Set([
     "useFetch",
     "useLazyFetch",
 ]);
-
-const nonApiRE = /^(?!\/api\/)/;
 
 export function getDefinitionAndBoundSpan(
     context: Context,
@@ -48,7 +45,7 @@ export function getDefinitionAndBoundSpan(
 
                 const resolvedSignature = checker.getResolvedSignature(node);
                 if (!resolvedSignature) {
-                    break;
+                    continue;
                 }
 
                 const typeArguments = checker.getTypeArgumentsForResolvedSignature(resolvedSignature);
@@ -59,12 +56,13 @@ export function getDefinitionAndBoundSpan(
                 ) ?? [];
 
                 if (!routeType?.isStringLiteral() || !methodType?.isStringLiteral()) {
-                    break;
+                    continue;
                 }
 
-                const route = routeType.value.replace(nonApiRE, "/routes");
-                const method = methodType.value;
-                const path = join(data.serverDir, `${route}.${method}.ts`);
+                const path = data.nitroRoutes[`${routeType.value}+${methodType.value}`];
+                if (path === void 0) {
+                    continue;
+                }
 
                 return {
                     textSpan: {

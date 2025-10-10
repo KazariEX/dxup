@@ -13,18 +13,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 
     return {
         create(info) {
-            const currentDirectory = info.languageServiceHost.getCurrentDirectory();
-            const path = join(currentDirectory, "dxup/data.json");
-            const data: Data = {
-                buildDir: currentDirectory,
-                configFiles: [],
-                components: true,
-                nitroRoutes: true,
-                runtimeConfig: true,
-                ...JSON.parse(
-                    ts.sys.readFile(path) ?? "{}",
-                ),
-            };
+            const data = createData(ts, info);
             const server = createEventServer(info);
 
             const context: Context = { ts, info, data, server };
@@ -48,3 +37,34 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 };
 
 export default plugin;
+
+function createData(ts: typeof import("typescript"), info: ts.server.PluginCreateInfo) {
+    const initialValue: Data = {
+        buildDir: "",
+        configFiles: [],
+        components: true,
+        nitroRoutes: {},
+        runtimeConfig: true,
+    };
+
+    const currentDirectory = info.languageServiceHost.getCurrentDirectory();
+    const path = join(currentDirectory, "dxup/data.json");
+    const data = {} as Data;
+
+    ts.sys.watchFile?.(path, (fileName, eventKind) => {
+        if (eventKind !== ts.FileWatcherEventKind.Deleted) {
+            update();
+        }
+    });
+    update();
+
+    return data;
+
+    function update() {
+        const text = ts.sys.readFile(path);
+        Object.assign(data, {
+            ...initialValue,
+            ...text ? JSON.parse(text) : {},
+        });
+    }
+}

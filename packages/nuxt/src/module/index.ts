@@ -1,4 +1,4 @@
-import { addTemplate, defineNuxtModule } from "@nuxt/kit";
+import { addTemplate, defineNuxtModule, useNitro } from "@nuxt/kit";
 import * as packageJson from "../../package.json";
 import { createEventClient } from "../event/client";
 import { onComponentsRename } from "./events";
@@ -41,16 +41,23 @@ export default defineNuxtModule<ModuleOptions>({
         addTemplate({
             filename: "dxup/data.json",
             write: true,
-            getContents() {
+            getContents({ nuxt }) {
+                const nitro = useNitro();
+                const nitroRoutes = options.nitroRoutes && Object.fromEntries(
+                    nitro.scannedHandlers.filter((item) => item.route).map((item) => [
+                        `${item.route}+${item.method ?? "get"}`,
+                        item.handler,
+                    ]),
+                );
+
                 const data = {
                     buildDir: nuxt.options.buildDir,
-                    serverDir: nuxt.options.serverDir,
                     configFiles: [
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
                     components: options.components,
-                    nitroRoutes: options.nitroRoutes,
+                    nitroRoutes,
                     runtimeConfig: options.runtimeConfig,
                 };
                 return JSON.stringify(data, null, 2);
