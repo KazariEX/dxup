@@ -9,26 +9,28 @@ interface Plugin {
 }
 
 export interface ModuleOptions {
-    /**
-     * Whether to update references when renaming auto imported component files.
-     * @default true
-     */
-    components?: boolean;
-    /**
-     * Whether to enable Go to Definition for nitro routes in data fetching methods.
-     * @default true
-     */
-    nitroRoutes?: boolean;
-    /**
-     * Whether to enable Go to Definition for runtime config.
-     * @default true
-     */
-    runtimeConfig?: boolean;
-    /**
-     * Whether to enable enhanced navigation for auto imported APIs.
-     * @default true
-     */
-    unimport?: boolean;
+    features?: {
+        /**
+         * Whether to update references when renaming auto imported component files.
+         * @default true
+         */
+        components?: boolean;
+        /**
+         * Whether to enable Go to Definition for nitro routes in data fetching methods.
+         * @default true
+         */
+        nitroRoutes?: boolean;
+        /**
+         * Whether to enable Go to Definition for runtime config.
+         * @default true
+         */
+        runtimeConfig?: boolean;
+        /**
+         * Whether to enable enhanced navigation for auto imported APIs.
+         * @default true
+         */
+        unimport?: boolean;
+    };
 }
 
 export default defineNuxtModule<ModuleOptions>({
@@ -37,15 +39,17 @@ export default defineNuxtModule<ModuleOptions>({
         configKey: "dxup",
     },
     defaults: {
-        components: true,
-        nitroRoutes: true,
-        runtimeConfig: true,
-        unimport: true,
+        features: {
+            components: true,
+            nitroRoutes: true,
+            runtimeConfig: true,
+            unimport: true,
+        },
     },
     async setup(options, nuxt) {
         const pluginsTs: Plugin[] = [{ name: "@dxup/nuxt" }];
 
-        if (options.unimport) {
+        if (options.features?.unimport) {
             pluginsTs.unshift({ name: "@dxup/unimport" });
         }
 
@@ -59,7 +63,7 @@ export default defineNuxtModule<ModuleOptions>({
             write: true,
             getContents({ nuxt }) {
                 const nitro = useNitro();
-                const nitroRoutes = options.nitroRoutes && Object.fromEntries(
+                const nitroRoutes = options.features?.nitroRoutes && Object.fromEntries(
                     nitro.scannedHandlers.filter((item) => item.route).map((item) => [
                         `${item.route}+${item.method ?? "get"}`,
                         item.handler,
@@ -72,9 +76,9 @@ export default defineNuxtModule<ModuleOptions>({
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
-                    components: options.components,
+                    components: options.features?.components,
                     nitroRoutes,
-                    runtimeConfig: options.runtimeConfig,
+                    runtimeConfig: options.features?.runtimeConfig,
                 };
                 return JSON.stringify(data, null, 2);
             },
