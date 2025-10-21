@@ -46,6 +46,7 @@ export default defineNuxtModule<ModuleOptions>({
     defaults: {
         features: {
             components: true,
+            importGlob: true,
             nitroRoutes: true,
             runtimeConfig: true,
             unimport: true,
