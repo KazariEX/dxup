@@ -1,6 +1,7 @@
 import { forEachTouchingNode, isTextSpanEqual } from "@dxup/shared";
+import { globSync } from "tinyglobby";
 import type ts from "typescript";
-import type { Context } from "../types";
+import type { Context, Data } from "../types";
 
 const fetchFunctions = new Set([
     "$fetch",
@@ -17,7 +18,7 @@ export function getDefinitionAndBoundSpan(
     return (...args) => {
         const result = getDefinitionAndBoundSpan(...args);
 
-        if (!result && data.nitroRoutes) {
+        if (!result) {
             const program = info.languageService.getProgram()!;
             const sourceFile = program.getSourceFile(args[0]);
             if (!sourceFile) {
@@ -25,71 +26,19 @@ export function getDefinitionAndBoundSpan(
             }
 
             const checker = program.getTypeChecker();
+
+            let res: ts.DefinitionInfoAndBoundSpan | undefined;
             for (const node of forEachTouchingNode(ts, sourceFile, args[1])) {
-                if (
-                    !ts.isCallExpression(node) ||
-                    !ts.isIdentifier(node.expression) ||
-                    !fetchFunctions.has(node.expression.text) ||
-                    !node.arguments.length
-                ) {
-                    continue;
+                if (data.importGlob) {
+                    res ??= visitImportGlob(ts, info, sourceFile, node, args[1]);
                 }
-
-                const firstArg = node.arguments[0];
-                const start = firstArg.getStart(sourceFile);
-                const end = firstArg.getEnd();
-
-                if (args[1] < start || args[1] > end) {
-                    continue;
+                if (data.nitroRoutes) {
+                    res ??= visitNitroRoutes(ts, checker, sourceFile, node, args[1], data.nitroRoutes);
                 }
+            }
 
-                const resolvedSignature = checker.getResolvedSignature(node);
-                if (!resolvedSignature) {
-                    continue;
-                }
-
-                const typeArguments = checker.getTypeArgumentsForResolvedSignature(resolvedSignature);
-                let routeType: ts.Type | undefined;
-                let methodType: ts.Type | undefined;
-
-                if (node.expression.text === "$fetch") {
-                    routeType = typeArguments?.[1];
-                    const symbol = typeArguments?.[2].getProperty("method");
-                    methodType = symbol ? checker.getTypeOfSymbol(symbol) : void 0;
-                }
-                else {
-                    routeType = typeArguments?.[2];
-                    methodType = typeArguments?.[3];
-                }
-
-                if (!routeType?.isStringLiteral()) {
-                    continue;
-                }
-
-                const paths: string[] = [];
-                for (const type of methodType?.isUnion() ? methodType.types : [methodType]) {
-                    if (type?.isStringLiteral()) {
-                        const path = data.nitroRoutes[`${routeType.value}+${type.value}`];
-                        if (path !== void 0) {
-                            paths.push(path);
-                        }
-                    }
-                }
-
-                return {
-                    textSpan: {
-                        start,
-                        length: end - start,
-                    },
-                    definitions: paths.map((path) => ({
-                        fileName: path,
-                        textSpan: { start: 0, length: 0 },
-                        kind: ts.ScriptElementKind.scriptElement,
-                        name: path,
-                        containerKind: ts.ScriptElementKind.unknown,
-                        containerName: "",
-                    })),
-                };
+            if (res) {
+                return res;
             }
         }
 
@@ -123,6 +72,156 @@ export function getDefinitionAndBoundSpan(
             definitions: [...definitions],
             textSpan: result.textSpan,
         };
+    };
+}
+
+function visitImportGlob(
+    ts: typeof import("typescript"),
+    info: ts.server.PluginCreateInfo,
+    sourceFile: ts.SourceFile,
+    node: ts.Node,
+    position: number,
+) {
+    if (!ts.isCallExpression(node) || !node.arguments.length) {
+        return;
+    }
+
+    const firstArg = node.arguments[0];
+    const start = firstArg.getStart(sourceFile);
+    const end = firstArg.getEnd();
+
+    if (position < start || position > end) {
+        return;
+    }
+
+    let pattern: string | undefined;
+
+    const callText = node.expression.getText(sourceFile);
+    if (callText === "import" && ts.isTemplateExpression(firstArg)) {
+        pattern = [
+            firstArg.head.text,
+            ...firstArg.templateSpans.map((span) => span.literal.text),
+        ].join("*");
+    }
+    else if (callText === "import.meta.glob" && ts.isStringLiteral(firstArg)) {
+        pattern = firstArg.text;
+    }
+    if (pattern === void 0) {
+        return;
+    }
+
+    const resolved = ts.resolveModuleName(
+        pattern,
+        sourceFile.fileName,
+        info.languageServiceHost.getCompilationSettings(),
+        {
+            fileExists: () => true,
+            readFile: () => "",
+        },
+    );
+    if (!resolved?.resolvedModule) {
+        return;
+    }
+
+    const extension = pattern.split(".").pop();
+    const arbitrary = `.d.${extension}.ts`;
+
+    pattern = resolved.resolvedModule.resolvedFileName;
+    if (resolved.resolvedModule.extension === arbitrary) {
+        pattern = pattern.slice(0, -arbitrary.length) + `.${extension}`;
+    }
+
+    const fileNames = globSync(pattern, {
+        absolute: true,
+    });
+
+    return {
+        textSpan: {
+            start,
+            length: end - start,
+        },
+        definitions: fileNames.map((fileName) => ({
+            fileName,
+            textSpan: { start: 0, length: 0 },
+            kind: ts.ScriptElementKind.unknown,
+            name: fileName,
+            containerKind: ts.ScriptElementKind.unknown,
+            containerName: "",
+        })),
+    };
+}
+
+function visitNitroRoutes(
+    ts: typeof import("typescript"),
+    checker: ts.TypeChecker,
+    sourceFile: ts.SourceFile,
+    node: ts.Node,
+    position: number,
+    nitroRoutes: Exclude<Data["nitroRoutes"], false>,
+) {
+    if (
+        !ts.isCallExpression(node) ||
+        !ts.isIdentifier(node.expression) ||
+        !fetchFunctions.has(node.expression.text) ||
+        !node.arguments.length
+    ) {
+        return;
+    }
+
+    const firstArg = node.arguments[0];
+    const start = firstArg.getStart(sourceFile);
+    const end = firstArg.getEnd();
+
+    if (position < start || position > end) {
+        return;
+    }
+
+    const resolvedSignature = checker.getResolvedSignature(node);
+    if (!resolvedSignature) {
+        return;
+    }
+
+    const typeArguments = checker.getTypeArgumentsForResolvedSignature(resolvedSignature);
+    let routeType: ts.Type | undefined;
+    let methodType: ts.Type | undefined;
+
+    if (node.expression.text === "$fetch") {
+        routeType = typeArguments?.[1];
+        const symbol = typeArguments?.[2].getProperty("method");
+        methodType = symbol ? checker.getTypeOfSymbol(symbol) : void 0;
+    }
+    else {
+        routeType = typeArguments?.[2];
+        methodType = typeArguments?.[3];
+    }
+
+    if (!routeType?.isStringLiteral()) {
+        return;
+    }
+
+    const paths: string[] = [];
+    for (const type of methodType?.isUnion() ? methodType.types : [methodType]) {
+        if (type?.isStringLiteral()) {
+            const path = nitroRoutes[`${routeType.value}+${type.value}`];
+            if (path !== void 0) {
+                paths.push(path);
+            }
+        }
+    }
+
+    return {
+        textSpan: {
+            start,
+            length: end - start,
+        },
+        definitions: paths.map((path) => ({
+            fileName: path,
+            textSpan: { start: 0, length: 0 },
+            kind: ts.ScriptElementKind.scriptElement,
+            name: path,
+            containerKind: ts.ScriptElementKind.unknown,
+            containerName: "",
+        })),
     };
 }
 

@@ -6,6 +6,7 @@ export interface Data {
     buildDir: string;
     configFiles: string[];
     components: boolean;
+    importGlob: boolean;
     nitroRoutes: false | Record<string, string>;
     runtimeConfig: boolean;
 }

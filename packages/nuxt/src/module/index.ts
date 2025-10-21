@@ -16,6 +16,11 @@ export interface ModuleOptions {
          */
         components?: boolean;
         /**
+         * Whether to enable Go to Definition for dynamic imports with glob patterns.
+         * @default true
+         */
+        importGlob?: boolean;
+        /**
          * Whether to enable Go to Definition for nitro routes in data fetching methods.
          * @default true
          */
@@ -77,6 +82,7 @@ export default defineNuxtModule<ModuleOptions>({
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
                     components: options.features?.components,
+                    importGlob: options.features?.importGlob,
                     nitroRoutes,
                     runtimeConfig: options.features?.runtimeConfig,
                 };
