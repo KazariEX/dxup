@@ -9,6 +9,7 @@ This is a TypeScript plugin that improves Nuxt DX.
 ## Features
 
 - Update references when renaming auto imported component files
+- Go to definition for dynamic imports with glob patterns
 - Go to definition for nitro routes in data fetching methods
 - Go to definition for runtime config
 - [@dxup/unimport](/packages/unimport)
