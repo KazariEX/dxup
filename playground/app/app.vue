@@ -9,6 +9,10 @@
     // auto imports
     void foo;
 
+    // import glob
+    import(`~/assets/${name}.webp`);
+    import.meta.glob("~/assets/*.webp");
+
     // nitro routes
     $fetch("/sitemap");
     useFetch("/api/foo");

@@ -23,12 +23,12 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
             }, 500);
 
             for (const [key, method] of [
-                ["findRenameLocations", findRenameLocations.bind(null, context)],
-                ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, context)],
-                ["getEditsForFileRename", getEditsForFileRename.bind(null, context)],
+                ["findRenameLocations", findRenameLocations],
+                ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan],
+                ["getEditsForFileRename", getEditsForFileRename],
             ] as const) {
                 const original = info.languageService[key];
-                info.languageService[key] = method(original as any) as any;
+                info.languageService[key] = method(context, original as any) as any;
             }
 
             return info.languageService;
@@ -43,6 +43,7 @@ function createData(ts: typeof import("typescript"), info: ts.server.PluginCreat
         buildDir: "",
         configFiles: [],
         components: true,
+        importGlob: true,
         nitroRoutes: {},
         runtimeConfig: true,
     };

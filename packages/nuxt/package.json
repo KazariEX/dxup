@@ -25,7 +25,8 @@
     "@dxup/unimport": "workspace:^",
     "@nuxt/kit": "catalog:",
     "chokidar": "catalog:",
-    "pathe": "catalog:"
+    "pathe": "catalog:",
+    "tinyglobby": "catalog:"
   },
   "devDependencies": {
     "@dxup/shared": "workspace:",

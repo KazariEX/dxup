@@ -42,6 +42,9 @@ catalogs:
     pathe:
       specifier: 2.0.3
       version: 2.0.3
+    tinyglobby:
+      specifier: ^0.2.15
+      version: 0.2.15
     tsdown:
       specifier: ^0.15.6
       version: 0.15.6
@@ -101,6 +104,9 @@ importers:
       pathe:
         specifier: 'catalog:'
         version: 2.0.3
+      tinyglobby:
+        specifier: 'catalog:'
+        version: 0.2.15
     devDependencies:
       '@dxup/shared':
         specifier: 'workspace:'
