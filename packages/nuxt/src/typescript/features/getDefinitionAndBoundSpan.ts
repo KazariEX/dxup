@@ -1,4 +1,5 @@
 import { forEachTouchingNode, isTextSpanEqual } from "@dxup/shared";
+import { extname } from "pathe";
 import { globSync } from "tinyglobby";
 import type ts from "typescript";
 import type { Context, Data } from "../types";
@@ -123,12 +124,12 @@ function visitImportGlob(
         return;
     }
 
-    const extension = pattern.split(".").pop();
-    const arbitrary = `.d.${extension}.ts`;
+    const extension = extname(pattern);
+    const arbitrary = `.d${extension}.ts`;
 
     pattern = resolved.resolvedModule.resolvedFileName;
     if (resolved.resolvedModule.extension === arbitrary) {
-        pattern = pattern.slice(0, -arbitrary.length) + `.${extension}`;
+        pattern = pattern.slice(0, -arbitrary.length) + extension;
     }
 
     const fileNames = globSync(pattern, {
