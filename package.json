@@ -5,7 +5,8 @@
   "scripts": {
     "build": "pnpm --filter @dxup/* build",
     "dev": "pnpm --filter @dxup/* --parallel dev",
-    "publish": "node scripts/publish.ts"
+    "publish": "node scripts/publish.ts",
+    "test": "vitest"
   },
   "devDependencies": {
     "@types/node": "catalog:",
@@ -15,6 +16,7 @@
     "eslint": "catalog:",
     "pathe": "catalog:",
     "tsdown": "catalog:",
+    "vitest": "catalog:",
     "zx": "catalog:"
   }
 }

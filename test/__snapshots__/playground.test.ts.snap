@@ -1,0 +1,163 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`playground > auto imports 1`] = `
+[
+  {
+    "fileName": "app/utils/index.ts",
+    "textSpan": {
+      "length": 3,
+      "start": 13,
+    },
+  },
+]
+`;
+
+exports[`playground > import glob 1`] = `
+[
+  {
+    "fileName": "app/assets/maestrale.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+  {
+    "fileName": "app/assets/libeccio.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > import glob 2`] = `
+[
+  {
+    "fileName": "app/assets/maestrale.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+  {
+    "fileName": "app/assets/libeccio.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > nitro routes 1`] = `
+[
+  {
+    "fileName": "server/routes/sitemap.post.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+  {
+    "fileName": "server/routes/sitemap.get.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > nitro routes 2`] = `
+[
+  {
+    "fileName": "server/api/foo.get.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > nitro routes 3`] = `
+[
+  {
+    "fileName": "server/api/foo.post.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > runtime config 1`] = `
+[
+  {
+    "fileName": "layers/archer/nuxt.config.ts",
+    "textSpan": {
+      "length": 3,
+      "start": 82,
+    },
+  },
+  {
+    "fileName": "layers/berserker/nuxt.config.ts",
+    "textSpan": {
+      "length": 3,
+      "start": 82,
+    },
+  },
+  {
+    "fileName": "nuxt.config.ts",
+    "textSpan": {
+      "length": 3,
+      "start": 43,
+    },
+  },
+]
+`;
+
+exports[`playground > runtime config 2`] = `
+[
+  {
+    "fileName": "layers/berserker/nuxt.config.ts",
+    "textSpan": {
+      "length": 3,
+      "start": 102,
+    },
+  },
+  {
+    "fileName": "nuxt.config.ts",
+    "textSpan": {
+      "length": 3,
+      "start": 59,
+    },
+  },
+]
+`;
+
+exports[`playground > runtime config 3`] = `
+[
+  {
+    "fileName": "nuxt.config.ts",
+    "textSpan": {
+      "length": 3,
+      "start": 75,
+    },
+  },
+]
+`;
+
+exports[`playground > runtime config 4`] = `
+[
+  {
+    "fileName": "nuxt.config.ts",
+    "textSpan": {
+      "length": 5,
+      "start": 112,
+    },
+  },
+]
+`;

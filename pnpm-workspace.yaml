@@ -10,6 +10,7 @@ catalog:
   "@volar/language-core": ^2.4.23
   "@volar/typescript": ^2.4.23
   "@vue/language-core": ^3.1.1
+  "@vue/typescript-plugin": ^3.1.2
   "@zinkawaii/eslint-config": ^0.4.1
   "@zinkawaii/tsconfig": ^0.0.2
   bumpp: ^10.3.1
@@ -20,6 +21,7 @@ catalog:
   tinyglobby: ^0.2.15
   tsdown: ^0.15.9
   typescript: ^5.9.3
+  vitest: ^4.0.5
   vue: ^3.5.22
   vue-router: ^4.6.3
   zx: ^8.8.5
