@@ -4,36 +4,36 @@
     const config = useRuntimeConfig();
 
     void config.foo.bar;
-    //              ^^^(definition)
+    //              ^—^(definition)
     void config.foo.baz;
-    //              ^^^(definition)
+    //              ^—^(definition)
     void config.foo.qux;
-    //              ^^^(definition)
+    //              ^—^(definition)
     void config.public.hello;
-    //                 ^^^^^(definition)
+    //                 ^———^(definition)
 
     /* -------------- auto imports -------------- */
 
     void foo;
-    //   ^^^(definition)
+    //   ^—^(definition)
 
     /* -------------- import glob -------------- */
 
     import(`~/assets/${name}.webp`);
-    //     ^^^^^^^^^^^^^^^^^^^^^^^(definition)
+    //     ^—————————————————————^(definition)
     import.meta.glob("~/assets/*.webp");
-    //               ^^^^^^^^^^^^^^^^^(definition)
+    //               ^———————————————^(definition)
 
     /* -------------- nitro routes -------------- */
 
     $fetch("/sitemap");
-    //     ^^^^^^^^^^(definition)
+    //     ^————————^(definition)
     $fetch("/fallback.json");
-    //     ^^^^^^^^^^^^^^^^(definition)
+    //     ^——————————————^(definition)
     useFetch("/api/foo");
-    //       ^^^^^^^^^^(definition)
+    //       ^————————^(definition)
     useLazyFetch("/api/foo", { method: "post" });
-    //           ^^^^^^^^^^(definition)
+    //           ^————————^(definition)
 </script>
 
 <!-- eslint-disable vue/component-name-in-template-casing -->

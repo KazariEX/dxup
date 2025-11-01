@@ -84,7 +84,7 @@ describe("playground", () => {
 
     const features: Record<string, Item[]> = {};
     const featureRE = /\/\* -+ (?<name>.*) -+ \*\//;
-    const operationRE = /(?<=\/\/\s*)(?<range>\^+)\((?<type>\w+)\)/;
+    const operationRE = /(?<=\/\/\s*)(?<range>\^—*\^)\((?<type>\w+)\)/;
 
     let items: Item[] | undefined;
     for (let i = 0; i < lines.length; i++) {
@@ -112,10 +112,11 @@ describe("playground", () => {
 
     for (const [name, items] of Object.entries(features)) {
         it(name, () => {
-            for (const { type, start } of items) {
+            for (const { type, start, length } of items) {
                 if (type === "definition") {
                     const result = languageService.getDefinitionAndBoundSpan?.(sourceFile.fileName, start);
                     expect(result).toBeDefined();
+                    expect(result!.textSpan).toEqual({ start, length });
                     expect(
                         result!.definitions?.map((definition) => ({
                             fileName: relative(playgroundRoot, definition.fileName),
