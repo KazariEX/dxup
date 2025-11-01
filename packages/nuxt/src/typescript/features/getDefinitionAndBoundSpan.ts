@@ -164,7 +164,8 @@ function visitNitroRoutes(
         !ts.isCallExpression(node) ||
         !ts.isIdentifier(node.expression) ||
         !fetchFunctions.has(node.expression.text) ||
-        !node.arguments.length
+        !node.arguments.length ||
+        !ts.isStringLiteralLike(node.arguments[0])
     ) {
         return;
     }
@@ -196,22 +197,20 @@ function visitNitroRoutes(
         methodType = typeArguments?.[3];
     }
 
-    if (!routeType?.isStringLiteral()) {
-        return;
-    }
-
     const paths: string[] = [];
-    for (const type of methodType?.isUnion() ? methodType.types : [methodType]) {
-        if (type?.isStringLiteral()) {
-            const path = data.nitroRoutes[`${routeType.value}+${type.value}`];
-            if (path !== void 0) {
-                paths.push(path);
+    if (routeType?.isStringLiteral()) {
+        for (const type of methodType?.isUnion() ? methodType.types : [methodType]) {
+            if (type?.isStringLiteral()) {
+                const path = data.nitroRoutes[`${routeType.value}+${type.value}`];
+                if (path !== void 0) {
+                    paths.push(path);
+                }
             }
         }
     }
 
-    if (!paths.length && routeType.value.startsWith("/")) {
-        const fallback = join(data.publicDir, routeType.value);
+    if (!paths.length && firstArg.text.startsWith("/")) {
+        const fallback = join(data.publicDir, firstArg.text);
         if (ts.sys.fileExists(fallback)) {
             paths.push(fallback);
         }
