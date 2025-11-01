@@ -28,6 +28,8 @@
 
     $fetch("/sitemap");
     //     ^^^^^^^^^^(definition)
+    $fetch("/fallback.json");
+    //     ^^^^^^^^^^^^^^^^(definition)
     useFetch("/api/foo");
     //       ^^^^^^^^^^(definition)
     useLazyFetch("/api/foo", { method: "post" });

@@ -69,23 +69,20 @@ export default defineNuxtModule<ModuleOptions>({
             write: true,
             getContents({ nuxt }) {
                 const nitro = useNitro();
-                const nitroRoutes = options.features?.nitroRoutes && Object.fromEntries(
-                    nitro.scannedHandlers.filter((item) => item.route).map((item) => [
-                        `${item.route}+${item.method ?? "get"}`,
-                        item.handler,
-                    ]),
-                );
-
                 const data = {
                     buildDir: nuxt.options.buildDir,
+                    publicDir: nuxt.options.dir.public,
                     configFiles: [
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
-                    components: options.features?.components,
-                    importGlob: options.features?.importGlob,
-                    nitroRoutes,
-                    runtimeConfig: options.features?.runtimeConfig,
+                    nitroRoutes: Object.fromEntries(
+                        nitro.scannedHandlers.filter((item) => item.route).map((item) => [
+                            `${item.route}+${item.method ?? "get"}`,
+                            item.handler,
+                        ]),
+                    ),
+                    features: options.features,
                 };
                 return JSON.stringify(data, null, 2);
             },

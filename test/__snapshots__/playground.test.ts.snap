@@ -72,7 +72,7 @@ exports[`playground > nitro routes 1`] = `
 exports[`playground > nitro routes 2`] = `
 [
   {
-    "fileName": "server/api/foo.get.ts",
+    "fileName": "public/fallback.json",
     "textSpan": {
       "length": 0,
       "start": 0,
@@ -82,6 +82,18 @@ exports[`playground > nitro routes 2`] = `
 `;
 
 exports[`playground > nitro routes 3`] = `
+[
+  {
+    "fileName": "server/api/foo.get.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > nitro routes 4`] = `
 [
   {
     "fileName": "server/api/foo.post.ts",

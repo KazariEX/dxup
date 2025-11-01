@@ -1,5 +1,5 @@
 import { forEachTouchingNode, isTextSpanEqual } from "@dxup/shared";
-import { extname } from "pathe";
+import { extname, join } from "pathe";
 import { globSync } from "tinyglobby";
 import type ts from "typescript";
 import type { Context, Data } from "../types";
@@ -30,11 +30,11 @@ export function getDefinitionAndBoundSpan(
 
             let res: ts.DefinitionInfoAndBoundSpan | undefined;
             for (const node of forEachTouchingNode(ts, sourceFile, args[1])) {
-                if (data.importGlob) {
+                if (data.features.importGlob) {
                     res ??= visitImportGlob(ts, info, sourceFile, node, args[1]);
                 }
-                if (data.nitroRoutes) {
-                    res ??= visitNitroRoutes(ts, checker, sourceFile, node, args[1], data.nitroRoutes);
+                if (data.features.nitroRoutes) {
+                    res ??= visitNitroRoutes(ts, data, checker, sourceFile, node, args[1]);
                 }
             }
 
@@ -57,7 +57,7 @@ export function getDefinitionAndBoundSpan(
             }
 
             let result: ts.DefinitionInfo[] = [];
-            if (data.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
+            if (data.features.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
                 result = visitRuntimeConfig(context, sourceFile, definition);
             }
 
@@ -154,17 +154,18 @@ function visitImportGlob(
 
 function visitNitroRoutes(
     ts: typeof import("typescript"),
+    data: Data,
     checker: ts.TypeChecker,
     sourceFile: ts.SourceFile,
     node: ts.Node,
     position: number,
-    nitroRoutes: Exclude<Data["nitroRoutes"], false>,
 ) {
     if (
         !ts.isCallExpression(node) ||
         !ts.isIdentifier(node.expression) ||
         !fetchFunctions.has(node.expression.text) ||
-        !node.arguments.length
+        !node.arguments.length ||
+        !ts.isStringLiteralLike(node.arguments[0])
     ) {
         return;
     }
@@ -196,17 +197,22 @@ function visitNitroRoutes(
         methodType = typeArguments?.[3];
     }
 
-    if (!routeType?.isStringLiteral()) {
-        return;
+    const paths: string[] = [];
+    if (routeType?.isStringLiteral()) {
+        for (const type of methodType?.isUnion() ? methodType.types : [methodType]) {
+            if (type?.isStringLiteral()) {
+                const path = data.nitroRoutes[`${routeType.value}+${type.value}`];
+                if (path !== void 0) {
+                    paths.push(path);
+                }
+            }
+        }
     }
 
-    const paths: string[] = [];
-    for (const type of methodType?.isUnion() ? methodType.types : [methodType]) {
-        if (type?.isStringLiteral()) {
-            const path = nitroRoutes[`${routeType.value}+${type.value}`];
-            if (path !== void 0) {
-                paths.push(path);
-            }
+    if (!paths.length && firstArg.text.startsWith("/")) {
+        const fallback = join(data.publicDir, firstArg.text);
+        if (ts.sys.fileExists(fallback)) {
+            paths.push(fallback);
         }
     }
 

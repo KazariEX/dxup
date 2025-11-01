@@ -41,11 +41,15 @@ export default plugin;
 function createData(ts: typeof import("typescript"), info: ts.server.PluginCreateInfo) {
     const initialValue: Data = {
         buildDir: "",
+        publicDir: "",
         configFiles: [],
-        components: true,
-        importGlob: true,
         nitroRoutes: {},
-        runtimeConfig: true,
+        features: {
+            components: true,
+            importGlob: true,
+            nitroRoutes: true,
+            runtimeConfig: true,
+        },
     };
 
     const currentDirectory = info.languageServiceHost.getCurrentDirectory();
