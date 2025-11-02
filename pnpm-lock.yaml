@@ -22,7 +22,7 @@ catalogs:
       specifier: ^3.1.1
       version: 3.1.1
     '@vue/typescript-plugin':
-      specifier: ^3.1.2
+      specifier: https://pkg.pr.new/vuejs/language-tools/@vue/typescript-plugin@5734
       version: 3.1.2
     '@zinkawaii/eslint-config':
       specifier: ^0.4.1
@@ -168,7 +168,7 @@ importers:
     devDependencies:
       '@vue/typescript-plugin':
         specifier: 'catalog:'
-        version: 3.1.2(typescript@5.9.3)
+        version: https://pkg.pr.new/vuejs/language-tools/@vue/typescript-plugin@5734(typescript@5.9.3)
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -1628,8 +1628,9 @@ packages:
       typescript:
         optional: true
 
-  '@vue/language-core@3.1.2':
-    resolution: {integrity: sha512-PyFDCqpdfYUT+oMLqcc61oHfJlC6yjhybaefwQjRdkchIihToOEpJ2Wu/Ebq2yrnJdd1EsaAvZaXVAqcxtnDxQ==}
+  '@vue/language-core@https://pkg.pr.new/vuejs/language-tools/@vue/language-core@9d0e9675ff6f2c67f2434fd462912bd88090e9ef':
+    resolution: {tarball: https://pkg.pr.new/vuejs/language-tools/@vue/language-core@9d0e9675ff6f2c67f2434fd462912bd88090e9ef}
+    version: 3.1.2
     peerDependencies:
       typescript: '*'
     peerDependenciesMeta:
@@ -1653,8 +1654,9 @@ packages:
   '@vue/shared@3.5.22':
     resolution: {integrity: sha512-F4yc6palwq3TT0u+FYf0Ns4Tfl9GRFURDN2gWG7L1ecIaS/4fCIuFOjMTnCyjsu/OK6vaDKLCrGAa+KvvH+h4w==}
 
-  '@vue/typescript-plugin@3.1.2':
-    resolution: {integrity: sha512-2n+tiPR8RM7axxkGpYKMefW74MkGAcgqzrUN2TP3Vcv8I51UnwAz8HGI9lkABeK+Kp+yyi0DU3CBjJ3AKRNnkA==}
+  '@vue/typescript-plugin@https://pkg.pr.new/vuejs/language-tools/@vue/typescript-plugin@5734':
+    resolution: {tarball: https://pkg.pr.new/vuejs/language-tools/@vue/typescript-plugin@5734}
+    version: 3.1.2
 
   '@zinkawaii/eslint-config@0.4.1':
     resolution: {integrity: sha512-OvXb5Oxza1kTVgHjn9LOONJIQM9isc8fHwtZMLv7GzNI4ubcbNAB3eaOeeRNeVTOyp7wPyWyUi+mqYVh/Cbwyg==}
@@ -6073,7 +6075,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  '@vue/language-core@3.1.2(typescript@5.9.3)':
+  '@vue/language-core@https://pkg.pr.new/vuejs/language-tools/@vue/language-core@9d0e9675ff6f2c67f2434fd462912bd88090e9ef(typescript@5.9.3)':
     dependencies:
       '@volar/language-core': 2.4.23
       '@vue/compiler-dom': 3.5.22
@@ -6109,10 +6111,10 @@ snapshots:
 
   '@vue/shared@3.5.22': {}
 
-  '@vue/typescript-plugin@3.1.2(typescript@5.9.3)':
+  '@vue/typescript-plugin@https://pkg.pr.new/vuejs/language-tools/@vue/typescript-plugin@5734(typescript@5.9.3)':
     dependencies:
       '@volar/typescript': 2.4.23
-      '@vue/language-core': 3.1.2(typescript@5.9.3)
+      '@vue/language-core': https://pkg.pr.new/vuejs/language-tools/@vue/language-core@9d0e9675ff6f2c67f2434fd462912bd88090e9ef(typescript@5.9.3)
       '@vue/shared': 3.5.22
       path-browserify: 1.0.1
     transitivePeerDependencies:
