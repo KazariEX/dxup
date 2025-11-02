@@ -1,4 +1,4 @@
-import { forEachTouchingNode, isTextSpanEqual } from "@dxup/shared";
+import { forEachTouchingNode, isTextSpanWithin } from "@dxup/shared";
 import { extname, join } from "pathe";
 import { globSync } from "tinyglobby";
 import type ts from "typescript";
@@ -250,7 +250,7 @@ function visitRuntimeConfig(
         else if (ts.isPropertySignature(node) && ts.isIdentifier(node.name)) {
             key = node.name.text;
 
-            if (isTextSpanEqual(node.name, definition.textSpan, sourceFile)) {
+            if (isTextSpanWithin(node.name, definition.textSpan, sourceFile)) {
                 path.push(key);
                 definitions = [...forwardRuntimeConfig(context, definition, path)];
                 break;
