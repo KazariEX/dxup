@@ -22,7 +22,7 @@ export function getEditsForFileRename(
         for (const change of result) {
             const { fileName, textChanges } = change;
 
-            if (data.components && fileName.endsWith("components.d.ts")) {
+            if (data.features.components && fileName.endsWith("components.d.ts")) {
                 const sourceFile = program.getSourceFile(fileName);
                 if (!sourceFile) {
                     continue;
