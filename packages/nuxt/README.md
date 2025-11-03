@@ -6,6 +6,9 @@
 
 This is a TypeScript plugin that improves Nuxt DX.
 
+> [!tip]
+> It's now an experimental builtin feature of Nuxt. Please refer the [documentation](https://nuxt.com/docs/4.x/guide/going-further/experimental-features#typescriptplugin) for more details.
+
 ## Installation
 
 ```bash
@@ -26,11 +29,11 @@ export default defineNuxtConfig({
 
 ## Features
 
-### components
+### 1. components
 
 Update references when renaming auto imported component files.
 
-### importGlob
+### 2. importGlob
 
 Go to definition for dynamic imports with glob patterns.
 
@@ -41,7 +44,7 @@ import.meta.glob("~/assets/*.webp");
 //               ^^^^^^^^^^^^^^^^^
 ```
 
-### nitroRoutes
+### 3. nitroRoutes
 
 Go to definition for nitro routes in data fetching methods.
 
@@ -53,7 +56,7 @@ useFetch("/api/foo");
 
 It will fallback to resolve the URL from your `public` directory when no nitro routes match.
 
-### runtimeConfig
+### 4. runtimeConfig
 
 Go to definition for runtime config.
 
@@ -64,6 +67,6 @@ Go to definition for runtime config.
 </template>
 ```
 
-### unimport
+### 5. unimport
 
 Please refer to the [@dxup/unimport](/packages/unimport) package for more details.
