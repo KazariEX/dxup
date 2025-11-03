@@ -177,17 +177,10 @@ exports[`playground > app/app.vue > definition 11`] = `
 exports[`playground > app/components/foo-bar.vue > references 1`] = `
 [
   {
-    "fileName": "app/app.vue",
-    "textSpan": {
-      "length": 12,
-      "start": 1138,
-    },
-  },
-  {
-    "fileName": "app/app.vue",
+    "fileName": "app/components/foo-bar.vue",
     "textSpan": {
       "length": 6,
-      "start": 1123,
+      "start": 38,
     },
   },
   {
@@ -198,10 +191,17 @@ exports[`playground > app/components/foo-bar.vue > references 1`] = `
     },
   },
   {
-    "fileName": "app/components/foo-bar.vue",
+    "fileName": "app/app.vue",
     "textSpan": {
       "length": 6,
-      "start": 38,
+      "start": 1123,
+    },
+  },
+  {
+    "fileName": "app/app.vue",
+    "textSpan": {
+      "length": 12,
+      "start": 1138,
     },
   },
 ]
