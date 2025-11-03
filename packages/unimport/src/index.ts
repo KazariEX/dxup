@@ -72,26 +72,19 @@ const visitBackwardImports = createVisitor((ts, name, type, textSpan, sourceFile
         type = type.typeArguments[0];
     }
 
-    const targets: ts.Node[] = [];
+    let target: ts.Node;
+
     if (ts.isIndexedAccessTypeNode(type)) {
-        if (ts.isLiteralTypeNode(type.indexType) && ts.isStringLiteral(type.indexType.literal)) {
-            targets.push(type.indexType);
-            if (type.indexType.literal.text === "default" && ts.isImportTypeNode(type.objectType)) {
-                targets.push(type.objectType.argument);
-            }
-        }
+        target = type.indexType;
     }
     else if (ts.isImportTypeNode(type)) {
-        targets.push(type.qualifier ?? type.argument);
-        if (type.qualifier && ts.isIdentifier(type.qualifier) && type.qualifier.text === "default") {
-            targets.push(type.argument);
-        }
+        target = type.qualifier ?? type.argument;
     }
     else {
         return;
     }
 
-    if (targets.some((target) => isTextSpanWithin(target, textSpan, sourceFile))) {
+    if (isTextSpanWithin(target, textSpan, sourceFile)) {
         return name;
     }
 });
