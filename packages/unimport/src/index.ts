@@ -1,4 +1,4 @@
-import { forEachTouchingNode, isTextSpanEqual } from "@dxup/shared";
+import { forEachTouchingNode, isTextSpanWithin } from "@dxup/shared";
 import type ts from "typescript";
 
 const plugin: ts.server.PluginModuleFactory = (module) => {
@@ -7,12 +7,13 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
     return {
         create(info) {
             for (const [key, method] of [
-                ["findRenameLocations", findRenameLocations.bind(null, ts, info)],
-                ["findReferences", findReferences.bind(null, ts, info)],
-                ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan.bind(null, ts, info)],
+                ["findRenameLocations", findRenameLocations],
+                ["findReferences", findReferences],
+                ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan],
+                ["getFileReferences", getFileReferences],
             ] as const) {
                 const original = info.languageService[key];
-                info.languageService[key] = method(original as any) as any;
+                info.languageService[key] = method(ts, info, original as any) as any;
             }
 
             return info.languageService;
@@ -23,6 +24,78 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 export default plugin;
 
 const declarationRE = /\.d\.(?:c|m)?ts$/;
+
+function createVisitor(getter: (
+    ts: typeof import("typescript"),
+    name: ts.PropertyName,
+    type: ts.TypeNode,
+    textSpan: ts.TextSpan,
+    sourceFile: ts.SourceFile,
+) => ts.Node | undefined) {
+    return (
+        ts: typeof import("typescript"),
+        textSpan: ts.TextSpan,
+        sourceFile: ts.SourceFile,
+    ) => {
+        for (const node of forEachTouchingNode(ts, sourceFile, textSpan.start)) {
+            if (
+                ts.isPropertySignature(node) && node.type ||
+                ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.type
+            ) {
+                const target = getter(ts, node.name as any, node.type, textSpan, sourceFile);
+                if (target) {
+                    return target;
+                }
+            }
+        }
+    };
+}
+
+const visitForwardImports = createVisitor((ts, name, type, textSpan, sourceFile) => {
+    if (!isTextSpanWithin(name, textSpan, sourceFile)) {
+        return;
+    }
+
+    while (ts.isTypeReferenceNode(type) && type.typeArguments?.length) {
+        type = type.typeArguments[0];
+    }
+
+    if (ts.isIndexedAccessTypeNode(type)) {
+        return type.indexType;
+    }
+    else if (ts.isImportTypeNode(type)) {
+        return type.qualifier ?? type.argument;
+    }
+});
+
+const visitBackwardImports = createVisitor((ts, name, type, textSpan, sourceFile) => {
+    while (ts.isTypeReferenceNode(type) && type.typeArguments?.length) {
+        type = type.typeArguments[0];
+    }
+
+    const targets: ts.Node[] = [];
+    if (ts.isIndexedAccessTypeNode(type)) {
+        if (ts.isLiteralTypeNode(type.indexType) && ts.isStringLiteral(type.indexType.literal)) {
+            targets.push(type.indexType);
+            if (type.indexType.literal.text === "default" && ts.isImportTypeNode(type.objectType)) {
+                targets.push(type.objectType.argument);
+            }
+        }
+    }
+    else if (ts.isImportTypeNode(type)) {
+        targets.push(type.qualifier ?? type.argument);
+        if (type.qualifier && ts.isIdentifier(type.qualifier) && type.qualifier.text === "default") {
+            targets.push(type.argument);
+        }
+    }
+    else {
+        return;
+    }
+
+    if (targets.some((target) => isTextSpanWithin(target, textSpan, sourceFile))) {
+        return name;
+    }
+});
 
 function findRenameLocations(
     ts: typeof import("typescript"),
@@ -50,7 +123,8 @@ function findRenameLocations(
                 continue;
             }
 
-            const node = visitImports(ts, location.textSpan, sourceFile);
+            const args = [ts, location.textSpan, sourceFile] as const;
+            const node = visitForwardImports(...args) ?? visitBackwardImports(...args);
             if (!node) {
                 continue;
             }
@@ -92,7 +166,7 @@ function findReferences(
                     continue;
                 }
 
-                const node = visitImports(ts, reference.textSpan, sourceFile);
+                const node = visitBackwardImports(ts, reference.textSpan, sourceFile);
                 if (!node) {
                     continue;
                 }
@@ -129,7 +203,7 @@ function getDefinitionAndBoundSpan(
         }
 
         const program = info.languageService.getProgram()!;
-        const definitions = new Set<ts.DefinitionInfo>(result.definitions);
+        const definitions = new Set(result.definitions);
 
         for (const definition of result.definitions) {
             const sourceFile = program.getSourceFile(definition.fileName);
@@ -141,7 +215,7 @@ function getDefinitionAndBoundSpan(
                 continue;
             }
 
-            const node = visitImports(ts, definition.textSpan, sourceFile);
+            const node = visitForwardImports(ts, definition.textSpan, sourceFile);
             if (!node) {
                 continue;
             }
@@ -163,76 +237,45 @@ function getDefinitionAndBoundSpan(
     };
 }
 
-function visitImports(
+function getFileReferences(
     ts: typeof import("typescript"),
-    textSpan: ts.TextSpan,
-    sourceFile: ts.SourceFile,
-) {
-    for (const node of forEachTouchingNode(ts, sourceFile, textSpan.start)) {
-        let target: ts.Node | undefined;
-
-        if (ts.isPropertySignature(node) && node.type) {
-            const args = [ts, node.name, node.type, textSpan, sourceFile] as const;
-            target = forwardTypeofImport(...args) ?? backwardTypeofImport(...args);
-        }
-        else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.type) {
-            const args = [ts, node.name, node.type, textSpan, sourceFile] as const;
-            target = forwardTypeofImport(...args) ?? backwardTypeofImport(...args);
+    info: ts.server.PluginCreateInfo,
+    getFileReferences: ts.LanguageService["getFileReferences"],
+): ts.LanguageService["getFileReferences"] {
+    return (fileName) => {
+        const result = getFileReferences(fileName);
+        if (!result?.length) {
+            return result;
         }
 
-        if (target) {
-            return target;
+        const program = info.languageService.getProgram()!;
+        const references = new Set(result);
+
+        for (const reference of result) {
+            const sourceFile = program.getSourceFile(reference.fileName);
+            if (!sourceFile) {
+                continue;
+            }
+
+            if (!declarationRE.test(reference.fileName)) {
+                continue;
+            }
+
+            const node = visitBackwardImports(ts, reference.textSpan, sourceFile);
+            if (!node) {
+                continue;
+            }
+
+            const position = node.getStart(sourceFile);
+            const res = info.languageService.getReferencesAtPosition(reference.fileName, position);
+            if (res?.length) {
+                for (const reference of res.slice(1)) {
+                    references.add(reference);
+                }
+                references.delete(reference);
+            }
         }
-    }
-}
 
-function forwardTypeofImport(
-    ts: typeof import("typescript"),
-    name: ts.PropertyName,
-    type: ts.TypeNode,
-    textSpan: ts.TextSpan,
-    sourceFile: ts.SourceFile,
-) {
-    if (!isTextSpanEqual(name, textSpan, sourceFile)) {
-        return;
-    }
-
-    while (ts.isTypeReferenceNode(type) && type.typeArguments?.length) {
-        type = type.typeArguments[0];
-    }
-
-    if (ts.isIndexedAccessTypeNode(type)) {
-        return type.indexType;
-    }
-    else if (ts.isImportTypeNode(type)) {
-        return type.qualifier ?? type.argument;
-    }
-}
-
-function backwardTypeofImport(
-    ts: typeof import("typescript"),
-    name: ts.PropertyName,
-    type: ts.TypeNode,
-    textSpan: ts.TextSpan,
-    sourceFile: ts.SourceFile,
-) {
-    while (ts.isTypeReferenceNode(type) && type.typeArguments?.length) {
-        type = type.typeArguments[0];
-    }
-
-    let target: ts.Node;
-
-    if (ts.isIndexedAccessTypeNode(type)) {
-        target = type.objectType;
-    }
-    else if (ts.isImportTypeNode(type)) {
-        target = type.qualifier ?? type.argument;
-    }
-    else {
-        return;
-    }
-
-    if (isTextSpanEqual(target, textSpan, sourceFile)) {
-        return name;
-    }
+        return [...references];
+    };
 }

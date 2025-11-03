@@ -1,111 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`playground > auto imports 1`] = `
-[
-  {
-    "fileName": "app/utils/index.ts",
-    "textSpan": {
-      "length": 3,
-      "start": 13,
-    },
-  },
-]
-`;
-
-exports[`playground > import glob 1`] = `
-[
-  {
-    "fileName": "app/assets/maestrale.webp",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-  {
-    "fileName": "app/assets/libeccio.webp",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > import glob 2`] = `
-[
-  {
-    "fileName": "app/assets/maestrale.webp",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-  {
-    "fileName": "app/assets/libeccio.webp",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > nitro routes 1`] = `
-[
-  {
-    "fileName": "server/routes/sitemap.post.ts",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-  {
-    "fileName": "server/routes/sitemap.get.ts",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > nitro routes 2`] = `
-[
-  {
-    "fileName": "public/fallback.json",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > nitro routes 3`] = `
-[
-  {
-    "fileName": "server/api/foo.get.ts",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > nitro routes 4`] = `
-[
-  {
-    "fileName": "server/api/foo.post.ts",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > runtime config 1`] = `
+exports[`playground > app/app.vue > definition 1`] = `
 [
   {
     "fileName": "layers/archer/nuxt.config.ts",
@@ -131,7 +26,7 @@ exports[`playground > runtime config 1`] = `
 ]
 `;
 
-exports[`playground > runtime config 2`] = `
+exports[`playground > app/app.vue > definition 2`] = `
 [
   {
     "fileName": "layers/berserker/nuxt.config.ts",
@@ -150,7 +45,7 @@ exports[`playground > runtime config 2`] = `
 ]
 `;
 
-exports[`playground > runtime config 3`] = `
+exports[`playground > app/app.vue > definition 3`] = `
 [
   {
     "fileName": "nuxt.config.ts",
@@ -162,13 +57,151 @@ exports[`playground > runtime config 3`] = `
 ]
 `;
 
-exports[`playground > runtime config 4`] = `
+exports[`playground > app/app.vue > definition 4`] = `
 [
   {
     "fileName": "nuxt.config.ts",
     "textSpan": {
       "length": 5,
       "start": 112,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > definition 5`] = `
+[
+  {
+    "fileName": "app/utils/index.ts",
+    "textSpan": {
+      "length": 3,
+      "start": 13,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > definition 6`] = `
+[
+  {
+    "fileName": "app/assets/maestrale.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+  {
+    "fileName": "app/assets/libeccio.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > definition 7`] = `
+[
+  {
+    "fileName": "app/assets/maestrale.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+  {
+    "fileName": "app/assets/libeccio.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > definition 8`] = `
+[
+  {
+    "fileName": "server/routes/sitemap.post.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+  {
+    "fileName": "server/routes/sitemap.get.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > definition 9`] = `
+[
+  {
+    "fileName": "public/fallback.json",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > definition 10`] = `
+[
+  {
+    "fileName": "server/api/foo.get.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > definition 11`] = `
+[
+  {
+    "fileName": "server/api/foo.post.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/components/foo-bar.vue > references 1`] = `
+[
+  {
+    "fileName": "app/app.vue",
+    "textSpan": {
+      "length": 12,
+      "start": 1138,
+    },
+  },
+  {
+    "fileName": "app/app.vue",
+    "textSpan": {
+      "length": 6,
+      "start": 1123,
+    },
+  },
+  {
+    "fileName": "app/components/foo-bar.vue",
+    "textSpan": {
+      "length": 6,
+      "start": 77,
+    },
+  },
+  {
+    "fileName": "app/components/foo-bar.vue",
+    "textSpan": {
+      "length": 6,
+      "start": 38,
     },
   },
 ]

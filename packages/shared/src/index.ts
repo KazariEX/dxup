@@ -40,13 +40,13 @@ function* binaryVisit(
     }
 }
 
-export function isTextSpanEqual(
+export function isTextSpanWithin(
     node: ts.Node,
     textSpan: ts.TextSpan,
     sourceFile: ts.SourceFile,
 ) {
     return (
-        textSpan.start + textSpan.length === node.getEnd() &&
-        textSpan.start === node.getStart(sourceFile)
+        textSpan.start + textSpan.length <= node.getEnd() &&
+        textSpan.start >= node.getStart(sourceFile)
     );
 }
