@@ -10,7 +10,6 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                 ["findRenameLocations", findRenameLocations],
                 ["findReferences", findReferences],
                 ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan],
-                ["getFileReferences", getFileReferences],
             ] as const) {
                 const original = info.languageService[key];
                 info.languageService[key] = method(ts, info, original as any) as any;
@@ -152,8 +151,37 @@ function findReferences(
         }
 
         const program = info.languageService.getProgram()!;
+
         for (const symbol of result) {
-            symbol.references = transformReferences(ts, info, program, symbol.references);
+            const references = new Set(symbol.references);
+
+            for (const reference of symbol.references) {
+                const sourceFile = program.getSourceFile(reference.fileName);
+                if (!sourceFile) {
+                    continue;
+                }
+
+                if (!declarationRE.test(reference.fileName)) {
+                    continue;
+                }
+
+                const node = visitBackwardImports(ts, reference.textSpan, sourceFile);
+                if (!node) {
+                    continue;
+                }
+
+                const position = node.getStart(sourceFile) + 1;
+                const res = info.languageService.getReferencesAtPosition(reference.fileName, position)
+                    ?.filter((entry) => entry.fileName !== reference.fileName ||
+                        position < entry.textSpan.start ||
+                        position > entry.textSpan.start + entry.textSpan.length);
+
+                references.delete(reference);
+                for (const reference of res ?? []) {
+                    references.add(reference);
+                }
+            }
+            symbol.references = [...references];
         }
 
         return result;
@@ -204,58 +232,4 @@ function getDefinitionAndBoundSpan(
             textSpan: result.textSpan,
         };
     };
-}
-
-function getFileReferences(
-    ts: typeof import("typescript"),
-    info: ts.server.PluginCreateInfo,
-    getFileReferences: ts.LanguageService["getFileReferences"],
-): ts.LanguageService["getFileReferences"] {
-    return (fileName) => {
-        const result = getFileReferences(fileName);
-        if (!result?.length) {
-            return result;
-        }
-
-        const program = info.languageService.getProgram()!;
-        return transformReferences(ts, info, program, result);
-    };
-}
-
-function transformReferences(
-    ts: typeof import("typescript"),
-    info: ts.server.PluginCreateInfo,
-    program: ts.Program,
-    original: ts.ReferencedSymbolEntry[],
-) {
-    const references = new Set(original);
-
-    for (const reference of original) {
-        const sourceFile = program.getSourceFile(reference.fileName);
-        if (!sourceFile) {
-            continue;
-        }
-
-        if (!declarationRE.test(reference.fileName)) {
-            continue;
-        }
-
-        const node = visitBackwardImports(ts, reference.textSpan, sourceFile);
-        if (!node) {
-            continue;
-        }
-
-        const position = node.getStart(sourceFile) + 1;
-        const res = info.languageService.getReferencesAtPosition(reference.fileName, position)
-            ?.filter((entry) => entry.fileName !== reference.fileName ||
-                position < entry.textSpan.start ||
-                position > entry.textSpan.start + entry.textSpan.length);
-
-        references.delete(reference);
-        for (const reference of res ?? []) {
-            references.add(reference);
-        }
-    }
-
-    return [...references];
 }
