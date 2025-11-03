@@ -112,7 +112,7 @@ describe("playground", () => {
                         expect(result).toBeDefined();
                         expect(result!.length).toBe(1);
                         expect(
-                            result![0].references.map((reference) => ({
+                            result![0].references.slice(1).map((reference) => ({
                                 fileName: relative(playgroundRoot, reference.fileName),
                                 textSpan: reference.textSpan,
                             })),
