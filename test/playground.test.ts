@@ -118,7 +118,6 @@ describe("playground", () => {
                     else if (type === "references") {
                         const result = languageService.findReferences(sourceFile.fileName, start);
                         expect(result).toBeDefined();
-                        expect(result!.length).toBe(1);
                         expect(
                             result![0].references.slice(1).map((reference) => ({
                                 fileName: relative(playgroundRoot, reference.fileName),

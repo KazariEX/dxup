@@ -173,3 +173,15 @@ exports[`playground > app/app.vue > definition 11`] = `
   },
 ]
 `;
+
+exports[`playground > app/utils/index.ts > references 1`] = `
+[
+  {
+    "fileName": "app/app.vue",
+    "textSpan": {
+      "length": 3,
+      "start": 439,
+    },
+  },
+]
+`;
