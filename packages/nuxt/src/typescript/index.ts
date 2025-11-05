@@ -1,12 +1,12 @@
 /// <reference types="@volar/typescript"/>
 
-import { join } from "pathe";
 import type ts from "typescript";
 import { createEventServer } from "../event/server";
+import { createData } from "./data";
 import { findRenameLocations } from "./features/findRenameLocations";
 import { getDefinitionAndBoundSpan } from "./features/getDefinitionAndBoundSpan";
 import { getEditsForFileRename } from "./features/getEditsForFileRename";
-import type { Context, Data } from "./types";
+import type { Context } from "./types";
 
 const plugin: ts.server.PluginModuleFactory = (module) => {
     const { typescript: ts } = module;
@@ -37,35 +37,3 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 };
 
 export default plugin;
-
-function createData(ts: typeof import("typescript"), info: ts.server.PluginCreateInfo) {
-    const initialValue: Data = {
-        buildDir: "",
-        publicDir: "",
-        configFiles: [],
-        nitroRoutes: {},
-        features: {
-            components: true,
-            importGlob: true,
-            nitroRoutes: true,
-            runtimeConfig: true,
-        },
-    };
-
-    const currentDirectory = info.languageServiceHost.getCurrentDirectory();
-    const path = join(currentDirectory, "dxup/data.json");
-    const data = {} as Data;
-
-    update();
-    ts.sys.watchFile?.(path, update);
-
-    return data;
-
-    function update() {
-        const text = ts.sys.readFile(path);
-        Object.assign(data, {
-            ...initialValue,
-            ...text ? JSON.parse(text) : {},
-        });
-    }
-}
