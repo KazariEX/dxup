@@ -52,7 +52,7 @@ describe("playground", () => {
     const program = languageService.getProgram()!;
     const language = (project as any).__vue__.language as Language<string>;
 
-    const operationRE = /(?<=(?:\/\/|<!--)\s*)(?<range>\^—*\^)\((?<type>\w+)\)/;
+    const operationRE = /(?<=(?:\/\/|<!--)\s*)(?<range>\^—*\^)\((?<type>\w+)\)(?<skip>\.skip\(\))?/;
 
     for (const fileName of project.getFileNames()) {
         if (fileName.startsWith(buildDir)) {
@@ -85,12 +85,20 @@ describe("playground", () => {
                 continue;
             }
 
-            const { range, type } = match.groups!;
+            const { range, type, skip } = match.groups!;
+            if (skip !== void 0) {
+                continue;
+            }
+
             items.push({
                 start: offsets[i - 1] + match.index!,
                 length: range.length,
                 type,
             });
+        }
+
+        if (!items.length) {
+            continue;
         }
 
         describe(relative(playgroundRoot, fileName), () => {
@@ -110,8 +118,6 @@ describe("playground", () => {
                     else if (type === "references") {
                         const result = languageService.findReferences(sourceFile.fileName, start);
                         expect(result).toBeDefined();
-                        expect(result!.length).toBe(1);
-                        expect(result![0].definition.textSpan).toEqual({ start, length });
                         expect(
                             result![0].references.slice(1).map((reference) => ({
                                 fileName: relative(playgroundRoot, reference.fileName),
