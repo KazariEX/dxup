@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": "KazariEX/dxup",
   "exports": {
-    ".": "./dist/module.js",
+    ".": "./dist/module.mjs",
     "./package.json": "./package.json"
   },
   "main": "./dist/typescript.cjs",

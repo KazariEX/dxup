@@ -6,8 +6,8 @@
 
 This is a TypeScript plugin that improves Nuxt DX.
 
-> [!tip]
-> It's now an experimental builtin feature of Nuxt. Please refer the [documentation](https://nuxt.com/docs/4.x/guide/going-further/experimental-features#typescriptplugin) for more details.
+> [!note]
+> It's now an experimental builtin feature of Nuxt. Please refer to the [documentation](https://nuxt.com/docs/4.x/guide/going-further/experimental-features#typescriptplugin) for more details.
 
 ## Installation
 

@@ -15,32 +15,31 @@ const initialValue: Data = {
     },
 };
 
-// eslint-disable-next-line ts/no-unsafe-function-type
-const callbacks: Record<string, Function[]> = {};
+const callbacks: Record<string, ((text?: string) => void)[]> = {};
 
 export function createData(ts: typeof import("typescript"), info: ts.server.PluginCreateInfo) {
     const currentDirectory = info.languageServiceHost.getCurrentDirectory();
     const path = join(currentDirectory, "dxup/data.json");
     const data = {} as Data;
 
-    const updates = callbacks[path] ?? (
+    const updates = callbacks[path] ??= (
         ts.sys.watchFile?.(path, () => {
             const text = ts.sys.readFile(path);
             for (const update of updates) {
                 update(text);
             }
-        }),
-        callbacks[path] = []
+        }), []
     );
-    updates.push(update);
-    update(ts.sys.readFile(path));
 
-    return data;
-
-    function update(text?: string) {
+    updates.push((text) => {
         Object.assign(data, {
             ...initialValue,
             ...text ? JSON.parse(text) : {},
         });
-    }
+    });
+
+    const text = ts.sys.readFile(path);
+    updates.at(-1)!(text);
+
+    return data;
 }
