@@ -33,6 +33,10 @@ export default defineNuxtConfig({
 
 Update references when renaming auto imported component files.
 
+For example, when renaming `components/foo/bar.vue` to `components/foo/baz.vue`, all usages of `<FooBar />` will be updated to `<FooBaz />`.
+
+It only works when the dev server is active.
+
 ### 2. importGlob
 
 Go to definition for dynamic imports with glob patterns.
