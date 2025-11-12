@@ -88,8 +88,10 @@ export default defineNuxtModule<ModuleOptions>({
             },
         });
 
-        const client = await createEventClient(nuxt);
-        client.on("components:rename", (data) => onComponentsRename(nuxt, data));
+        if (nuxt.options.dev) {
+            const client = await createEventClient(nuxt);
+            client.on("components:rename", (data) => onComponentsRename(nuxt, data));
+        }
     },
 });
 
