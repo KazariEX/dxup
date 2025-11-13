@@ -199,12 +199,18 @@ function visitNitroRoutes(
 
     const paths: string[] = [];
     if (routeType?.isStringLiteral()) {
+        const alternatives = data.nitroRoutes[routeType.value] ?? {};
+        const methods: string[] = [];
+
         for (const type of methodType?.isUnion() ? methodType.types : [methodType]) {
             if (type?.isStringLiteral()) {
-                const path = data.nitroRoutes[`${routeType.value}+${type.value}`];
-                if (path !== void 0) {
-                    paths.push(path);
-                }
+                methods.push(type.value);
+            }
+        }
+        for (const method of methods.length ? methods : Object.keys(alternatives)) {
+            const path = alternatives[method];
+            if (path !== void 0) {
+                paths.push(path);
             }
         }
     }

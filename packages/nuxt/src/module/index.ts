@@ -2,6 +2,7 @@ import { addTemplate, defineNuxtModule, useNitro } from "@nuxt/kit";
 import * as packageJson from "../../package.json";
 import { createEventClient } from "../event/client";
 import { onComponentsRename } from "./events";
+import type { Data } from "../typescript/types";
 
 interface Plugin {
     name: string;
@@ -76,12 +77,12 @@ export default defineNuxtModule<ModuleOptions>({
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
-                    nitroRoutes: Object.fromEntries(
-                        nitro.scannedHandlers.filter((item) => item.route).map((item) => [
-                            `${item.route}+${item.method ?? "get"}`,
-                            item.handler,
-                        ]),
-                    ),
+                    nitroRoutes: nitro.scannedHandlers.reduce((acc, item) => {
+                        if (item.route && item.method) {
+                            (acc[item.route] ??= {})[item.method] = item.handler;
+                        }
+                        return acc;
+                    }, {} as Data["nitroRoutes"]),
                     features: options.features,
                 };
                 return JSON.stringify(data, null, 2);

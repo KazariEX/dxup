@@ -6,7 +6,11 @@ export interface Data {
     buildDir: string;
     publicDir: string;
     configFiles: string[];
-    nitroRoutes: Record<string, string>;
+    nitroRoutes: {
+        [route: string]: {
+            [method: string]: string;
+        };
+    };
     features: {
         components: boolean;
         importGlob: boolean;
