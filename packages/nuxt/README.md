@@ -75,4 +75,12 @@ Go to definition for runtime config.
 
 ### 5. unimport
 
+Find references for SFC on `<template>`.
+
+```vue
+....<template>
+<!-- ^^^^^^^^ -->
+</template>
+```
+
 Please refer to the [@dxup/unimport](/packages/unimport) package for more details.
