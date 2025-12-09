@@ -1,6 +1,7 @@
 import { forEachTouchingNode, isTextSpanWithin } from "@dxup/shared";
 import { extname, join } from "pathe";
 import { globSync } from "tinyglobby";
+import type { Language } from "@volar/language-core";
 import type ts from "typescript";
 import { isVueVirtualCode } from "../utils";
 import type { Context, Data } from "../types";
@@ -13,9 +14,10 @@ const fetchFunctions = new Set([
 
 export function postprocess(
     context: Context,
+    language: Language,
     getDefinitionAndBoundSpan: ts.LanguageService["getDefinitionAndBoundSpan"],
 ): ts.LanguageService["getDefinitionAndBoundSpan"] {
-    const { ts, language } = context;
+    const { ts } = context;
 
     return (...args) => {
         const result = getDefinitionAndBoundSpan(...args);

@@ -1,12 +1,14 @@
+import type { Language } from "@volar/language-core";
 import type ts from "typescript";
 import { isVueVirtualCode, withVirtualOffset } from "../utils";
 import type { Context } from "../types";
 
 export function postprocess(
     context: Context,
+    language: Language,
     findReferences: ts.LanguageService["findReferences"],
 ): ts.LanguageService["findReferences"] {
-    const { ts, info, language } = context;
+    const { ts, info } = context;
 
     return (...args) => {
         const result = findReferences(...args);

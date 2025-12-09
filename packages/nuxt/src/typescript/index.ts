@@ -22,7 +22,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                 // eslint-disable-next-line dot-notation
                 context.language = ((info.project as any).__vue__ ?? info.project["program"]?.__vue__)?.language;
 
-                if (!data.features.unimport.componentReferences) {
+                if (!context.language || !data.features.unimport.componentReferences) {
                     return;
                 }
 
@@ -38,7 +38,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                     ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan],
                 ] as const) {
                     const original = languageService[key];
-                    methods[key] = method.postprocess(context, original as any) as any;
+                    methods[key] = method.postprocess(context, context.language, original as any) as any;
                 }
 
                 // eslint-disable-next-line dot-notation
