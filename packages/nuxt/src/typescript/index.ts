@@ -22,7 +22,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                 // eslint-disable-next-line dot-notation
                 context.language = ((info.project as any).__vue__ ?? info.project["program"]?.__vue__)?.language;
 
-                if (!data.features.unimport) {
+                if (!data.features.unimport.componentReferences) {
                     return;
                 }
 

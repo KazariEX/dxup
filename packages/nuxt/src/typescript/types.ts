@@ -16,7 +16,9 @@ export interface Data {
         importGlob: boolean;
         nitroRoutes: boolean;
         runtimeConfig: boolean;
-        unimport: boolean;
+        unimport: {
+            componentReferences: boolean;
+        };
     };
 }
 
