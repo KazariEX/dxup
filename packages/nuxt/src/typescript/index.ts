@@ -19,8 +19,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 
             const context: Context = { ts, info, data, server };
             setTimeout(() => {
-                // eslint-disable-next-line dot-notation
-                context.language = ((info.project as any).__vue__ ?? info.project["program"]?.__vue__)?.language;
+                context.language = (info.project as any).__vue__?.language;
 
                 if (!context.language || !data.features.unimport.componentReferences) {
                     return;
@@ -50,7 +49,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                         return Reflect.set(...args);
                     },
                 });
-            }, 500);
+            }, 0);
 
             for (const [key, method] of [
                 ["findRenameLocations", findRenameLocations],

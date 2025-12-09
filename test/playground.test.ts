@@ -48,7 +48,7 @@ describe("playground", async () => {
     projectService.openClientFile(appVuePath);
 
     // wait for the postprocess of language service to complete
-    await delay(500);
+    await delay(0);
 
     const project = projectService.getDefaultProjectForFile(ts.server.toNormalizedPath(appVuePath), true)!;
     const languageService = project.getLanguageService();
