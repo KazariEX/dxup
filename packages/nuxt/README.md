@@ -11,21 +11,23 @@ This is a TypeScript plugin that improves Nuxt DX.
 
 ## Installation
 
-```bash
-pnpm i -D @dxup/nuxt
-```
+*No installation is required if you are using Nuxt 4.2 or above.*
+
+However, if you haven't enabled the `shamefullyHoist` option with pnpm workspace (or options in other package managers that provide similar functionality), you'll need to explicitly install the `@dxup/unimport` package.
 
 ## Usage
 
-Add the following to your `nuxt.config.ts`:
+1. Add the following to your `nuxt.config.ts`:
 
-```ts
-export default defineNuxtConfig({
-  modules: [
-    "@dxup/nuxt",
-  ],
-});
-```
+   ```ts
+   export default defineNuxtConfig({
+     experimental: {
+       typescriptPlugin: true,
+     },
+   });
+   ```
+
+3. Run `nuxt prepare` and restart the tsserver.
 
 ## Features
 
