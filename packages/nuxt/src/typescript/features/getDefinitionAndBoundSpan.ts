@@ -2,6 +2,7 @@ import { forEachTouchingNode, isTextSpanWithin } from "@dxup/shared";
 import { extname, join } from "pathe";
 import { globSync } from "tinyglobby";
 import type ts from "typescript";
+import { isVueVirtualCode } from "../utils";
 import type { Context, Data } from "../types";
 
 const fetchFunctions = new Set([
@@ -10,7 +11,49 @@ const fetchFunctions = new Set([
     "useLazyFetch",
 ]);
 
-export function getDefinitionAndBoundSpan(
+export function postprocess(
+    context: Context,
+    getDefinitionAndBoundSpan: ts.LanguageService["getDefinitionAndBoundSpan"],
+): ts.LanguageService["getDefinitionAndBoundSpan"] {
+    const { ts, language } = context;
+
+    return (...args) => {
+        const result = getDefinitionAndBoundSpan(...args);
+
+        if (!result?.definitions?.length) {
+            const sourceScript = language?.scripts.get(args[0]);
+            const root = sourceScript?.generated?.root;
+            if (!isVueVirtualCode(root)) {
+                return result;
+            }
+
+            const textSpan = {
+                start: (root.sfc.template?.start ?? Infinity) + 1,
+                length: "template".length,
+            };
+
+            // return a self-location result used to trigger alternative operations (findReferences)
+            if (args[1] >= textSpan.start && args[1] <= textSpan.start + textSpan.length) {
+                return {
+                    textSpan,
+                    definitions: [{
+                        fileName: args[0],
+                        textSpan,
+                        kind: ts.ScriptElementKind.scriptElement,
+                        name: args[0],
+                        containerKind: ts.ScriptElementKind.unknown,
+                        containerName: "",
+                    }],
+                };
+            }
+            return result;
+        }
+
+        return result;
+    };
+}
+
+export function preprocess(
     context: Context,
     getDefinitionAndBoundSpan: ts.LanguageService["getDefinitionAndBoundSpan"],
 ): ts.LanguageService["getDefinitionAndBoundSpan"] {

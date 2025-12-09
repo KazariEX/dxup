@@ -3,9 +3,10 @@
 import type ts from "typescript";
 import { createEventServer } from "../event/server";
 import { createData } from "./data";
-import { findRenameLocations } from "./features/findRenameLocations";
-import { getDefinitionAndBoundSpan } from "./features/getDefinitionAndBoundSpan";
-import { getEditsForFileRename } from "./features/getEditsForFileRename";
+import * as findReferences from "./features/findReferences";
+import * as findRenameLocations from "./features/findRenameLocations";
+import * as getDefinitionAndBoundSpan from "./features/getDefinitionAndBoundSpan";
+import * as getEditsForFileRename from "./features/getEditsForFileRename";
 import type { Context } from "./types";
 
 const plugin: ts.server.PluginModuleFactory = (module) => {
@@ -20,6 +21,31 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
             setTimeout(() => {
                 // eslint-disable-next-line dot-notation
                 context.language = ((info.project as any).__vue__ ?? info.project["program"]?.__vue__)?.language;
+
+                // Because the volar based plugin is loaded latest,
+                // it prevents the current plugin from accessing the original position
+                // at the time the language service request is triggered.
+                // If no mapping exists for that position, the request will be simply skipped.
+                const languageService = info.project.getLanguageService();
+                const methods: Record<PropertyKey, any> = {};
+
+                for (const [key, method] of [
+                    ["findReferences", findReferences],
+                    ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan],
+                ] as const) {
+                    const original = languageService[key];
+                    methods[key] = method.postprocess(context, original as any) as any;
+                }
+
+                // eslint-disable-next-line dot-notation
+                info.project["languageService"] = new Proxy(languageService, {
+                    get(target, p, receiver) {
+                        return methods[p] ?? Reflect.get(target, p, receiver);
+                    },
+                    set(...args) {
+                        return Reflect.set(...args);
+                    },
+                });
             }, 500);
 
             for (const [key, method] of [
@@ -28,7 +54,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                 ["getEditsForFileRename", getEditsForFileRename],
             ] as const) {
                 const original = info.languageService[key];
-                info.languageService[key] = method(context, original as any) as any;
+                info.languageService[key] = method.preprocess(context, original as any) as any;
             }
 
             return info.languageService;

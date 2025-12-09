@@ -6,5 +6,5 @@
 
 <!-- eslint-disable-next-line vue/valid-template-root -->
 ....<template>
-<!-- ^——————^(references).skip() -->
+<!-- ^——————^(references) -->
 </template>

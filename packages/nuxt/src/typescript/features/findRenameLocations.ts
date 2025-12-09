@@ -1,7 +1,7 @@
 import type ts from "typescript";
 import type { Context } from "../types";
 
-export function findRenameLocations(
+export function preprocess(
     context: Context,
     findRenameLocations: ts.LanguageService["findRenameLocations"],
 ): ts.LanguageService["findRenameLocations"] {
