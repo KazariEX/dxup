@@ -12,6 +12,7 @@ const initialValue: Data = {
         importGlob: true,
         nitroRoutes: true,
         runtimeConfig: true,
+        unimport: true,
     },
 };
 

@@ -22,6 +22,10 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                 // eslint-disable-next-line dot-notation
                 context.language = ((info.project as any).__vue__ ?? info.project["program"]?.__vue__)?.language;
 
+                if (!data.features.unimport) {
+                    return;
+                }
+
                 // Because the volar based plugin is loaded latest,
                 // it prevents the current plugin from accessing the original position
                 // at the time the language service request is triggered.
