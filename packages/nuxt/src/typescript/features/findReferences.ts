@@ -14,7 +14,7 @@ export function postprocess(
         const result = findReferences(...args);
 
         if (!result?.length) {
-            const sourceScript = language?.scripts.get(args[0]);
+            const sourceScript = language.scripts.get(args[0]);
             const root = sourceScript?.generated?.root;
             if (!isVueVirtualCode(root)) {
                 return;
@@ -35,7 +35,7 @@ export function postprocess(
                 if (ts.isExportAssignment(statement)) {
                     const defaultKeyword = statement.getChildAt(1);
                     return withVirtualOffset(
-                        language!,
+                        language,
                         sourceScript!,
                         defaultKeyword.getStart(sourceFile),
                         (position) => findReferences(args[0], position),
