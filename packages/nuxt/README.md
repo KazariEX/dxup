@@ -84,7 +84,7 @@ Go to definition for typed pages.
 </template>
 ```
 
-It can be triggered on the `name` property of an object literal constrained by the `RouteLocationRaw` interface.
+It can be triggered on the `name` property of an object literal constrained by the `RouteLocationRaw` type.
 
 ### 6. unimport
 
