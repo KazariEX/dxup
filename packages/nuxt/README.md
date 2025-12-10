@@ -73,7 +73,20 @@ Go to definition for runtime config.
 </template>
 ```
 
-### 5. unimport
+### 5. typedPages
+
+Go to definition for typed pages.
+
+```vue
+<template>
+  <nuxt-link :to="{ name: `about` }"/>
+  <!--                    ^^^^^^^ -->
+</template>
+```
+
+It can be triggered on the `name` property of an object literal constrained by the `RouteLocationRaw` interface.
+
+### 6. unimport
 
 Find references for SFC on `<template>`.
 
