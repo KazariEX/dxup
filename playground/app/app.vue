@@ -1,4 +1,6 @@
-<script lang="ts" setup>
+<script lang="tsx" setup>
+    import { NuxtLink } from "#components";
+
     /* -------------- runtime config -------------- */
 
     const config = useRuntimeConfig();
@@ -34,6 +36,11 @@
     //       ^————————^(definition)
     useLazyFetch("/api/foo", { method: "post" });
     //           ^————————^(definition)
+
+    /* -------------- typed pages -------------- */
+
+    <NuxtLink to={{ name: "about" }} />;
+    //                    ^—————^(definition)
 </script>
 
 <!-- eslint-disable vue/component-name-in-template-casing -->

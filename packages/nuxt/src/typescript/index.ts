@@ -37,7 +37,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                     ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan],
                 ] as const) {
                     const original = languageService[key];
-                    methods[key] = method.postprocess(context, context.language, original as any) as any;
+                    methods[key] = method.postprocess(context, context.language, original as any);
                 }
 
                 // eslint-disable-next-line dot-notation

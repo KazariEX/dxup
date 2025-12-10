@@ -3,7 +3,7 @@ import { extname, join } from "pathe";
 import { globSync } from "tinyglobby";
 import type { Language } from "@volar/language-core";
 import type ts from "typescript";
-import { isVueVirtualCode } from "../utils";
+import { createDefinitionInfo, isVueVirtualCode } from "../utils";
 import type { Context, Data } from "../types";
 
 const fetchFunctions = new Set([
@@ -38,14 +38,7 @@ export function postprocess(
             if (args[1] >= textSpan.start && args[1] <= textSpan.start + textSpan.length) {
                 return {
                     textSpan,
-                    definitions: [{
-                        fileName: args[0],
-                        textSpan,
-                        kind: ts.ScriptElementKind.scriptElement,
-                        name: args[0],
-                        containerKind: ts.ScriptElementKind.unknown,
-                        containerName: "",
-                    }],
+                    definitions: [createDefinitionInfo(ts, args[0])],
                 };
             }
             return result;
@@ -80,6 +73,9 @@ export function preprocess(
                 }
                 if (data.features.nitroRoutes) {
                     res ??= visitNitroRoutes(ts, data, checker, sourceFile, node, args[1]);
+                }
+                if (data.features.typedPages) {
+                    res ??= visitTypedPages(ts, data, checker, sourceFile, node, args[1]);
                 }
             }
 
@@ -186,14 +182,7 @@ function visitImportGlob(
             start,
             length: end - start,
         },
-        definitions: fileNames.map((fileName) => ({
-            fileName,
-            textSpan: { start: 0, length: 0 },
-            kind: ts.ScriptElementKind.unknown,
-            name: fileName,
-            containerKind: ts.ScriptElementKind.unknown,
-            containerName: "",
-        })),
+        definitions: fileNames.map((fileName) => createDefinitionInfo(ts, fileName)),
     };
 }
 
@@ -272,14 +261,50 @@ function visitNitroRoutes(
             start,
             length: end - start,
         },
-        definitions: paths.map((path) => ({
-            fileName: path,
-            textSpan: { start: 0, length: 0 },
-            kind: ts.ScriptElementKind.scriptElement,
-            name: path,
-            containerKind: ts.ScriptElementKind.unknown,
-            containerName: "",
-        })),
+        definitions: paths.map((path) => createDefinitionInfo(ts, path)),
+    };
+}
+
+function visitTypedPages(
+    ts: typeof import("typescript"),
+    data: Data,
+    checker: ts.TypeChecker,
+    sourceFile: ts.SourceFile,
+    node: ts.Node,
+    position: number,
+) {
+    if (
+        !ts.isPropertyAssignment(node) ||
+        !ts.isIdentifier(node.name) ||
+        node.name.text !== "name" ||
+        !ts.isStringLiteralLike(node.initializer)
+    ) {
+        return;
+    }
+
+    const start = node.initializer.getStart(sourceFile);
+    const end = node.initializer.getEnd();
+
+    if (position < start || position > end) {
+        return;
+    }
+
+    const contextualType = checker.getContextualType(node.parent);
+    if (contextualType?.getNonNullableType().aliasSymbol?.name !== "RouteLocationRaw") {
+        return;
+    }
+
+    const path = data.typedPages[node.initializer.text];
+    if (path === void 0) {
+        return;
+    }
+
+    return {
+        textSpan: {
+            start,
+            length: end - start,
+        },
+        definitions: [createDefinitionInfo(ts, path)],
     };
 }
 
