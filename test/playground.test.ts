@@ -6,7 +6,7 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import type { Language } from "@volar/language-core";
 
-describe("playground", () => {
+describe("playground", async () => {
     const logger: ts.server.Logger = {
         close: () => {},
         endGroup: () => {},
@@ -46,6 +46,9 @@ describe("playground", () => {
     const appVuePath = resolve(playgroundRoot, "app/app.vue");
     const buildDir = resolve(playgroundRoot, ".nuxt");
     projectService.openClientFile(appVuePath);
+
+    // wait for the postprocess of language service to complete
+    await delay(0);
 
     const project = projectService.getDefaultProjectForFile(ts.server.toNormalizedPath(appVuePath), true)!;
     const languageService = project.getLanguageService();
@@ -130,3 +133,7 @@ describe("playground", () => {
         });
     }
 });
+
+function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}

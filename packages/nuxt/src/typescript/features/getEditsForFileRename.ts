@@ -4,7 +4,7 @@ import { toSourceSpan } from "../utils";
 import type { ComponentReferenceInfo } from "../../event/types";
 import type { Context } from "../types";
 
-export function getEditsForFileRename(
+export function preprocess(
     context: Context,
     getEditsForFileRename: ts.LanguageService["getEditsForFileRename"],
 ): ts.LanguageService["getEditsForFileRename"] {

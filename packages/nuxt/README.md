@@ -13,11 +13,11 @@ This is a TypeScript plugin that improves Nuxt DX.
 
 *No installation is required if you are using Nuxt 4.2 or above.*
 
-However, if you haven't enabled the `shamefullyHoist` option with pnpm workspace (or options in other package managers that provide similar functionality), you'll need to explicitly install the `@dxup/unimport` package.
-
 ## Usage
 
-1. Add the following to your `nuxt.config.ts`:
+1. Have `@dxup/unimport` installed as a dependency if you haven't enabled the `shamefullyHoist` option with pnpm workspace.
+
+2. Add the following to your `nuxt.config.ts`:
 
    ```ts
    export default defineNuxtConfig({
@@ -74,5 +74,13 @@ Go to definition for runtime config.
 ```
 
 ### 5. unimport
+
+Find references for SFC on `<template>`.
+
+```vue
+....<template>
+<!-- ^^^^^^^^ -->
+</template>
+```
 
 Please refer to the [@dxup/unimport](/packages/unimport) package for more details.

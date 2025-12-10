@@ -35,11 +35,16 @@ export interface ModuleOptions {
          * Whether to enable enhanced navigation for auto imported APIs.
          * @default true
          */
-        unimport?: boolean;
+        unimport?: boolean | {
+            /**
+             * Whether to enable Find References for SFC on `<template>`.
+             */
+            componentReferences: boolean;
+        };
     };
 }
 
-export default defineNuxtModule<ModuleOptions>({
+export default defineNuxtModule<ModuleOptions>().with({
     meta: {
         name: packageJson.name,
         configKey: "dxup",
@@ -70,6 +75,13 @@ export default defineNuxtModule<ModuleOptions>({
             write: true,
             getContents({ nuxt }) {
                 const nitro = useNitro();
+                const nitroRoutes = nitro.scannedHandlers.reduce((acc, item) => {
+                    if (item.route && item.method) {
+                        (acc[item.route] ??= {})[item.method] = item.handler;
+                    }
+                    return acc;
+                }, {} as Data["nitroRoutes"]);
+
                 const data = {
                     buildDir: nuxt.options.buildDir,
                     publicDir: nuxt.options.dir.public,
@@ -77,13 +89,15 @@ export default defineNuxtModule<ModuleOptions>({
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
-                    nitroRoutes: nitro.scannedHandlers.reduce((acc, item) => {
-                        if (item.route && item.method) {
-                            (acc[item.route] ??= {})[item.method] = item.handler;
-                        }
-                        return acc;
-                    }, {} as Data["nitroRoutes"]),
-                    features: options.features,
+                    nitroRoutes,
+                    features: {
+                        ...options.features,
+                        unimport: {
+                            componentReferences: typeof options.features.unimport === "object"
+                                ? options.features.unimport.componentReferences
+                                : options.features.unimport,
+                        },
+                    },
                 };
                 return JSON.stringify(data, null, 2);
             },
