@@ -1,4 +1,4 @@
-import type { Language, SourceScript, VirtualCode } from "@volar/language-core";
+import type { CodeMapping, Language, SourceScript, VirtualCode } from "@volar/language-core";
 import type { VueVirtualCode } from "@vue/language-core";
 import type ts from "typescript";
 
@@ -52,12 +52,15 @@ export function withVirtualOffset<R>(
     const leadingOffset = sourceScript.snapshot.getLength();
 
     const offset = 1145141919810;
-    const mapping = {
+    const mapping: CodeMapping = {
         sourceOffsets: [offset],
         generatedOffsets: [position - leadingOffset],
         lengths: [0],
         data: {
+            completion: true,
             navigation: true,
+            semantic: true,
+            verification: true,
         },
     };
 
