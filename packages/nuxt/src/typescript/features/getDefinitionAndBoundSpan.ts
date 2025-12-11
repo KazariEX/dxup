@@ -66,21 +66,21 @@ export function preprocess(
 
             const checker = program.getTypeChecker();
 
-            let res: ts.DefinitionInfoAndBoundSpan | undefined;
+            let result: ts.DefinitionInfoAndBoundSpan | undefined;
             for (const node of forEachTouchingNode(ts, sourceFile, args[1])) {
                 if (data.features.importGlob) {
-                    res ??= visitImportGlob(ts, info, sourceFile, node, args[1]);
+                    result ??= visitImportGlob(ts, info, sourceFile, node, args[1]);
                 }
                 if (data.features.nitroRoutes) {
-                    res ??= visitNitroRoutes(ts, data, checker, sourceFile, node, args[1]);
+                    result ??= visitNitroRoutes(ts, data, checker, sourceFile, node, args[1]);
                 }
                 if (data.features.typedPages) {
-                    res ??= visitTypedPages(ts, data, checker, sourceFile, node, args[1]);
+                    result ??= visitTypedPages(ts, data, checker, sourceFile, node, args[1]);
                 }
             }
 
-            if (res) {
-                return res;
+            if (result) {
+                return result;
             }
         }
 
