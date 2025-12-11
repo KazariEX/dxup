@@ -38,7 +38,14 @@ export function postprocess(
             if (args[1] >= textSpan.start && args[1] <= textSpan.start + textSpan.length) {
                 return {
                     textSpan,
-                    definitions: [createModuleDefinition(ts, args[0])],
+                    definitions: [{
+                        fileName: args[0],
+                        textSpan,
+                        kind: ts.ScriptElementKind.memberVariableElement,
+                        name: "default",
+                        containerKind: ts.ScriptElementKind.unknown,
+                        containerName: args[0],
+                    }],
                 };
             }
             return result;
