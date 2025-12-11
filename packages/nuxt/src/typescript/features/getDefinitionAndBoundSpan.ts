@@ -3,7 +3,7 @@ import { extname, join } from "pathe";
 import { globSync } from "tinyglobby";
 import type { Language } from "@volar/language-core";
 import type ts from "typescript";
-import { createDefinitionInfo, isVueVirtualCode } from "../utils";
+import { createModuleDefinition, isVueVirtualCode } from "../utils";
 import type { Context, Data } from "../types";
 
 const fetchFunctions = new Set([
@@ -38,7 +38,7 @@ export function postprocess(
             if (args[1] >= textSpan.start && args[1] <= textSpan.start + textSpan.length) {
                 return {
                     textSpan,
-                    definitions: [createDefinitionInfo(ts, args[0])],
+                    definitions: [createModuleDefinition(ts, args[0])],
                 };
             }
             return result;
@@ -182,7 +182,7 @@ function visitImportGlob(
             start,
             length: end - start,
         },
-        definitions: fileNames.map((fileName) => createDefinitionInfo(ts, fileName)),
+        definitions: fileNames.map((fileName) => createModuleDefinition(ts, fileName)),
     };
 }
 
@@ -261,7 +261,7 @@ function visitNitroRoutes(
             start,
             length: end - start,
         },
-        definitions: paths.map((path) => createDefinitionInfo(ts, path)),
+        definitions: paths.map((path) => createModuleDefinition(ts, path)),
     };
 }
 
@@ -304,7 +304,7 @@ function visitTypedPages(
             start,
             length: end - start,
         },
-        definitions: [createDefinitionInfo(ts, path)],
+        definitions: [createModuleDefinition(ts, path)],
     };
 }
 

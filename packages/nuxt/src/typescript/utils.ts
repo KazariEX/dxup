@@ -2,12 +2,12 @@ import type { CodeMapping, Language, SourceScript, VirtualCode } from "@volar/la
 import type { VueVirtualCode } from "@vue/language-core";
 import type ts from "typescript";
 
-export function createDefinitionInfo(ts: typeof import("typescript"), path: string): ts.DefinitionInfo {
+export function createModuleDefinition(ts: typeof import("typescript"), path: string): ts.DefinitionInfo {
     return {
         fileName: path,
         textSpan: { start: 0, length: 0 },
-        kind: ts.ScriptElementKind.scriptElement,
-        name: path,
+        kind: ts.ScriptElementKind.moduleElement,
+        name: `"${path}"`,
         containerKind: ts.ScriptElementKind.unknown,
         containerName: "",
     };
