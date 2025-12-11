@@ -18,7 +18,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
             const server = createEventServer(info);
 
             const context: Context = { ts, info, data, server };
-            setTimeout(() => {
+            queueMicrotask(() => {
                 context.language = (info.project as any).__vue__?.language;
 
                 if (!context.language || !data.features.unimport.componentReferences) {
@@ -49,7 +49,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                         return Reflect.set(...args);
                     },
                 });
-            }, 0);
+            });
 
             for (const [key, method] of [
                 ["findRenameLocations", findRenameLocations],
