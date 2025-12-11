@@ -2,6 +2,17 @@ import type { CodeMapping, Language, SourceScript, VirtualCode } from "@volar/la
 import type { VueVirtualCode } from "@vue/language-core";
 import type ts from "typescript";
 
+export function createDefinitionInfo(ts: typeof import("typescript"), path: string): ts.DefinitionInfo {
+    return {
+        fileName: path,
+        textSpan: { start: 0, length: 0 },
+        kind: ts.ScriptElementKind.scriptElement,
+        name: path,
+        containerKind: ts.ScriptElementKind.unknown,
+        containerName: "",
+    };
+}
+
 export function isVueVirtualCode(code?: VirtualCode): code is VueVirtualCode {
     return code?.languageId === "vue";
 }

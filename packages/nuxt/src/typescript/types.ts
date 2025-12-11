@@ -11,11 +11,15 @@ export interface Data {
             [method: string]: string;
         };
     };
+    typedPages: {
+        [name: string]: string;
+    };
     features: {
         components: boolean;
         importGlob: boolean;
         nitroRoutes: boolean;
         runtimeConfig: boolean;
+        typedPages: boolean;
         unimport: {
             componentReferences: boolean;
         };

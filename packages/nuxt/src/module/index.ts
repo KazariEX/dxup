@@ -32,6 +32,11 @@ export interface ModuleOptions {
          */
         runtimeConfig?: boolean;
         /**
+         * Whether to enable Go to Definition for typed pages.
+         * @default true
+         */
+        typedPages?: boolean;
+        /**
          * Whether to enable enhanced navigation for auto imported APIs.
          * @default true
          */
@@ -55,6 +60,7 @@ export default defineNuxtModule<ModuleOptions>().with({
             importGlob: true,
             nitroRoutes: true,
             runtimeConfig: true,
+            typedPages: true,
             unimport: true,
         },
     },
@@ -73,7 +79,7 @@ export default defineNuxtModule<ModuleOptions>().with({
         addTemplate({
             filename: "dxup/data.json",
             write: true,
-            getContents({ nuxt }) {
+            getContents({ nuxt, app }) {
                 const nitro = useNitro();
                 const nitroRoutes = nitro.scannedHandlers.reduce((acc, item) => {
                     if (item.route && item.method) {
@@ -90,6 +96,9 @@ export default defineNuxtModule<ModuleOptions>().with({
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
                     nitroRoutes,
+                    typedPages: Object.fromEntries(
+                        app.pages?.map((page) => [page.name, page.file]) ?? [],
+                    ),
                     features: {
                         ...options.features,
                         unimport: {

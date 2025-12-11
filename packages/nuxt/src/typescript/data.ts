@@ -7,11 +7,13 @@ const initialValue: Data = {
     publicDir: "",
     configFiles: [],
     nitroRoutes: {},
+    typedPages: {},
     features: {
         components: true,
         importGlob: true,
         nitroRoutes: true,
         runtimeConfig: true,
+        typedPages: true,
         unimport: {
             componentReferences: true,
         },

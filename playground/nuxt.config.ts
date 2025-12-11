@@ -11,6 +11,9 @@ const runtimeConfig = {
 
 export default defineNuxtConfig({
     compatibilityDate: "2025-07-15",
+    experimental: {
+        typedPages: true,
+    },
     runtimeConfig,
     modules: [
         "@dxup/nuxt",
