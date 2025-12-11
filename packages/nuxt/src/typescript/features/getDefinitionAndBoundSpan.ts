@@ -97,7 +97,7 @@ export function preprocess(
                 continue;
             }
 
-            let result: ts.DefinitionInfo[] = [];
+            let result: ts.DefinitionInfo[] | undefined;
             if (data.features.runtimeConfig && definition.fileName.endsWith("runtime-config.d.ts")) {
                 result = visitRuntimeConfig(context, sourceFile, definition);
             }
