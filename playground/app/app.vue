@@ -44,6 +44,10 @@
     //                    ^—————^(definition)
     computed<RouteLocationRaw>(() => ({ name: "contact" }));
     //                                        ^———————^(definition)
+    const _: MaybeRefOrGetter<RouteLocationRaw>[] = [
+        { name: "about" },
+        //      ^—————^(definition)
+    ];
 </script>
 
 <!-- eslint-disable vue/component-name-in-template-casing -->

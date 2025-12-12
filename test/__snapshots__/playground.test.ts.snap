@@ -198,6 +198,18 @@ exports[`playground > app/app.vue > definition 13`] = `
 ]
 `;
 
+exports[`playground > app/app.vue > definition 14`] = `
+[
+  {
+    "fileName": "app/pages/about.vue",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
 exports[`playground > app/components/foo-bar.vue > references 1`] = `
 [
   {
@@ -211,14 +223,14 @@ exports[`playground > app/components/foo-bar.vue > references 1`] = `
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 6,
-      "start": 1495,
+      "start": 1619,
     },
   },
   {
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 12,
-      "start": 1510,
+      "start": 1634,
     },
   },
 ]

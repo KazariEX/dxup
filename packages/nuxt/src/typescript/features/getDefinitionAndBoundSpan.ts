@@ -296,8 +296,14 @@ function visitTypedPages(
         return;
     }
 
-    const contextualType = checker.getContextualType(node.parent);
-    if (contextualType?.getNonNullableType().aliasSymbol?.name !== "RouteLocationRaw") {
+    const contextualType = checker.getContextualType(node.parent)?.getNonNullableType();
+    if (
+        contextualType?.aliasSymbol?.name !== "RouteLocationRaw" && (
+            !contextualType?.isUnion() || contextualType.types.every(
+                (type) => type.symbol?.name !== "RouteLocationAsPathTyped",
+            )
+        )
+    ) {
         return;
     }
 
