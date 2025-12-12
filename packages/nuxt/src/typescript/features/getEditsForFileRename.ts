@@ -1,6 +1,5 @@
 import { forEachTouchingNode } from "@dxup/shared";
 import type ts from "typescript";
-import { toSourceSpan } from "../utils";
 import type { ComponentReferenceInfo } from "../../event/types";
 import type { Context } from "../types";
 
@@ -16,7 +15,9 @@ export function preprocess(
             return result;
         }
 
-        const program = info.languageService.getProgram()!;
+        // use the language service proxied by volar for source offsets
+        const languageService = info.project.getLanguageService();
+        const program = languageService.getProgram()!;
         const references: Record<string, ComponentReferenceInfo[]> = {};
 
         for (const change of result) {
@@ -35,8 +36,9 @@ export function preprocess(
                         }
 
                         const position = node.name.getStart(sourceFile);
-                        const res = info.languageService.getReferencesAtPosition(fileName, position)
-                            ?.filter((entry) => !entry.fileName.startsWith(data.buildDir));
+                        const res = languageService.getReferencesAtPosition(fileName, position)
+                            ?.filter((entry) => !entry.fileName.startsWith(data.buildDir))
+                            ?.sort((a, b) => a.textSpan.start - b.textSpan.start);
 
                         const lazy = node.type &&
                             ts.isTypeReferenceNode(node.type) &&
@@ -45,7 +47,7 @@ export function preprocess(
 
                         for (const { fileName, textSpan } of res ?? []) {
                             (references[fileName] ??= []).push({
-                                textSpan: toSourceSpan(context.language, fileName, textSpan) ?? textSpan,
+                                textSpan,
                                 lazy: lazy || void 0,
                             });
                         }
