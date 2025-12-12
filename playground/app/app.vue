@@ -1,4 +1,5 @@
 <script lang="tsx" setup>
+    import type { RouteLocationRaw } from "vue-router";
     import { NuxtLink } from "#components";
 
     /* -------------- runtime config -------------- */
@@ -41,6 +42,8 @@
 
     <NuxtLink to={{ name: "about" }} />;
     //                    ^—————^(definition)
+    computed<RouteLocationRaw>(() => ({ name: "contact" }));
+    //                                        ^———————^(definition)
 </script>
 
 <!-- eslint-disable vue/component-name-in-template-casing -->

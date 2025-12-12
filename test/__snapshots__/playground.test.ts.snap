@@ -186,6 +186,18 @@ exports[`playground > app/app.vue > definition 12`] = `
 ]
 `;
 
+exports[`playground > app/app.vue > definition 13`] = `
+[
+  {
+    "fileName": "app/pages/about/contact.vue",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
 exports[`playground > app/components/foo-bar.vue > references 1`] = `
 [
   {
@@ -199,14 +211,14 @@ exports[`playground > app/components/foo-bar.vue > references 1`] = `
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 6,
-      "start": 1310,
+      "start": 1495,
     },
   },
   {
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 12,
-      "start": 1325,
+      "start": 1510,
     },
   },
 ]
@@ -218,7 +230,7 @@ exports[`playground > app/utils/index.ts > references 1`] = `
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 3,
-      "start": 485,
+      "start": 541,
     },
   },
 ]

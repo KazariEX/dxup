@@ -88,6 +88,18 @@ export default defineNuxtModule<ModuleOptions>().with({
                     return acc;
                 }, {} as Data["nitroRoutes"]);
 
+                const typedPages = app.pages?.reduce(function reducer(acc, page) {
+                    if (page.name && page.file) {
+                        acc[page.name] = page.file;
+                    }
+                    if (page.children) {
+                        for (const child of page.children) {
+                            reducer(acc, child);
+                        }
+                    }
+                    return acc;
+                }, {} as Data["typedPages"]);
+
                 const data = {
                     buildDir: nuxt.options.buildDir,
                     publicDir: nuxt.options.dir.public,
@@ -96,9 +108,7 @@ export default defineNuxtModule<ModuleOptions>().with({
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
                     nitroRoutes,
-                    typedPages: Object.fromEntries(
-                        app.pages?.map((page) => [page.name, page.file]) ?? [],
-                    ),
+                    typedPages,
                     features: {
                         ...options.features,
                         unimport: {
