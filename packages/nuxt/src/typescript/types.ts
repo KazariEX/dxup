@@ -6,7 +6,7 @@ export interface Data {
     buildDir: string;
     publicDir: string;
     configFiles: string[];
-    middlewares: {
+    middleware: {
         [name: string]: string;
     };
     nitroRoutes: {

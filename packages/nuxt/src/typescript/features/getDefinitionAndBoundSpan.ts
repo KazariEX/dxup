@@ -228,7 +228,7 @@ function visitMiddleware(
             continue;
         }
 
-        const path = data.middlewares[literal.text];
+        const path = data.middleware[literal.text];
         if (path === void 0) {
             continue;
         }

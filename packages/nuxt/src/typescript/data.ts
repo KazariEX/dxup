@@ -6,7 +6,7 @@ const initialValue: Data = {
     buildDir: "",
     publicDir: "",
     configFiles: [],
-    middlewares: {},
+    middleware: {},
     nitroRoutes: {},
     typedPages: {},
     features: {

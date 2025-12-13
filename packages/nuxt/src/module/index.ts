@@ -86,12 +86,12 @@ export default defineNuxtModule<ModuleOptions>().with({
             filename: "dxup/data.json",
             write: true,
             getContents({ nuxt, app }) {
-                const middlewares = app.middleware.reduce((acc, item) => {
+                const middleware = app.middleware.reduce((acc, item) => {
                     if (!item.global) {
                         acc[item.name] = item.path;
                     }
                     return acc;
-                }, {} as Data["middlewares"]);
+                }, {} as Data["middleware"]);
 
                 const nitro = useNitro();
                 const nitroRoutes = nitro.scannedHandlers.reduce((acc, item) => {
@@ -120,7 +120,7 @@ export default defineNuxtModule<ModuleOptions>().with({
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
-                    middlewares,
+                    middleware,
                     nitroRoutes,
                     typedPages,
                     features: {
