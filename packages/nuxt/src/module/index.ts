@@ -22,6 +22,11 @@ export interface ModuleOptions {
          */
         importGlob?: boolean;
         /**
+         * Whether to enable Go to Definition for middleware.
+         * @default true
+         */
+        middleware?: boolean;
+        /**
          * Whether to enable Go to Definition for nitro routes in data fetching methods.
          * @default true
          */
@@ -58,6 +63,7 @@ export default defineNuxtModule<ModuleOptions>().with({
         features: {
             components: true,
             importGlob: true,
+            middleware: true,
             nitroRoutes: true,
             runtimeConfig: true,
             typedPages: true,
@@ -80,6 +86,10 @@ export default defineNuxtModule<ModuleOptions>().with({
             filename: "dxup/data.json",
             write: true,
             getContents({ nuxt, app }) {
+                const middlewares = Object.fromEntries(
+                    app.middleware.map((item) => [item.name, item.path]),
+                );
+
                 const nitro = useNitro();
                 const nitroRoutes = nitro.scannedHandlers.reduce((acc, item) => {
                     if (item.route && item.method) {
@@ -107,6 +117,7 @@ export default defineNuxtModule<ModuleOptions>().with({
                         ...nuxt.options._nuxtConfigFiles,
                         ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
                     ],
+                    middlewares,
                     nitroRoutes,
                     typedPages,
                     features: {

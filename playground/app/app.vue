@@ -2,6 +2,13 @@
     import type { RouteLocationRaw } from "vue-router";
     import { NuxtLink } from "#components";
 
+    /* -------------- middleware -------------- */
+
+    definePageMeta({
+        middleware: ["auth"],
+        //           ^————^(definition)
+    });
+
     /* -------------- runtime config -------------- */
 
     const config = useRuntimeConfig();
@@ -44,10 +51,8 @@
     //                    ^—————^(definition)
     computed<RouteLocationRaw>(() => ({ name: "contact" }));
     //                                        ^———————^(definition)
-    const _: MaybeRefOrGetter<RouteLocationRaw>[] = [
-        { name: "about" },
-        //      ^—————^(definition)
-    ];
+    [{ name: "about" }] satisfies MaybeRefOrGetter<RouteLocationRaw>[];
+    //       ^—————^(definition)
 </script>
 
 <!-- eslint-disable vue/component-name-in-template-casing -->

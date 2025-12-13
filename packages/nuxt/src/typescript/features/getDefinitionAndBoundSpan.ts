@@ -78,6 +78,9 @@ export function preprocess(
                 if (data.features.importGlob) {
                     result ??= visitImportGlob(ts, info, sourceFile, node, args[1]);
                 }
+                if (data.features.middleware) {
+                    result ??= visitMiddleware(ts, data, sourceFile, node, args[1]);
+                }
                 if (data.features.nitroRoutes) {
                     result ??= visitNitroRoutes(ts, data, checker, sourceFile, node, args[1]);
                 }
@@ -191,6 +194,53 @@ function visitImportGlob(
         },
         definitions: fileNames.map((fileName) => createModuleDefinition(ts, fileName)),
     };
+}
+
+function visitMiddleware(
+    ts: typeof import("typescript"),
+    data: Data,
+    sourceFile: ts.SourceFile,
+    node: ts.Node,
+    position: number,
+) {
+    if (
+        !ts.isPropertyAssignment(node) ||
+        !ts.isIdentifier(node.name) ||
+        node.name.text !== "middleware" ||
+        !ts.isCallExpression(node.parent.parent) ||
+        !ts.isIdentifier(node.parent.parent.expression) ||
+        node.parent.parent.expression.text !== "definePageMeta"
+    ) {
+        return;
+    }
+
+    const literals = ts.isStringLiteralLike(node.initializer)
+        ? [node.initializer]
+        : ts.isArrayLiteralExpression(node.initializer)
+            ? node.initializer.elements.filter(ts.isStringLiteralLike)
+            : [];
+
+    for (const literal of literals) {
+        const start = literal.getStart(sourceFile);
+        const end = literal.getEnd();
+
+        if (position < start || position > end) {
+            continue;
+        }
+
+        const path = data.middlewares[literal.text];
+        if (path === void 0) {
+            continue;
+        }
+
+        return {
+            textSpan: {
+                start,
+                length: end - start,
+            },
+            definitions: [createModuleDefinition(ts, path)],
+        };
+    }
 }
 
 function visitNitroRoutes(
