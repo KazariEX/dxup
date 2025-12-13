@@ -86,9 +86,12 @@ export default defineNuxtModule<ModuleOptions>().with({
             filename: "dxup/data.json",
             write: true,
             getContents({ nuxt, app }) {
-                const middlewares = Object.fromEntries(
-                    app.middleware.map((item) => [item.name, item.path]),
-                );
+                const middlewares = app.middleware.reduce((acc, item) => {
+                    if (!item.global) {
+                        acc[item.name] = item.path;
+                    }
+                    return acc;
+                }, {} as Data["middlewares"]);
 
                 const nitro = useNitro();
                 const nitroRoutes = nitro.scannedHandlers.reduce((acc, item) => {
