@@ -50,7 +50,18 @@ import.meta.glob("~/assets/*.webp");
 //               ^^^^^^^^^^^^^^^^^
 ```
 
-### 3. nitroRoutes
+### 3. middleware
+
+Go to definition for middleware.
+
+```ts
+definePageMeta({
+  middleware: ["auth"],
+  //           ^^^^^^
+});
+```
+
+### 4. nitroRoutes
 
 Go to definition for nitro routes in data fetching methods.
 
@@ -62,7 +73,7 @@ useFetch("/api/foo");
 
 It will fallback to resolve the URL from your `public` directory when no nitro routes match.
 
-### 4. runtimeConfig
+### 5. runtimeConfig
 
 Go to definition for runtime config.
 
@@ -73,7 +84,7 @@ Go to definition for runtime config.
 </template>
 ```
 
-### 5. typedPages
+### 6. typedPages
 
 Go to definition for typed pages.
 
@@ -86,7 +97,7 @@ Go to definition for typed pages.
 
 It can be triggered on the `name` property of an object literal constrained by the `RouteLocationRaw` type.
 
-### 6. unimport
+### 7. unimport
 
 Find references for SFC on `<template>`.
 
