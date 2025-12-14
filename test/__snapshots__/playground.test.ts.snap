@@ -105,6 +105,30 @@ exports[`playground > app/app.vue > nitro routes > definition 4`] = `
 ]
 `;
 
+exports[`playground > app/app.vue > page meta > definition 1`] = `
+[
+  {
+    "fileName": "app/layouts/center.vue",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > page meta > definition 2`] = `
+[
+  {
+    "fileName": "app/middleware/auth.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
 exports[`playground > app/app.vue > runtime config > definition 1`] = `
 [
   {
@@ -230,14 +254,14 @@ exports[`playground > app/components/foo-bar.vue > unimport > references 1`] = `
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 6,
-      "start": 1619,
+      "start": 1814,
     },
   },
   {
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 12,
-      "start": 1634,
+      "start": 1829,
     },
   },
 ]
@@ -249,7 +273,7 @@ exports[`playground > app/utils/index.ts > auto imports > references 1`] = `
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 3,
-      "start": 541,
+      "start": 755,
     },
   },
 ]

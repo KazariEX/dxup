@@ -60,9 +60,22 @@ useFetch("/api/foo");
 // Also `$fetch` and `useLazyFetch`.
 ```
 
+### 4. pageMeta
+
+Go to definition for page metadata.
+
+```ts
+definePageMeta({
+  layout: "admin",
+  //      ^^^^^^^
+  middleware: ["auth"],
+  //           ^^^^^^
+});
+```
+
 It will fallback to resolve the URL from your `public` directory when no nitro routes match.
 
-### 4. runtimeConfig
+### 5. runtimeConfig
 
 Go to definition for runtime config.
 
@@ -73,7 +86,7 @@ Go to definition for runtime config.
 </template>
 ```
 
-### 5. typedPages
+### 6. typedPages
 
 Go to definition for typed pages.
 
@@ -86,7 +99,7 @@ Go to definition for typed pages.
 
 It can be triggered on the `name` property of an object literal constrained by the `RouteLocationRaw` type.
 
-### 6. unimport
+### 7. unimport
 
 Find references for SFC on `<template>`.
 

@@ -6,12 +6,15 @@ const initialValue: Data = {
     buildDir: "",
     publicDir: "",
     configFiles: [],
+    layouts: {},
+    middleware: {},
     nitroRoutes: {},
     typedPages: {},
     features: {
         components: true,
         importGlob: true,
         nitroRoutes: true,
+        pageMeta: true,
         runtimeConfig: true,
         typedPages: true,
         unimport: {

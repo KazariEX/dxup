@@ -6,6 +6,12 @@ export interface Data {
     buildDir: string;
     publicDir: string;
     configFiles: string[];
+    layouts: {
+        [name: string]: string;
+    };
+    middleware: {
+        [name: string]: string;
+    };
     nitroRoutes: {
         [route: string]: {
             [method: string]: string;
@@ -18,6 +24,7 @@ export interface Data {
         components: boolean;
         importGlob: boolean;
         nitroRoutes: boolean;
+        pageMeta: boolean;
         runtimeConfig: boolean;
         typedPages: boolean;
         unimport: {
