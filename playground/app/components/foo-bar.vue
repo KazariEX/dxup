@@ -4,7 +4,9 @@
     void FooBar;
 </script>
 
-<!-- eslint-disable-next-line vue/valid-template-root -->
+<!-- -------------- unimport -------------- -->
+
+<!-- eslint-disable vue/valid-template-root -->
 ....<template>
 <!-- ^——————^(references) -->
 </template>

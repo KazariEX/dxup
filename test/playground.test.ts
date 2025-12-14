@@ -55,6 +55,7 @@ describe("playground", async () => {
     const program = languageService.getProgram()!;
     const language = (project as any).__vue__.language as Language<string>;
 
+    const scopeRE = /(?:\/\*|<!--) -{14} (?<scope>[ \w]+) -{14} (?:\*\/|-->)/;
     const operationRE = /(?<=(?:\/\/|<!--)\s*)(?<range>\^—*\^)\((?<type>\w+)\)(?<skip>\.skip\(\))?/;
 
     for (const fileName of project.getFileNames()) {
@@ -77,26 +78,37 @@ describe("playground", async () => {
         }, []);
 
         interface Item extends ts.TextSpan {
+            scope: string;
             type: string;
         }
 
         const items: Item[] = [];
+        let currentScope!: string;
+
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            const match = line.match(operationRE);
-            if (!match) {
+
+            const scopeMatch = line.match(scopeRE);
+            if (scopeMatch) {
+                currentScope = scopeMatch.groups!.scope;
                 continue;
             }
 
-            const { range, type, skip } = match.groups!;
+            const operationMatch = line.match(operationRE);
+            if (!operationMatch) {
+                continue;
+            }
+
+            const { range, type, skip } = operationMatch.groups!;
             if (skip !== void 0) {
                 continue;
             }
 
             items.push({
-                start: offsets[i - 1] + match.index!,
-                length: range.length,
+                scope: currentScope,
                 type,
+                start: offsets[i - 1] + operationMatch.index!,
+                length: range.length,
             });
         }
 
@@ -105,10 +117,10 @@ describe("playground", async () => {
         }
 
         describe(relative(playgroundRoot, fileName), () => {
-            for (const { type, start, length } of items) {
-                it(type, () => {
+            for (const { scope, type, start, length } of items) {
+                it(scope, () => {
                     if (type === "definition") {
-                        const result = languageService.getDefinitionAndBoundSpan?.(sourceFile.fileName, start);
+                        const result = languageService.getDefinitionAndBoundSpan(sourceFile.fileName, start);
                         expect(result).toBeDefined();
                         expect(result!.textSpan).toEqual({ start, length });
                         expect(
@@ -116,17 +128,23 @@ describe("playground", async () => {
                                 fileName: relative(playgroundRoot, definition.fileName),
                                 textSpan: definition.textSpan,
                             })),
-                        ).toMatchSnapshot();
+                        ).toMatchSnapshot(type);
                     }
                     else if (type === "references") {
                         const result = languageService.findReferences(sourceFile.fileName, start);
                         expect(result).toBeDefined();
                         expect(
-                            result![0].references.slice(1).map((reference) => ({
-                                fileName: relative(playgroundRoot, reference.fileName),
-                                textSpan: reference.textSpan,
-                            })),
-                        ).toMatchSnapshot();
+                            result![0].references
+                                .filter((entry) => (
+                                    entry.fileName !== sourceFile.fileName ||
+                                    entry.textSpan.start < start ||
+                                    entry.textSpan.start > start + length
+                                ))
+                                .map((entry) => ({
+                                    fileName: relative(playgroundRoot, entry.fileName),
+                                    textSpan: entry.textSpan,
+                                })),
+                        ).toMatchSnapshot(type);
                     }
                 });
             }
