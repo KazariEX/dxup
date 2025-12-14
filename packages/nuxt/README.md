@@ -50,18 +50,7 @@ import.meta.glob("~/assets/*.webp");
 //               ^^^^^^^^^^^^^^^^^
 ```
 
-### 3. middleware
-
-Go to definition for middleware.
-
-```ts
-definePageMeta({
-  middleware: ["auth"],
-  //           ^^^^^^
-});
-```
-
-### 4. nitroRoutes
+### 3. nitroRoutes
 
 Go to definition for nitro routes in data fetching methods.
 
@@ -69,6 +58,19 @@ Go to definition for nitro routes in data fetching methods.
 useFetch("/api/foo");
 //       ^^^^^^^^^^
 // Also `$fetch` and `useLazyFetch`.
+```
+
+### 4. pageMeta
+
+Go to definition for page metadata.
+
+```ts
+definePageMeta({
+  layout: "admin",
+  //      ^^^^^^^
+  middleware: ["auth"],
+  //           ^^^^^^
+});
 ```
 
 It will fallback to resolve the URL from your `public` directory when no nitro routes match.
