@@ -6,6 +6,11 @@ import type ts from "typescript";
 import { createModuleDefinition, isVueVirtualCode } from "../utils";
 import type { Context, Data } from "../types";
 
+const pageMetaKeys = new Set([
+    "layout",
+    "middleware",
+]);
+
 const fetchFunctions = new Set([
     "$fetch",
     "useFetch",
@@ -78,11 +83,11 @@ export function preprocess(
                 if (data.features.importGlob) {
                     result ??= visitImportGlob(ts, info, sourceFile, node, args[1]);
                 }
-                if (data.features.middleware) {
-                    result ??= visitMiddleware(ts, data, sourceFile, node, args[1]);
-                }
                 if (data.features.nitroRoutes) {
                     result ??= visitNitroRoutes(ts, data, checker, sourceFile, node, args[1]);
+                }
+                if (data.features.pageMeta) {
+                    result ??= visitPageMeta(ts, data, sourceFile, node, args[1]);
                 }
                 if (data.features.typedPages) {
                     result ??= visitTypedPages(ts, data, checker, sourceFile, node, args[1]);
@@ -196,7 +201,7 @@ function visitImportGlob(
     };
 }
 
-function visitMiddleware(
+function visitPageMeta(
     ts: typeof import("typescript"),
     data: Data,
     sourceFile: ts.SourceFile,
@@ -206,7 +211,7 @@ function visitMiddleware(
     if (
         !ts.isPropertyAssignment(node) ||
         !ts.isIdentifier(node.name) ||
-        node.name.text !== "middleware" ||
+        !pageMetaKeys.has(node.name.text) ||
         !ts.isCallExpression(node.parent.parent) ||
         !ts.isIdentifier(node.parent.parent.expression) ||
         node.parent.parent.expression.text !== "definePageMeta"
@@ -214,32 +219,62 @@ function visitMiddleware(
         return;
     }
 
-    const literals = ts.isStringLiteralLike(node.initializer)
-        ? [node.initializer]
-        : ts.isArrayLiteralExpression(node.initializer)
-            ? node.initializer.elements.filter(ts.isStringLiteralLike)
-            : [];
+    switch (node.name.text) {
+        case "layout": {
+            if (!ts.isStringLiteralLike(node.initializer)) {
+                return;
+            }
 
-    for (const literal of literals) {
-        const start = literal.getStart(sourceFile);
-        const end = literal.getEnd();
+            const start = node.initializer.getStart(sourceFile);
+            const end = node.initializer.getEnd();
 
-        if (position < start || position > end) {
-            continue;
+            if (position < start || position > end) {
+                return;
+            }
+
+            const path = data.layouts[node.initializer.text];
+            if (path === void 0) {
+                return;
+            }
+
+            return {
+                textSpan: {
+                    start,
+                    length: end - start,
+                },
+                definitions: [createModuleDefinition(ts, path)],
+            };
         }
+        case "middleware": {
+            const literals = ts.isStringLiteralLike(node.initializer)
+                ? [node.initializer]
+                : ts.isArrayLiteralExpression(node.initializer)
+                    ? node.initializer.elements.filter(ts.isStringLiteralLike)
+                    : [];
 
-        const path = data.middleware[literal.text];
-        if (path === void 0) {
-            continue;
+            for (const literal of literals) {
+                const start = literal.getStart(sourceFile);
+                const end = literal.getEnd();
+
+                if (position < start || position > end) {
+                    continue;
+                }
+
+                const path = data.middleware[literal.text];
+                if (path === void 0) {
+                    continue;
+                }
+
+                return {
+                    textSpan: {
+                        start,
+                        length: end - start,
+                    },
+                    definitions: [createModuleDefinition(ts, path)],
+                };
+            }
+            break;
         }
-
-        return {
-            textSpan: {
-                start,
-                length: end - start,
-            },
-            definitions: [createModuleDefinition(ts, path)],
-        };
     }
 }
 

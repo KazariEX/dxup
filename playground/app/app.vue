@@ -5,8 +5,10 @@
     /* -------------- middleware -------------- */
 
     definePageMeta({
+        layout: "center",
+        //      ^——————^(definition)
         middleware: ["auth"],
-        //           ^————^(definition)
+        //           ^————^(definition),
     });
 
     /* -------------- runtime config -------------- */

@@ -6,6 +6,9 @@ export interface Data {
     buildDir: string;
     publicDir: string;
     configFiles: string[];
+    layouts: {
+        [name: string]: string;
+    };
     middleware: {
         [name: string]: string;
     };
@@ -20,8 +23,8 @@ export interface Data {
     features: {
         components: boolean;
         importGlob: boolean;
-        middleware: boolean;
         nitroRoutes: boolean;
+        pageMeta: boolean;
         runtimeConfig: boolean;
         typedPages: boolean;
         unimport: {
