@@ -6,15 +6,15 @@ import type ts from "typescript";
 import { createModuleDefinition, isVueVirtualCode } from "../utils";
 import type { Context, Data } from "../types";
 
-const pageMetaKeys = new Set([
-    "layout",
-    "middleware",
-]);
-
 const fetchFunctions = new Set([
     "$fetch",
     "useFetch",
     "useLazyFetch",
+]);
+
+const pageMetaKeys = new Set([
+    "layout",
+    "middleware",
 ]);
 
 export function postprocess(
@@ -201,83 +201,6 @@ function visitImportGlob(
     };
 }
 
-function visitPageMeta(
-    ts: typeof import("typescript"),
-    data: Data,
-    sourceFile: ts.SourceFile,
-    node: ts.Node,
-    position: number,
-) {
-    if (
-        !ts.isPropertyAssignment(node) ||
-        !ts.isIdentifier(node.name) ||
-        !pageMetaKeys.has(node.name.text) ||
-        !ts.isCallExpression(node.parent.parent) ||
-        !ts.isIdentifier(node.parent.parent.expression) ||
-        node.parent.parent.expression.text !== "definePageMeta"
-    ) {
-        return;
-    }
-
-    switch (node.name.text) {
-        case "layout": {
-            if (!ts.isStringLiteralLike(node.initializer)) {
-                return;
-            }
-
-            const start = node.initializer.getStart(sourceFile);
-            const end = node.initializer.getEnd();
-
-            if (position < start || position > end) {
-                return;
-            }
-
-            const path = data.layouts[node.initializer.text];
-            if (path === void 0) {
-                return;
-            }
-
-            return {
-                textSpan: {
-                    start,
-                    length: end - start,
-                },
-                definitions: [createModuleDefinition(ts, path)],
-            };
-        }
-        case "middleware": {
-            const literals = ts.isStringLiteralLike(node.initializer)
-                ? [node.initializer]
-                : ts.isArrayLiteralExpression(node.initializer)
-                    ? node.initializer.elements.filter(ts.isStringLiteralLike)
-                    : [];
-
-            for (const literal of literals) {
-                const start = literal.getStart(sourceFile);
-                const end = literal.getEnd();
-
-                if (position < start || position > end) {
-                    continue;
-                }
-
-                const path = data.middleware[literal.text];
-                if (path === void 0) {
-                    continue;
-                }
-
-                return {
-                    textSpan: {
-                        start,
-                        length: end - start,
-                    },
-                    definitions: [createModuleDefinition(ts, path)],
-                };
-            }
-            break;
-        }
-    }
-}
-
 function visitNitroRoutes(
     ts: typeof import("typescript"),
     data: Data,
@@ -355,6 +278,83 @@ function visitNitroRoutes(
         },
         definitions: paths.map((path) => createModuleDefinition(ts, path)),
     };
+}
+
+function visitPageMeta(
+    ts: typeof import("typescript"),
+    data: Data,
+    sourceFile: ts.SourceFile,
+    node: ts.Node,
+    position: number,
+) {
+    if (
+        !ts.isPropertyAssignment(node) ||
+        !ts.isIdentifier(node.name) ||
+        !pageMetaKeys.has(node.name.text) ||
+        !ts.isCallExpression(node.parent.parent) ||
+        !ts.isIdentifier(node.parent.parent.expression) ||
+        node.parent.parent.expression.text !== "definePageMeta"
+    ) {
+        return;
+    }
+
+    switch (node.name.text) {
+        case "layout": {
+            if (!ts.isStringLiteralLike(node.initializer)) {
+                return;
+            }
+
+            const start = node.initializer.getStart(sourceFile);
+            const end = node.initializer.getEnd();
+
+            if (position < start || position > end) {
+                return;
+            }
+
+            const path = data.layouts[node.initializer.text];
+            if (path === void 0) {
+                return;
+            }
+
+            return {
+                textSpan: {
+                    start,
+                    length: end - start,
+                },
+                definitions: [createModuleDefinition(ts, path)],
+            };
+        }
+        case "middleware": {
+            const literals = ts.isStringLiteralLike(node.initializer)
+                ? [node.initializer]
+                : ts.isArrayLiteralExpression(node.initializer)
+                    ? node.initializer.elements.filter(ts.isStringLiteralLike)
+                    : [];
+
+            for (const literal of literals) {
+                const start = literal.getStart(sourceFile);
+                const end = literal.getEnd();
+
+                if (position < start || position > end) {
+                    continue;
+                }
+
+                const path = data.middleware[literal.text];
+                if (path === void 0) {
+                    continue;
+                }
+
+                return {
+                    textSpan: {
+                        start,
+                        length: end - start,
+                    },
+                    definitions: [createModuleDefinition(ts, path)],
+                };
+            }
+            break;
+        }
+    }
 }
 
 function visitTypedPages(
