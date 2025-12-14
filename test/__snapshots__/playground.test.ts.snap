@@ -1,6 +1,111 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`playground > app/app.vue > definition 1`] = `
+exports[`playground > app/app.vue > auto imports > definition 1`] = `
+[
+  {
+    "fileName": "app/utils/index.ts",
+    "textSpan": {
+      "length": 3,
+      "start": 63,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > import glob > definition 1`] = `
+[
+  {
+    "fileName": "app/assets/maestrale.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+  {
+    "fileName": "app/assets/libeccio.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > import glob > definition 2`] = `
+[
+  {
+    "fileName": "app/assets/maestrale.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+  {
+    "fileName": "app/assets/libeccio.webp",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > nitro routes > definition 1`] = `
+[
+  {
+    "fileName": "server/routes/sitemap.post.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+  {
+    "fileName": "server/routes/sitemap.get.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > nitro routes > definition 2`] = `
+[
+  {
+    "fileName": "public/fallback.json",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > nitro routes > definition 3`] = `
+[
+  {
+    "fileName": "server/api/foo.get.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > nitro routes > definition 4`] = `
+[
+  {
+    "fileName": "server/api/foo.post.ts",
+    "textSpan": {
+      "length": 0,
+      "start": 0,
+    },
+  },
+]
+`;
+
+exports[`playground > app/app.vue > page meta > definition 1`] = `
 [
   {
     "fileName": "app/layouts/center.vue",
@@ -12,7 +117,7 @@ exports[`playground > app/app.vue > definition 1`] = `
 ]
 `;
 
-exports[`playground > app/app.vue > definition 2`] = `
+exports[`playground > app/app.vue > page meta > definition 2`] = `
 [
   {
     "fileName": "app/middleware/auth.ts",
@@ -24,7 +129,7 @@ exports[`playground > app/app.vue > definition 2`] = `
 ]
 `;
 
-exports[`playground > app/app.vue > definition 3`] = `
+exports[`playground > app/app.vue > runtime config > definition 1`] = `
 [
   {
     "fileName": "layers/archer/nuxt.config.ts",
@@ -50,7 +155,7 @@ exports[`playground > app/app.vue > definition 3`] = `
 ]
 `;
 
-exports[`playground > app/app.vue > definition 4`] = `
+exports[`playground > app/app.vue > runtime config > definition 2`] = `
 [
   {
     "fileName": "layers/berserker/nuxt.config.ts",
@@ -69,7 +174,7 @@ exports[`playground > app/app.vue > definition 4`] = `
 ]
 `;
 
-exports[`playground > app/app.vue > definition 5`] = `
+exports[`playground > app/app.vue > runtime config > definition 3`] = `
 [
   {
     "fileName": "nuxt.config.ts",
@@ -81,7 +186,7 @@ exports[`playground > app/app.vue > definition 5`] = `
 ]
 `;
 
-exports[`playground > app/app.vue > definition 6`] = `
+exports[`playground > app/app.vue > runtime config > definition 4`] = `
 [
   {
     "fileName": "nuxt.config.ts",
@@ -93,112 +198,7 @@ exports[`playground > app/app.vue > definition 6`] = `
 ]
 `;
 
-exports[`playground > app/app.vue > definition 7`] = `
-[
-  {
-    "fileName": "app/utils/index.ts",
-    "textSpan": {
-      "length": 3,
-      "start": 13,
-    },
-  },
-]
-`;
-
-exports[`playground > app/app.vue > definition 8`] = `
-[
-  {
-    "fileName": "app/assets/maestrale.webp",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-  {
-    "fileName": "app/assets/libeccio.webp",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > app/app.vue > definition 9`] = `
-[
-  {
-    "fileName": "app/assets/maestrale.webp",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-  {
-    "fileName": "app/assets/libeccio.webp",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > app/app.vue > definition 10`] = `
-[
-  {
-    "fileName": "server/routes/sitemap.post.ts",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-  {
-    "fileName": "server/routes/sitemap.get.ts",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > app/app.vue > definition 11`] = `
-[
-  {
-    "fileName": "public/fallback.json",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > app/app.vue > definition 12`] = `
-[
-  {
-    "fileName": "server/api/foo.get.ts",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > app/app.vue > definition 13`] = `
-[
-  {
-    "fileName": "server/api/foo.post.ts",
-    "textSpan": {
-      "length": 0,
-      "start": 0,
-    },
-  },
-]
-`;
-
-exports[`playground > app/app.vue > definition 14`] = `
+exports[`playground > app/app.vue > typed pages > definition 1`] = `
 [
   {
     "fileName": "app/pages/about.vue",
@@ -210,7 +210,7 @@ exports[`playground > app/app.vue > definition 14`] = `
 ]
 `;
 
-exports[`playground > app/app.vue > definition 15`] = `
+exports[`playground > app/app.vue > typed pages > definition 2`] = `
 [
   {
     "fileName": "app/pages/about/contact.vue",
@@ -222,7 +222,7 @@ exports[`playground > app/app.vue > definition 15`] = `
 ]
 `;
 
-exports[`playground > app/app.vue > definition 16`] = `
+exports[`playground > app/app.vue > typed pages > definition 3`] = `
 [
   {
     "fileName": "app/pages/about.vue",
@@ -234,8 +234,15 @@ exports[`playground > app/app.vue > definition 16`] = `
 ]
 `;
 
-exports[`playground > app/components/foo-bar.vue > references 1`] = `
+exports[`playground > app/components/foo-bar.vue > unimport > references 1`] = `
 [
+  {
+    "fileName": "app/components/foo-bar.vue",
+    "textSpan": {
+      "length": 6,
+      "start": 38,
+    },
+  },
   {
     "fileName": "app/components/foo-bar.vue",
     "textSpan": {
@@ -247,26 +254,26 @@ exports[`playground > app/components/foo-bar.vue > references 1`] = `
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 6,
-      "start": 1815,
+      "start": 1814,
     },
   },
   {
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 12,
-      "start": 1830,
+      "start": 1829,
     },
   },
 ]
 `;
 
-exports[`playground > app/utils/index.ts > references 1`] = `
+exports[`playground > app/utils/index.ts > auto imports > references 1`] = `
 [
   {
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 3,
-      "start": 756,
+      "start": 755,
     },
   },
 ]

@@ -2,7 +2,7 @@
     import type { RouteLocationRaw } from "vue-router";
     import { NuxtLink } from "#components";
 
-    /* -------------- middleware -------------- */
+    /* -------------- page meta -------------- */
 
     definePageMeta({
         layout: "center",
