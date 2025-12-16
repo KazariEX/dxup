@@ -60,6 +60,8 @@ useFetch("/api/foo");
 // Also `$fetch` and `useLazyFetch`.
 ```
 
+It will fallback to resolve the URL from your `public` directory when no nitro routes match.
+
 ### 4. pageMeta
 
 Go to definition for page metadata.
@@ -72,8 +74,6 @@ definePageMeta({
   //           ^^^^^^
 });
 ```
-
-It will fallback to resolve the URL from your `public` directory when no nitro routes match.
 
 ### 5. runtimeConfig
 
