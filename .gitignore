@@ -1,2 +1,5 @@
 dist
 node_modules
+*.vsix
+packages/vscode/LICENSE
+packages/vscode/README.md

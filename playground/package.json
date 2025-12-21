@@ -6,13 +6,14 @@
     "dev": "nuxt dev"
   },
   "dependencies": {
-    "@dxup/nuxt": "workspace:",
-    "nuxt": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },
   "devDependencies": {
+    "@dxup/nuxt": "workspace:",
+    "@dxup/vanilla": "workspace:",
     "@vue/typescript-plugin": "catalog:",
+    "nuxt": "catalog:",
     "typescript": "catalog:"
   }
 }

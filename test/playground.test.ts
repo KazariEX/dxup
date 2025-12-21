@@ -33,6 +33,7 @@ describe("playground", async () => {
     const projectService = new ts.server.ProjectService({
         cancellationToken: ts.server.nullCancellationToken,
         globalPlugins: [
+            "@dxup/vanilla",
             "@vue/typescript-plugin",
         ],
         host: ts.sys as any,
@@ -56,7 +57,7 @@ describe("playground", async () => {
     const language = (project as any).__vue__.language as Language<string>;
 
     const scopeRE = /(?:\/\*|<!--) -{14} (?<scope>[ \w]+) -{14} (?:\*\/|-->)/;
-    const operationRE = /(?<=(?:\/\/|<!--)\s*)(?<range>\^—*\^)\((?<type>\w+)\)(?<skip>\.skip\(\))?/;
+    const operationRE = /(?<range>\^—*\^)\((?<type>\w+)\)(?<skip>\.skip\(\))?/g;
 
     for (const fileName of project.getFileNames()) {
         if (fileName.startsWith(buildDir)) {
@@ -88,28 +89,26 @@ describe("playground", async () => {
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
 
-            const scopeMatch = line.match(scopeRE);
-            if (scopeMatch) {
-                currentScope = scopeMatch.groups!.scope;
+            const match = line.match(scopeRE);
+            if (match) {
+                currentScope = match.groups!.scope;
                 continue;
             }
 
-            const operationMatch = line.match(operationRE);
-            if (!operationMatch) {
-                continue;
-            }
+            operationRE.lastIndex = 0;
+            for (const match of line.matchAll(operationRE)) {
+                const { range, type, skip } = match.groups!;
+                if (skip !== void 0) {
+                    continue;
+                }
 
-            const { range, type, skip } = operationMatch.groups!;
-            if (skip !== void 0) {
-                continue;
+                items.push({
+                    scope: currentScope,
+                    type,
+                    start: offsets[i - 1] + match.index!,
+                    length: range.length,
+                });
             }
-
-            items.push({
-                scope: currentScope,
-                type,
-                start: offsets[i - 1] + operationMatch.index!,
-                length: range.length,
-            });
         }
 
         if (!items.length) {

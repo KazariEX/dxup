@@ -1,0 +1,28 @@
+{
+  "name": "@dxup/vanilla",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "TypeScript plugin for Vanilla JS",
+  "author": "KazariEX",
+  "license": "MIT",
+  "repository": "KazariEX/dxup",
+  "exports": {
+    ".": "./dist/index.cjs",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown -w --sourcemap",
+    "prepack": "pnpm run build",
+    "release": "node ../../scripts/release.ts"
+  },
+  "devDependencies": {
+    "@dxup/shared": "workspace:",
+    "typescript": "catalog:"
+  }
+}
