@@ -1,0 +1,43 @@
+{
+  "publisher": "KazariEX",
+  "name": "dxup",
+  "displayName": "Dxup",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TypeScript plugin for Vanilla JS",
+  "author": "KazariEX",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KazariEX/dxup.git",
+    "directory": "packages/vscode"
+  },
+  "categories": [
+    "Other"
+  ],
+  "files": [
+    "LICENSE",
+    "dist",
+    "node_modules"
+  ],
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "contributes": {
+    "typescriptServerPlugins": [
+      {
+        "name": "@dxup/vanilla",
+        "enableForWorkspaceTypeScriptVersions": true
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsdown --minify",
+    "dev": "tsdown -w --sourcemap",
+    "prepack": "pnpm run build",
+    "pack": "zin vsce package"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "catalog:"
+  }
+}

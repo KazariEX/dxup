@@ -9,9 +9,11 @@ catalog:
   "@types/node": ^24.10.2
   "@volar/language-core": ^2.4.26
   "@volar/typescript": ^2.4.26
+  "@vscode/vsce": ^3.7.1
   "@vue/language-core": ^3.1.8
   "@vue/typescript-plugin": ^3.1.8
   "@zinkawaii/eslint-config": ^0.4.1
+  "@zinkawaii/scripts": ^0.0.3
   "@zinkawaii/tsconfig": ^0.0.2
   bumpp: ^10.3.2
   chokidar: ^5.0.0
@@ -28,4 +30,6 @@ catalog:
 
 onlyBuiltDependencies:
   - "@parcel/watcher"
+  - "@vscode/vsce-sign"
   - esbuild
+  - keytar

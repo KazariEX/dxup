@@ -3,14 +3,16 @@
   "private": true,
   "packageManager": "pnpm@10.25.0",
   "scripts": {
-    "build": "pnpm --filter @dxup/* build",
-    "dev": "pnpm --filter @dxup/* --parallel dev",
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "prepare": "zin link vscode",
     "publish": "node scripts/publish.ts",
     "test": "vitest"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@zinkawaii/eslint-config": "catalog:",
+    "@zinkawaii/scripts": "catalog:",
     "@zinkawaii/tsconfig": "catalog:",
     "bumpp": "catalog:",
     "eslint": "catalog:",

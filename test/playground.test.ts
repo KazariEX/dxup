@@ -33,6 +33,7 @@ describe("playground", async () => {
     const projectService = new ts.server.ProjectService({
         cancellationToken: ts.server.nullCancellationToken,
         globalPlugins: [
+            "@dxup/vanilla",
             "@vue/typescript-plugin",
         ],
         host: ts.sys as any,

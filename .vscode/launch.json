@@ -1,36 +1,16 @@
 {
   "version": "0.2.0",
-  "compounds": [
-    {
-      "name": "Debug",
-      "configurations": [
-        "Launch Playground",
-        "Attach to TS Server"
-      ],
-      "presentation": {
-        "order": 0
-      }
-    }
-  ],
   "configurations": [
     {
       "name": "Launch Playground",
-      "type": "node",
+      "type": "extensionHost",
       "request": "launch",
-      "runtimeExecutable": "code-insiders",
+      "autoAttachChildProcesses": true,
+      "runtimeExecutable": "${execPath}",
       "args": [
-        "playground"
+        "--extensionDevelopmentPath=${workspaceRoot}/packages/vscode",
+        "--folder-uri=${workspaceRoot}/playground"
       ],
-      "env": {
-        "TSS_DEBUG": "5859"
-      }
-    },
-    {
-      "name": "Attach to TS Server",
-      "type": "node",
-      "request": "attach",
-      "port": 5859,
-      "restart": true,
       "outFiles": [
         "${workspaceRoot}/packages/*/dist/**/*.{c|m|}js"
       ]

@@ -267,6 +267,30 @@ exports[`playground > app/components/foo-bar.vue > unimport > references 1`] = `
 ]
 `;
 
+exports[`playground > app/fixtures/signature.ts > vanilla signature > definition 1`] = `
+[
+  {
+    "fileName": "app/fixtures/signature.ts",
+    "textSpan": {
+      "length": 11,
+      "start": 124,
+    },
+  },
+]
+`;
+
+exports[`playground > app/fixtures/signature.ts > vanilla signature > definition 2`] = `
+[
+  {
+    "fileName": "app/fixtures/signature.ts",
+    "textSpan": {
+      "length": 11,
+      "start": 124,
+    },
+  },
+]
+`;
+
 exports[`playground > app/utils/index.ts > auto imports > references 1`] = `
 [
   {
