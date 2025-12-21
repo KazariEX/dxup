@@ -332,6 +332,9 @@ function* calculateTextChanges(
     modifier: -1 | 1 | 0 | 2333,
 ): Generator<ts.TextChange> {
     const spreadIndex = args.findIndex((arg) => ts.isSpreadElement(arg));
+    if (spreadIndex !== -1 && spreadIndex <= Math.max(index, index + modifier)) {
+        return;
+    }
 
     if (modifier === 0 || modifier === 2333) {
         const from = index;
@@ -350,10 +353,6 @@ function* calculateTextChanges(
             },
             newText: "",
         };
-        return;
-    }
-
-    if (spreadIndex !== -1 && spreadIndex <= index + modifier) {
         return;
     }
 
