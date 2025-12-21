@@ -41,7 +41,7 @@ Go to definition for signature parameters.
 ```ts
 export default defineConfig({
   plugins: [{
-    name: "xoxo",
+    name: "testify",
     transform(code, id, options) {
       //                ^^^^^^^
     },
