@@ -2,9 +2,9 @@
 
 /* -------------- vanilla signature -------------- */
 
-type Plugin<T = (ctx: string) => void> = T | { handler: T };
+type Plugin<T = (this: void, ctx: string) => void> = T | { handler: T };
 
 void ({ handler: (ctx) => {} } as Plugin);
 //                ^—^(definition)
-void ({ handler(ctx) {} } as Plugin);
-//              ^—^(definition)
+void ({ handler(this, /* ---- */ ctx) {} } as Plugin);
+//              ^——^(definition) ^—^(definition)

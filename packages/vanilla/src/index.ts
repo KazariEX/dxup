@@ -41,11 +41,13 @@ function getDefinitionAndBoundSpan(
                     continue;
                 }
 
-                const index = node.parent.parameters.indexOf(node);
+                const firstArg = node.parent.parameters[0];
+                const withThis = ts.isIdentifier(firstArg.name) && firstArg.name.text === "this";
+                const index = node.parent.parameters.indexOf(node) - Number(withThis);
                 const definitions: ts.DefinitionInfo[] = [];
 
                 for (const signature of forEachSignature(ts, checker, node.parent)) {
-                    const parameter = signature.parameters[index];
+                    const parameter = index === -1 ? signature.thisParameter : signature.parameters[index];
                     if (!parameter?.declarations) {
                         continue;
                     }

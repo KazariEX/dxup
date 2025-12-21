@@ -273,7 +273,7 @@ exports[`playground > app/fixtures/signature.ts > vanilla signature > definition
     "fileName": "app/fixtures/signature.ts",
     "textSpan": {
       "length": 11,
-      "start": 124,
+      "start": 136,
     },
   },
 ]
@@ -284,8 +284,20 @@ exports[`playground > app/fixtures/signature.ts > vanilla signature > definition
   {
     "fileName": "app/fixtures/signature.ts",
     "textSpan": {
-      "length": 11,
+      "length": 10,
       "start": 124,
+    },
+  },
+]
+`;
+
+exports[`playground > app/fixtures/signature.ts > vanilla signature > definition 3`] = `
+[
+  {
+    "fileName": "app/fixtures/signature.ts",
+    "textSpan": {
+      "length": 11,
+      "start": 136,
     },
   },
 ]
