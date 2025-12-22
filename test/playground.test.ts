@@ -1,48 +1,10 @@
-/// <reference types="@volar/typescript" />
-
-import { Buffer } from "node:buffer";
 import { relative, resolve } from "pathe";
 import ts from "typescript";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 import type { Language } from "@volar/language-core";
+import { collectOperations, delay, expectOperation, projectService } from "./shared";
 
 describe("playground", async () => {
-    const logger: ts.server.Logger = {
-        close: () => {},
-        endGroup: () => {},
-        getLogFileName: () => void 0,
-        hasLevel: () => false,
-        info: () => {},
-        loggingEnabled: () => false,
-        msg: () => {},
-        perftrc: () => {},
-        startGroup: () => {},
-    };
-
-    const session = new ts.server.Session({
-        byteLength: Buffer.byteLength,
-        cancellationToken: ts.server.nullCancellationToken,
-        canUseEvents: true,
-        host: ts.sys as any,
-        hrtime: process.hrtime,
-        logger,
-        useInferredProjectPerProjectRoot: false,
-        useSingleInferredProject: false,
-    });
-
-    const projectService = new ts.server.ProjectService({
-        cancellationToken: ts.server.nullCancellationToken,
-        globalPlugins: [
-            "@dxup/vanilla",
-            "@vue/typescript-plugin",
-        ],
-        host: ts.sys as any,
-        logger,
-        session,
-        useInferredProjectPerProjectRoot: false,
-        useSingleInferredProject: false,
-    });
-
     const playgroundRoot = resolve(import.meta.dirname, "../playground");
     const appVuePath = resolve(playgroundRoot, "app/app.vue");
     const buildDir = resolve(playgroundRoot, ".nuxt");
@@ -56,10 +18,7 @@ describe("playground", async () => {
     const program = languageService.getProgram()!;
     const language = (project as any).__vue__.language as Language<string>;
 
-    const scopeRE = /(?:\/\*|<!--) -{14} (?<scope>[ \w]+) -{14} (?:\*\/|-->)/;
-    const operationRE = /(?<range>\^—*\^)\((?<type>\w+)\)(?<skip>\.skip\(\))?/g;
-
-    for (const fileName of project.getFileNames()) {
+    for (const fileName of project.getRootFiles()) {
         if (fileName.startsWith(buildDir)) {
             continue;
         }
@@ -68,49 +27,7 @@ describe("playground", async () => {
         const snapshot = language.scripts.get(fileName)?.snapshot;
         const sourceText = snapshot?.getText(0, snapshot.getLength()) ?? sourceFile.text;
 
-        if (!operationRE.test(sourceText)) {
-            continue;
-        }
-
-        const lines = sourceText.split("\n");
-        const offsets = lines.reduce<number[]>((res, line, i) => {
-            res.push(i ? res.at(-1)! + lines[i - 1].length + 1 : 0);
-            return res;
-        }, []);
-
-        interface Item extends ts.TextSpan {
-            scope: string;
-            type: string;
-        }
-
-        const items: Item[] = [];
-        let currentScope!: string;
-
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-
-            const match = line.match(scopeRE);
-            if (match) {
-                currentScope = match.groups!.scope;
-                continue;
-            }
-
-            operationRE.lastIndex = 0;
-            for (const match of line.matchAll(operationRE)) {
-                const { range, type, skip } = match.groups!;
-                if (skip !== void 0) {
-                    continue;
-                }
-
-                items.push({
-                    scope: currentScope,
-                    type,
-                    start: offsets[i - 1] + match.index!,
-                    length: range.length,
-                });
-            }
-        }
-
+        const items = collectOperations(sourceText);
         if (!items.length) {
             continue;
         }
@@ -118,39 +35,9 @@ describe("playground", async () => {
         describe(relative(playgroundRoot, fileName), () => {
             for (const { scope, type, start, length } of items) {
                 it(scope, () => {
-                    if (type === "definition") {
-                        const result = languageService.getDefinitionAndBoundSpan(sourceFile.fileName, start);
-                        expect(result).toBeDefined();
-                        expect(result!.textSpan).toEqual({ start, length });
-                        expect(
-                            result!.definitions?.map((definition) => ({
-                                fileName: relative(playgroundRoot, definition.fileName),
-                                textSpan: definition.textSpan,
-                            })),
-                        ).toMatchSnapshot(type);
-                    }
-                    else if (type === "references") {
-                        const result = languageService.findReferences(sourceFile.fileName, start);
-                        expect(result).toBeDefined();
-                        expect(
-                            result![0].references
-                                .filter((entry) => (
-                                    entry.fileName !== sourceFile.fileName ||
-                                    entry.textSpan.start < start ||
-                                    entry.textSpan.start > start + length
-                                ))
-                                .map((entry) => ({
-                                    fileName: relative(playgroundRoot, entry.fileName),
-                                    textSpan: entry.textSpan,
-                                })),
-                        ).toMatchSnapshot(type);
-                    }
+                    expectOperation(type, languageService, playgroundRoot, sourceFile, start, length);
                 });
             }
         });
     }
 });
-
-function delay(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}

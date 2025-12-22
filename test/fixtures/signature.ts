@@ -1,7 +1,5 @@
 /* eslint-disable unused-imports/no-unused-vars */
 
-/* -------------- vanilla signature -------------- */
-
 type Plugin<T = (this: void, ctx: string) => void> = T | { handler: T };
 
 void ({ handler: (ctx) => {} } as Plugin);
