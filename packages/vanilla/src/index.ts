@@ -58,19 +58,23 @@ function getApplicableRefactors(
             return result;
         }
 
+        let node: ts.ParameterDeclaration | undefined;
         const position = typeof args[1] === "number" ? args[1] : args[1].pos;
-        for (const node of forEachTouchingNode(ts, sourceFile, position)) {
-            if (ts.isParameter(node) && node.parent.name) {
-                result.push({
-                    name: "Dxup",
-                    description: "Dxup refactor actions",
-                    actions: [
-                        refactors.rewrite.parameter.forward,
-                        refactors.rewrite.parameter.backward,
-                        refactors.rewrite.parameter.remove,
-                    ],
-                });
+        for (const child of forEachTouchingNode(ts, sourceFile, position)) {
+            if (ts.isParameter(child)) {
+                node = child;
             }
+        }
+        if (node?.parent.name) {
+            result.push({
+                name: "Dxup",
+                description: "Dxup refactor actions",
+                actions: [
+                    refactors.rewrite.parameter.forward,
+                    refactors.rewrite.parameter.backward,
+                    refactors.rewrite.parameter.remove,
+                ],
+            });
         }
 
         return result;
@@ -99,70 +103,74 @@ function getEditsForRefactor(
             return;
         }
 
-        for (const node of forEachTouchingNode(ts, sourceFile, position)) {
-            if (!ts.isParameter(node) || !node.parent.name) {
-                continue;
+        let node: ts.ParameterDeclaration | undefined;
+        for (const child of forEachTouchingNode(ts, sourceFile, position)) {
+            if (ts.isParameter(child)) {
+                node = child;
             }
-
-            const firstArg = node.parent.parameters[0];
-            const withThis = ts.isIdentifier(firstArg.name) && firstArg.name.text === "this";
-            const index = node.parent.parameters.indexOf(node) - Number(withThis);
-
-            if (
-                index === -1 ||
-                index + direction < 0 ||
-                index + direction === node.parent.parameters.length || (
-                    direction !== 0 && (
-                        node.dotDotDotToken || node.parent.parameters[index + direction].dotDotDotToken
-                    )
-                )
-            ) break;
-
-            const modifier = direction === 0 && node.dotDotDotToken ? 2333 : direction;
-            const fileTextChanges: Record<string, ts.TextChange[]> = {};
-            const references = forEachSignatureReference(
-                ts,
-                info.languageService,
-                args[0],
-                node.parent.name.getStart(sourceFile),
-            );
-
-            for (const [fileName, node] of references) {
-                const sourceFile = program.getSourceFile(fileName)!;
-                const textChanges = fileTextChanges[fileName] ??= [];
-
-                if (ts.isCallExpression(node)) {
-                    textChanges.push(...calculateTextChanges(
-                        ts,
-                        sourceFile,
-                        node.arguments,
-                        index,
-                        modifier,
-                    ));
-                }
-                else {
-                    let index2 = index;
-                    const firstArg = node.parameters[0];
-                    if (ts.isIdentifier(firstArg.name) && firstArg.name.text === "this") {
-                        index2++;
-                    }
-                    textChanges.push(...calculateTextChanges(
-                        ts,
-                        sourceFile,
-                        node.parameters,
-                        index2,
-                        modifier,
-                    ));
-                }
-            }
-
-            return {
-                edits: Object.entries(fileTextChanges).map(([fileName, textChanges]) => ({
-                    fileName,
-                    textChanges,
-                })),
-            };
         }
+        if (!node?.parent.name) {
+            return;
+        }
+
+        const firstArg = node.parent.parameters[0];
+        const withThis = ts.isIdentifier(firstArg.name) && firstArg.name.text === "this";
+        const index = node.parent.parameters.indexOf(node) - Number(withThis);
+
+        if (
+            index === -1 ||
+            index + direction < 0 ||
+            index + direction === node.parent.parameters.length || (
+                direction !== 0 && (
+                    node.dotDotDotToken || node.parent.parameters[index + direction].dotDotDotToken
+                )
+            )
+        ) return;
+
+        const modifier = direction === 0 && node.dotDotDotToken ? Infinity : direction;
+        const fileTextChanges: Record<string, ts.TextChange[]> = {};
+        const references = forEachSignatureReference(
+            ts,
+            info.languageService,
+            args[0],
+            node.parent.name.getStart(sourceFile),
+        );
+
+        for (const node of references) {
+            const sourceFile = node.getSourceFile();
+            const textChanges = fileTextChanges[sourceFile.fileName] ??= [];
+
+            if (ts.isCallExpression(node)) {
+                textChanges.push(...calculateTextChanges(
+                    ts,
+                    sourceFile,
+                    node.arguments,
+                    index,
+                    modifier,
+                ));
+            }
+            else {
+                let index2 = index;
+                const firstArg = node.parameters[0];
+                if (ts.isIdentifier(firstArg.name) && firstArg.name.text === "this") {
+                    index2++;
+                }
+                textChanges.push(...calculateTextChanges(
+                    ts,
+                    sourceFile,
+                    node.parameters,
+                    index2,
+                    modifier,
+                ));
+            }
+        }
+
+        return {
+            edits: Object.entries(fileTextChanges).map(([fileName, textChanges]) => ({
+                fileName,
+                textChanges,
+            })),
+        };
     };
 }
 
@@ -172,7 +180,7 @@ function* forEachSignatureReference(
     fileName: string,
     position: number,
     visited = new Set<string>(),
-): Generator<[fileName: string, node: ts.CallExpression | ts.SignatureDeclaration]> {
+): Generator<ts.CallExpression | ts.SignatureDeclaration> {
     const program = languageService.getProgram()!;
     const references = languageService.getReferencesAtPosition(fileName, position) ?? [];
 
@@ -201,7 +209,7 @@ function* forEachSignatureReference(
             ts.isCallExpression(node.parent) &&
             node === node.parent.expression
         ) {
-            yield [fileName, node.parent];
+            yield node.parent;
             continue;
         }
         // foo.swap(...)
@@ -211,7 +219,7 @@ function* forEachSignatureReference(
             ts.isCallExpression(node.parent.parent) &&
             node.parent === node.parent.parent.expression
         ) {
-            yield [fileName, node.parent.parent];
+            yield node.parent.parent;
             continue;
         }
         // swap(...) {}
@@ -219,7 +227,7 @@ function* forEachSignatureReference(
             ts.isFunctionLike(node.parent) &&
             node === node.parent.name
         ) {
-            yield [fileName, node.parent];
+            yield node.parent;
             continue;
         }
         // swap: (...) => {}
@@ -230,7 +238,7 @@ function* forEachSignatureReference(
         ) {
             const expression = getUnwrappedExpression(ts, node.parent.initializer);
             if (ts.isFunctionLike(expression)) {
-                yield [fileName, expression];
+                yield expression;
                 continue;
             }
         }
@@ -270,7 +278,7 @@ function* forEachSignatureReference(
             ) {
                 const expression = getUnwrappedExpression(ts, curr.parent.parent.initializer);
                 if (ts.isFunctionLike(expression)) {
-                    yield [fileName, expression];
+                    yield expression;
                 }
                 start = curr.parent.parent.name.getStart(sourceFile);
             }
@@ -284,7 +292,7 @@ function* forEachSignatureReference(
             ) {
                 const expression = getUnwrappedExpression(ts, curr.parent.parent.expression);
                 if (ts.isFunctionLike(expression)) {
-                    yield [fileName, expression];
+                    yield expression;
                 }
                 curr = curr.parent.parent;
                 continue inner;
@@ -329,16 +337,16 @@ function* calculateTextChanges(
     sourceFile: ts.SourceFile,
     args: ts.NodeArray<ts.Node>,
     index: number,
-    modifier: -1 | 1 | 0 | 2333,
+    modifier: number,
 ): Generator<ts.TextChange> {
     const spreadIndex = args.findIndex((arg) => ts.isSpreadElement(arg));
     if (spreadIndex !== -1 && spreadIndex <= Math.max(index, index + modifier)) {
         return;
     }
 
-    if (modifier === 0 || modifier === 2333) {
+    if (modifier === 0 || modifier === Infinity) {
         const from = index;
-        const to = modifier === 2333 ? args.length - 1 : Math.min(args.length - 1, index);
+        const to = modifier === Infinity ? args.length - 1 : Math.min(args.length - 1, index);
         const [start, end] = from ? [
             args[from - 1].end,
             args[to].end,
