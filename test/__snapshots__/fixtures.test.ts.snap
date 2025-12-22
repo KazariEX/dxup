@@ -1,0 +1,37 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`fixtures > signature.ts > definition 1`] = `
+[
+  {
+    "fileName": "signature.ts",
+    "textSpan": {
+      "length": 11,
+      "start": 81,
+    },
+  },
+]
+`;
+
+exports[`fixtures > signature.ts > definition 2`] = `
+[
+  {
+    "fileName": "signature.ts",
+    "textSpan": {
+      "length": 10,
+      "start": 69,
+    },
+  },
+]
+`;
+
+exports[`fixtures > signature.ts > definition 3`] = `
+[
+  {
+    "fileName": "signature.ts",
+    "textSpan": {
+      "length": 11,
+      "start": 81,
+    },
+  },
+]
+`;
