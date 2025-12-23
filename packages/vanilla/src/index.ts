@@ -31,7 +31,10 @@ function getDefinitionAndBoundSpan(
             return result;
         }
 
-        if (result.definitions[0].kind === ts.ScriptElementKind.parameterElement) {
+        if (
+            result.definitions[0].kind === ts.ScriptElementKind.parameterElement &&
+            result.definitions[0].textSpan.start === result.textSpan.start
+        ) {
             const program = info.languageService.getProgram()!;
             const sourceFile = program.getSourceFile(args[0])!;
             const checker = program.getTypeChecker();
