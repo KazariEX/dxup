@@ -119,8 +119,8 @@ export function expectOperation(
             result![0].references
                 .filter((entry) => (
                     entry.fileName !== sourceFile.fileName ||
-                    entry.textSpan.start < start ||
-                    entry.textSpan.start > start + length
+                    start < entry.textSpan.start ||
+                    start > entry.textSpan.start + entry.textSpan.length
                 ))
                 .map((entry) => ({
                     fileName: relative(projectRoot, entry.fileName),
