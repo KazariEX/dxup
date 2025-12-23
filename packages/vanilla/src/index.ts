@@ -28,7 +28,7 @@ function getDefinitionAndBoundSpan(
     return (...args) => {
         const result = getDefinitionAndBoundSpan(...args);
         if (!result?.definitions?.length) {
-            return;
+            return result;
         }
 
         if (result.definitions[0].kind === ts.ScriptElementKind.parameterElement) {
@@ -36,43 +36,47 @@ function getDefinitionAndBoundSpan(
             const sourceFile = program.getSourceFile(args[0])!;
             const checker = program.getTypeChecker();
 
-            for (const node of forEachTouchingNode(ts, sourceFile, args[1])) {
-                if (!ts.isParameter(node) || node.dotDotDotToken) {
-                    continue;
+            let node: ts.ParameterDeclaration | undefined;
+            for (const child of forEachTouchingNode(ts, sourceFile, args[1])) {
+                if (ts.isParameter(child)) {
+                    node = child;
                 }
+            }
+            if (!node || node.dotDotDotToken) {
+                return result;
+            }
 
-                const firstArg = node.parent.parameters[0];
-                const withThis = ts.isIdentifier(firstArg.name) && firstArg.name.text === "this";
-                const index = node.parent.parameters.indexOf(node) - Number(withThis);
-                const definitions: ts.DefinitionInfo[] = [];
+            const firstArg = node.parent.parameters[0];
+            const withThis = ts.isIdentifier(firstArg.name) && firstArg.name.text === "this";
+            const index = node.parent.parameters.indexOf(node) - Number(withThis);
+            const definitions: ts.DefinitionInfo[] = [];
 
-                for (const signature of forEachSignature(ts, checker, node.parent)) {
-                    let i = -1;
-                    for (const declaration of forEachParameter(checker, signature)) {
-                        if (i++ !== index) {
-                            continue;
-                        }
-                        if (declaration) {
-                            const sourceFile = declaration.getSourceFile();
-                            definitions.push({
-                                fileName: sourceFile.fileName,
-                                textSpan: {
-                                    start: declaration.getStart(sourceFile),
-                                    length: declaration.getWidth(sourceFile),
-                                },
-                                kind: ts.ScriptElementKind.parameterElement,
-                                name: declaration.getText(sourceFile),
-                                containerKind: ts.ScriptElementKind.unknown,
-                                containerName: "",
-                            });
-                        }
-                        break;
+            for (const signature of forEachSignature(ts, checker, node.parent)) {
+                let i = -1;
+                for (const declaration of forEachParameter(checker, signature)) {
+                    if (i++ !== index) {
+                        continue;
                     }
+                    if (declaration) {
+                        const sourceFile = declaration.getSourceFile();
+                        definitions.push({
+                            fileName: sourceFile.fileName,
+                            textSpan: {
+                                start: declaration.getStart(sourceFile),
+                                length: declaration.getWidth(sourceFile),
+                            },
+                            kind: ts.ScriptElementKind.parameterElement,
+                            name: declaration.getText(sourceFile),
+                            containerKind: ts.ScriptElementKind.unknown,
+                            containerName: "",
+                        });
+                    }
+                    break;
                 }
+            }
 
-                if (definitions.length) {
-                    result.definitions = definitions;
-                }
+            if (definitions.length) {
+                result.definitions = definitions;
             }
         }
 
