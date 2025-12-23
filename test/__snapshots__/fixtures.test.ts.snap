@@ -6,7 +6,7 @@ exports[`fixtures > signature.ts > definition 1`] = `
     "fileName": "signature.ts",
     "textSpan": {
       "length": 11,
-      "start": 81,
+      "start": 127,
     },
   },
 ]
@@ -18,7 +18,7 @@ exports[`fixtures > signature.ts > definition 2`] = `
     "fileName": "signature.ts",
     "textSpan": {
       "length": 10,
-      "start": 69,
+      "start": 115,
     },
   },
 ]
@@ -30,7 +30,19 @@ exports[`fixtures > signature.ts > definition 3`] = `
     "fileName": "signature.ts",
     "textSpan": {
       "length": 11,
-      "start": 81,
+      "start": 127,
+    },
+  },
+]
+`;
+
+exports[`fixtures > signature.ts > definition 4`] = `
+[
+  {
+    "fileName": "signature.ts",
+    "textSpan": {
+      "length": 11,
+      "start": 127,
     },
   },
 ]

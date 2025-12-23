@@ -47,28 +47,26 @@ function getDefinitionAndBoundSpan(
                 const definitions: ts.DefinitionInfo[] = [];
 
                 for (const signature of forEachSignature(ts, checker, node.parent)) {
-                    const parameter = index === -1 ? signature.thisParameter : signature.parameters[index];
-                    if (!parameter?.declarations) {
-                        continue;
-                    }
-
-                    for (const declaration of parameter.declarations) {
-                        if (!ts.isParameter(declaration) || declaration.dotDotDotToken) {
+                    let i = -1;
+                    for (const declaration of forEachParameter(checker, signature)) {
+                        if (i++ !== index) {
                             continue;
                         }
-
-                        const sourceFile = declaration.getSourceFile();
-                        definitions.push({
-                            fileName: sourceFile.fileName,
-                            textSpan: {
-                                start: declaration.getStart(sourceFile),
-                                length: declaration.getWidth(sourceFile),
-                            },
-                            kind: ts.ScriptElementKind.parameterElement,
-                            name: declaration.getText(sourceFile),
-                            containerKind: ts.ScriptElementKind.unknown,
-                            containerName: "",
-                        });
+                        if (declaration) {
+                            const sourceFile = declaration.getSourceFile();
+                            definitions.push({
+                                fileName: sourceFile.fileName,
+                                textSpan: {
+                                    start: declaration.getStart(sourceFile),
+                                    length: declaration.getWidth(sourceFile),
+                                },
+                                kind: ts.ScriptElementKind.parameterElement,
+                                name: declaration.getText(sourceFile),
+                                containerKind: ts.ScriptElementKind.unknown,
+                                containerName: "",
+                            });
+                        }
+                        break;
                     }
                 }
 
@@ -126,5 +124,24 @@ function* forEachType(type?: ts.Type): Generator<ts.Type> {
     }
     else if (type) {
         yield type;
+    }
+}
+
+function* forEachParameter(checker: ts.TypeChecker, signature: ts.Signature) {
+    yield signature.thisParameter?.valueDeclaration as ts.ParameterDeclaration | undefined;
+    for (const parameter of signature.parameters) {
+        const declaration = parameter.valueDeclaration as ts.ParameterDeclaration | undefined;
+        if (declaration?.dotDotDotToken) {
+            const type = checker.getTypeOfSymbol(parameter);
+            if (checker.isTupleType(type)) {
+                const tuple = (type as ts.TupleTypeReference).target;
+                if (tuple.labeledElementDeclarations) {
+                    yield* tuple.labeledElementDeclarations;
+                }
+            }
+        }
+        else {
+            yield declaration;
+        }
     }
 }
