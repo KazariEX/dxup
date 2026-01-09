@@ -27,9 +27,7 @@ export interface Data {
         pageMeta: boolean;
         runtimeConfig: boolean;
         typedPages: boolean;
-        unimport: {
-            componentReferences: boolean;
-        };
+        unofficial: boolean;
     };
 }
 

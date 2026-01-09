@@ -45,12 +45,13 @@ export interface ModuleOptions {
          * Whether to enable enhanced navigation for auto imported APIs.
          * @default true
          */
-        unimport?: boolean | {
-            /**
-             * Whether to enable Find References for SFC on `<template>`.
-             */
-            componentReferences: boolean;
-        };
+        unimport?: boolean;
+        /**
+         * Whether to enable unofficial features for Vue itself.
+         * - find references for SFC on `<template>`
+         * @default true
+         */
+        unofficial?: boolean;
     };
 }
 
@@ -68,6 +69,7 @@ export default defineNuxtModule<ModuleOptions>().with({
             runtimeConfig: true,
             typedPages: true,
             unimport: true,
+            unofficial: true,
         },
     },
     async setup(options, nuxt) {
@@ -128,14 +130,7 @@ export default defineNuxtModule<ModuleOptions>().with({
                     middleware,
                     nitroRoutes,
                     typedPages,
-                    features: {
-                        ...options.features,
-                        unimport: {
-                            componentReferences: typeof options.features.unimport === "object"
-                                ? options.features.unimport.componentReferences
-                                : options.features.unimport,
-                        },
-                    },
+                    features: options.features,
                 };
                 return JSON.stringify(data, null, 2);
             },

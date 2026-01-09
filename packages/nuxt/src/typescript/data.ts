@@ -17,9 +17,7 @@ const initialValue: Data = {
         pageMeta: true,
         runtimeConfig: true,
         typedPages: true,
-        unimport: {
-            componentReferences: true,
-        },
+        unofficial: true,
     },
 };
 
