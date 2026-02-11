@@ -14,7 +14,7 @@ export function postprocess(
         const result = findReferences(...args);
 
         if (!result?.length) {
-            const sourceScript = language.scripts.get(args[0]);
+            const sourceScript = language.scripts.get(args[0].replaceAll("\\", "/"));
             const root = sourceScript?.generated?.root;
             if (!isVueVirtualCode(root)) {
                 return;
