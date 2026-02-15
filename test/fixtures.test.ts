@@ -5,7 +5,7 @@ import { collectOperations, expectOperation, projectService } from "./shared";
 
 describe("fixtures", () => {
     const fixturesRoot = resolve(import.meta.dirname, "fixtures");
-    const signaturePath = resolve(fixturesRoot, "signature.ts");
+    const signaturePath = resolve(fixturesRoot, "index.ts");
     projectService.openClientFile(signaturePath);
 
     const project = projectService.getDefaultProjectForFile(ts.server.toNormalizedPath(signaturePath), true)!;
@@ -21,8 +21,8 @@ describe("fixtures", () => {
         }
 
         it(relative(fixturesRoot, fileName), () => {
-            for (const { type, start, length } of items) {
-                expectOperation(type, languageService, fixturesRoot, sourceFile, start, length);
+            for (const item of items) {
+                expectOperation(languageService, fixturesRoot, sourceFile, item);
             }
         });
     }

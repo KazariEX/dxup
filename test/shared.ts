@@ -50,7 +50,7 @@ interface Operation extends ts.TextSpan {
 
 const scopeRE = /(?:\/\*|<!--) -{14} (?<scope>[ \w]+) -{14} (?:\*\/|-->)/;
 const rangeRE = /\^—*\^/;
-const operationRE = /(?<range>\^—*\^)\((?<type>\w+)\)(?<skip>\.skip\(\))?/g;
+const operationRE = /(?<range>\^—*\^)\((?<type>.+?)\)(?<skip>\.skip\(\))?/g;
 
 export function collectOperations(sourceText: string) {
     if (!rangeRE.test(sourceText)) {
@@ -94,15 +94,16 @@ export function collectOperations(sourceText: string) {
 }
 
 export function expectOperation(
-    type: string,
     languageService: ts.LanguageService,
     projectRoot: string,
     sourceFile: ts.SourceFile,
-    start: number,
-    length: number,
+    operation: Operation,
 ) {
+    const { type, start, length } = operation;
+
     if (type === "definition") {
         const result = languageService.getDefinitionAndBoundSpan(sourceFile.fileName, start);
+
         expect(result).toBeDefined();
         expect(result!.textSpan).toEqual({ start, length });
         expect(
@@ -114,6 +115,7 @@ export function expectOperation(
     }
     else if (type === "references") {
         const result = languageService.findReferences(sourceFile.fileName, start);
+
         expect(result).toBeDefined();
         expect(
             result![0].references
@@ -127,5 +129,31 @@ export function expectOperation(
                     textSpan: entry.textSpan,
                 })),
         ).toMatchSnapshot(type);
+    }
+    else if (type.startsWith("refactor.")) {
+        const refactors = languageService.getApplicableRefactors(sourceFile.fileName, start, {});
+
+        const refactor = refactors.find((info) => info.name === "Dxup");
+        expect(refactor).toBeDefined();
+
+        const action = refactor!.actions.find((action) => action.kind === type);
+        expect(action).toBeDefined();
+
+        const result = languageService.getEditsForRefactor(
+            sourceFile.fileName,
+            {},
+            start,
+            refactor!.name,
+            action!.name,
+            {},
+        );
+
+        expect(result).toBeDefined();
+        expect(
+            result!.edits.map((edit) => ({
+                ...edit,
+                fileName: relative(projectRoot, edit.fileName),
+            })),
+        ).toMatchSnapshot("refactor");
     }
 }

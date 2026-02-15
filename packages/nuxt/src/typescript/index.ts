@@ -16,8 +16,8 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
         create(info) {
             const data = createData(ts, info);
             const server = createEventServer(info);
-
             const context: Context = { ts, info, data, server };
+
             queueMicrotask(() => {
                 context.language = (info.project as any).__vue__?.language;
 
@@ -44,9 +44,6 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
                 info.project["languageService"] = new Proxy(languageService, {
                     get(target, p, receiver) {
                         return methods[p] ?? Reflect.get(target, p, receiver);
-                    },
-                    set(...args) {
-                        return Reflect.set(...args);
                     },
                 });
             });

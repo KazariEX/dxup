@@ -33,9 +33,9 @@ describe("playground", async () => {
         }
 
         describe(relative(playgroundRoot, fileName), () => {
-            for (const { scope, type, start, length } of items) {
-                it(scope, () => {
-                    expectOperation(type, languageService, playgroundRoot, sourceFile, start, length);
+            for (const item of items) {
+                it(item.scope, () => {
+                    expectOperation(languageService, playgroundRoot, sourceFile, item);
                 });
             }
         });
