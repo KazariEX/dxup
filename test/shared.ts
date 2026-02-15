@@ -145,8 +145,12 @@ export function expectOperation(
                     {},
                 );
                 expect(editInfo).toBeDefined();
-                expect(editInfo!.edits).toMatchSnapshot("refactor");
-                break outer;
+                expect(
+                    editInfo!.edits.map((edit) => ({
+                        ...edit,
+                        fileName: relative(projectRoot, edit.fileName),
+                    })),
+                ).toMatchSnapshot("refactor");
             }
         }
     }

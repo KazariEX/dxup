@@ -51,7 +51,7 @@ exports[`fixtures > signature/parameter-definition.ts > definition 4`] = `
 exports[`fixtures > signature/parameter-refactor.ts > refactor 1`] = `
 [
   {
-    "fileName": "/Users/bikariarchive/codings/dxup/test/fixtures/signature/parameter-refactor.ts",
+    "fileName": "signature/parameter-refactor.ts",
     "isNewFile": false,
     "textChanges": [
       {
