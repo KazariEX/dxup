@@ -36,15 +36,23 @@ Add the following to your `tsconfig.json`:
 
 ### 1. signature
 
-Go to definition for signature parameters.
+- Go to definition for signature parameters.
 
-```ts
-export default defineConfig({
-  plugins: [{
-    name: "testify",
-    transform(code, id, options) {
-      //                ^^^^^^^
-    },
-  }],
-});
-```
+  ```ts
+  export default defineConfig({
+    plugins: [{
+      name: "testify",
+      transform(code, id, options) {
+        //                ^^^^^^^
+      },
+    }],
+  });
+  ```
+
+- Rewrite refactor for signature parameters.
+
+  ```ts
+  function swap(foo: number, bar: string, baz: boolean, qux: symbol) {}
+  //                         ^^^ Refactor > Move parameter right
+  swap(2, "3", true, Symbol(5));
+  ```
