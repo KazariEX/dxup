@@ -8,16 +8,22 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
 
     return {
         create(info) {
+            const methods: Record<PropertyKey, any> = {};
+
             for (const [key, method] of [
                 ["getApplicableRefactors", getApplicableRefactors],
                 ["getEditsForRefactor", getEditsForRefactor],
                 ["getDefinitionAndBoundSpan", getDefinitionAndBoundSpan],
             ] as const) {
                 const original = info.languageService[key];
-                info.languageService[key] = method(ts, info, original as any) as any;
+                methods[key] = method(ts, info, original as any);
             }
 
-            return info.languageService;
+            return new Proxy(info.languageService, {
+                get(target, p, receiver) {
+                    return methods[p] ?? Reflect.get(target, p, receiver);
+                },
+            });
         },
     };
 };
