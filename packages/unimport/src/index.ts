@@ -165,9 +165,11 @@ function findReferences(
 
                 const position = node.getStart(sourceFile) + 1;
                 const res = info.languageService.getReferencesAtPosition(reference.fileName, position)
-                    ?.filter((entry) => entry.fileName !== reference.fileName ||
+                    ?.filter((entry) => (
+                        entry.fileName !== reference.fileName ||
                         position < entry.textSpan.start ||
-                        position > entry.textSpan.start + entry.textSpan.length);
+                        position > entry.textSpan.start + entry.textSpan.length
+                    ));
 
                 references.delete(reference);
                 for (const reference of res ?? []) {

@@ -383,35 +383,39 @@ function getDefinitionAndBoundSpan(
     return (...args) => {
         const result = getDefinitionAndBoundSpan(...args);
         if (!result?.definitions?.length) {
-            return;
+            return result;
         }
 
-        if (result.definitions[0].kind === ts.ScriptElementKind.parameterElement) {
+        if (
+            result.definitions[0].kind === ts.ScriptElementKind.parameterElement &&
+            result.definitions[0].textSpan.start === result.textSpan.start
+        ) {
             const program = info.languageService.getProgram()!;
             const sourceFile = program.getSourceFile(args[0])!;
             const checker = program.getTypeChecker();
 
-            for (const node of forEachTouchingNode(ts, sourceFile, args[1])) {
-                if (!ts.isParameter(node) || node.dotDotDotToken) {
-                    continue;
+            let node: ts.ParameterDeclaration | undefined;
+            for (const child of forEachTouchingNode(ts, sourceFile, args[1])) {
+                if (ts.isParameter(child)) {
+                    node = child;
                 }
+            }
+            if (!node || node.dotDotDotToken) {
+                return result;
+            }
 
-                const firstArg = node.parent.parameters[0];
-                const withThis = ts.isIdentifier(firstArg.name) && firstArg.name.text === "this";
-                const index = node.parent.parameters.indexOf(node) - Number(withThis);
-                const definitions: ts.DefinitionInfo[] = [];
+            const firstArg = node.parent.parameters[0];
+            const withThis = ts.isIdentifier(firstArg.name) && firstArg.name.text === "this";
+            const index = node.parent.parameters.indexOf(node) - Number(withThis);
+            const definitions: ts.DefinitionInfo[] = [];
 
-                for (const signature of forEachSignature(ts, checker, node.parent)) {
-                    const parameter = index === -1 ? signature.thisParameter : signature.parameters[index];
-                    if (!parameter?.declarations) {
+            for (const signature of forEachSignature(ts, checker, node.parent)) {
+                let i = -1;
+                for (const declaration of forEachParameter(checker, signature)) {
+                    if (i++ !== index) {
                         continue;
                     }
-
-                    for (const declaration of parameter.declarations) {
-                        if (!ts.isParameter(declaration) || declaration.dotDotDotToken) {
-                            continue;
-                        }
-
+                    if (declaration) {
                         const sourceFile = declaration.getSourceFile();
                         definitions.push({
                             fileName: sourceFile.fileName,
@@ -425,11 +429,12 @@ function getDefinitionAndBoundSpan(
                             containerName: "",
                         });
                     }
+                    break;
                 }
+            }
 
-                if (definitions.length) {
-                    result.definitions = definitions;
-                }
+            if (definitions.length) {
+                result.definitions = definitions;
             }
         }
 
@@ -481,5 +486,24 @@ function* forEachType(type?: ts.Type): Generator<ts.Type> {
     }
     else if (type) {
         yield type;
+    }
+}
+
+function* forEachParameter(checker: ts.TypeChecker, signature: ts.Signature) {
+    yield signature.thisParameter?.valueDeclaration as ts.ParameterDeclaration | undefined;
+    for (const parameter of signature.parameters) {
+        const declaration = parameter.valueDeclaration as ts.ParameterDeclaration | undefined;
+        if (declaration?.dotDotDotToken) {
+            const type = checker.getTypeOfSymbol(parameter);
+            if (checker.isTupleType(type)) {
+                const tuple = (type as ts.TupleTypeReference).target;
+                if (tuple.labeledElementDeclarations) {
+                    yield* tuple.labeledElementDeclarations;
+                }
+            }
+        }
+        else {
+            yield declaration;
+        }
     }
 }

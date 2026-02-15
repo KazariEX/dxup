@@ -16,6 +16,6 @@ export default defineNuxtConfig({
     },
     runtimeConfig,
     modules: [
-        "@dxup/nuxt",
+        "../packages/nuxt/src/module/index.ts",
     ],
 });

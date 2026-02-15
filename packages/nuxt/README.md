@@ -101,6 +101,10 @@ It can be triggered on the `name` property of an object literal constrained by t
 
 ### 7. unimport
 
+Please refer to the [@dxup/unimport](/packages/unimport) package for more details.
+
+### 8. unofficial
+
 Find references for SFC on `<template>`.
 
 ```vue
@@ -108,5 +112,3 @@ Find references for SFC on `<template>`.
 <!-- ^^^^^^^^ -->
 </template>
 ```
-
-Please refer to the [@dxup/unimport](/packages/unimport) package for more details.

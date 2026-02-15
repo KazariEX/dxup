@@ -21,7 +21,7 @@ const plugin: ts.server.PluginModuleFactory = (module) => {
             queueMicrotask(() => {
                 context.language = (info.project as any).__vue__?.language;
 
-                if (!context.language || !data.features.unimport.componentReferences) {
+                if (!context.language || !data.features.unofficial) {
                     return;
                 }
 

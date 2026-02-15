@@ -15,15 +15,17 @@ export function preprocess(
             return result;
         }
 
-        // use the language service proxied by volar for source offsets
-        const languageService = info.project.getLanguageService();
-        const program = languageService.getProgram()!;
-        const references: Record<string, ComponentReferenceInfo[]> = {};
+        if (data.features.components) {
+            // use the language service proxied by volar for source offsets
+            const languageService = info.project.getLanguageService();
+            const program = languageService.getProgram()!;
+            const references: Record<string, ComponentReferenceInfo[]> = {};
 
-        for (const change of result) {
-            const { fileName, textChanges } = change;
+            for (const { fileName, textChanges } of result) {
+                if (!fileName.endsWith("components.d.ts")) {
+                    continue;
+                }
 
-            if (data.features.components && fileName.endsWith("components.d.ts")) {
                 const sourceFile = program.getSourceFile(fileName);
                 if (!sourceFile) {
                     continue;
@@ -55,13 +57,13 @@ export function preprocess(
                     }
                 }
             }
-        }
 
-        if (Object.keys(references).length) {
-            server.write("components:rename", {
-                fileName: args[1],
-                references,
-            });
+            if (Object.keys(references).length) {
+                server.write("components:rename", {
+                    fileName: args[1],
+                    references,
+                });
+            }
         }
 
         return result.filter((change) => {

@@ -28,7 +28,7 @@ export function postprocess(
         const result = getDefinitionAndBoundSpan(...args);
 
         if (!result?.definitions?.length) {
-            const sourceScript = language.scripts.get(args[0]);
+            const sourceScript = language.scripts.get(args[0].replaceAll("\\", "/"));
             const root = sourceScript?.generated?.root;
             if (!isVueVirtualCode(root)) {
                 return result;

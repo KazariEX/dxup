@@ -10,8 +10,6 @@
     "vue-router": "catalog:"
   },
   "devDependencies": {
-    "@dxup/nuxt": "workspace:",
-    "@dxup/vanilla": "workspace:",
     "@vue/typescript-plugin": "catalog:",
     "nuxt": "catalog:",
     "typescript": "catalog:"
