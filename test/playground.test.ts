@@ -1,8 +1,10 @@
+import { nextTick } from "node:process";
+import { promisify } from "node:util";
 import { relative, resolve } from "pathe";
 import ts from "typescript";
 import { describe, it } from "vitest";
 import type { Language } from "@volar/language-core";
-import { collectOperations, delay, expectOperation, projectService } from "./shared";
+import { collectOperations, expectOperation, projectService } from "./shared";
 
 describe("playground", async () => {
     const playgroundRoot = resolve(import.meta.dirname, "../playground");
@@ -11,7 +13,7 @@ describe("playground", async () => {
     projectService.openClientFile(appVuePath);
 
     // wait for the postprocess of language service to complete
-    await delay(0);
+    await promisify(nextTick)();
 
     const project = projectService.getDefaultProjectForFile(ts.server.toNormalizedPath(appVuePath), true)!;
     const languageService = project.getLanguageService();

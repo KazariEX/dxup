@@ -39,10 +39,6 @@ export const projectService = new ts.server.ProjectService({
     useSingleInferredProject: false,
 });
 
-export function delay(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 interface Operation extends ts.TextSpan {
     scope: string;
     type: string;
