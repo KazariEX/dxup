@@ -1,9 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`fixtures > signature.ts > definition 1`] = `
+exports[`fixtures > signature/parameter-definition.ts > definition 1`] = `
 [
   {
-    "fileName": "signature.ts",
+    "fileName": "signature/parameter-definition.ts",
     "textSpan": {
       "length": 11,
       "start": 127,
@@ -12,10 +12,10 @@ exports[`fixtures > signature.ts > definition 1`] = `
 ]
 `;
 
-exports[`fixtures > signature.ts > definition 2`] = `
+exports[`fixtures > signature/parameter-definition.ts > definition 2`] = `
 [
   {
-    "fileName": "signature.ts",
+    "fileName": "signature/parameter-definition.ts",
     "textSpan": {
       "length": 10,
       "start": 115,
@@ -24,10 +24,10 @@ exports[`fixtures > signature.ts > definition 2`] = `
 ]
 `;
 
-exports[`fixtures > signature.ts > definition 3`] = `
+exports[`fixtures > signature/parameter-definition.ts > definition 3`] = `
 [
   {
-    "fileName": "signature.ts",
+    "fileName": "signature/parameter-definition.ts",
     "textSpan": {
       "length": 11,
       "start": 127,
@@ -36,14 +36,151 @@ exports[`fixtures > signature.ts > definition 3`] = `
 ]
 `;
 
-exports[`fixtures > signature.ts > definition 4`] = `
+exports[`fixtures > signature/parameter-definition.ts > definition 4`] = `
 [
   {
-    "fileName": "signature.ts",
+    "fileName": "signature/parameter-definition.ts",
     "textSpan": {
       "length": 11,
       "start": 127,
     },
+  },
+]
+`;
+
+exports[`fixtures > signature/parameter-refactor.ts > refactor 1`] = `
+[
+  {
+    "fileName": "/Users/bikariarchive/codings/dxup/test/fixtures/signature/parameter-refactor.ts",
+    "isNewFile": false,
+    "textChanges": [
+      {
+        "newText": "baz: boolean",
+        "span": {
+          "length": 11,
+          "start": 117,
+        },
+      },
+      {
+        "newText": "bar: string",
+        "span": {
+          "length": 12,
+          "start": 130,
+        },
+      },
+      {
+        "newText": "true",
+        "span": {
+          "length": 3,
+          "start": 262,
+        },
+      },
+      {
+        "newText": ""3"",
+        "span": {
+          "length": 4,
+          "start": 267,
+        },
+      },
+      {
+        "newText": "true",
+        "span": {
+          "length": 3,
+          "start": 340,
+        },
+      },
+      {
+        "newText": ""3"",
+        "span": {
+          "length": 4,
+          "start": 345,
+        },
+      },
+      {
+        "newText": "true",
+        "span": {
+          "length": 3,
+          "start": 433,
+        },
+      },
+      {
+        "newText": ""3"",
+        "span": {
+          "length": 4,
+          "start": 438,
+        },
+      },
+      {
+        "newText": "baz",
+        "span": {
+          "length": 3,
+          "start": 606,
+        },
+      },
+      {
+        "newText": "bar",
+        "span": {
+          "length": 3,
+          "start": 611,
+        },
+      },
+      {
+        "newText": "true",
+        "span": {
+          "length": 3,
+          "start": 634,
+        },
+      },
+      {
+        "newText": ""3"",
+        "span": {
+          "length": 4,
+          "start": 639,
+        },
+      },
+      {
+        "newText": "baz",
+        "span": {
+          "length": 3,
+          "start": 746,
+        },
+      },
+      {
+        "newText": "bar",
+        "span": {
+          "length": 3,
+          "start": 751,
+        },
+      },
+      {
+        "newText": "true",
+        "span": {
+          "length": 3,
+          "start": 782,
+        },
+      },
+      {
+        "newText": ""3"",
+        "span": {
+          "length": 4,
+          "start": 787,
+        },
+      },
+      {
+        "newText": "true",
+        "span": {
+          "length": 3,
+          "start": 530,
+        },
+      },
+      {
+        "newText": ""3"",
+        "span": {
+          "length": 4,
+          "start": 535,
+        },
+      },
+    ],
   },
 ]
 `;

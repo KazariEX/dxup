@@ -50,7 +50,7 @@ interface Operation extends ts.TextSpan {
 
 const scopeRE = /(?:\/\*|<!--) -{14} (?<scope>[ \w]+) -{14} (?:\*\/|-->)/;
 const rangeRE = /\^—*\^/;
-const operationRE = /(?<range>\^—*\^)\((?<type>\w+)\)(?<skip>\.skip\(\))?/g;
+const operationRE = /(?<range>\^—*\^)\((?<type>.+?)\)(?<skip>\.skip\(\))?/g;
 
 export function collectOperations(sourceText: string) {
     if (!rangeRE.test(sourceText)) {
@@ -94,13 +94,13 @@ export function collectOperations(sourceText: string) {
 }
 
 export function expectOperation(
-    type: string,
     languageService: ts.LanguageService,
     projectRoot: string,
     sourceFile: ts.SourceFile,
-    start: number,
-    length: number,
+    operation: Operation,
 ) {
+    const { type, start, length } = operation;
+
     if (type === "definition") {
         const result = languageService.getDefinitionAndBoundSpan(sourceFile.fileName, start);
         expect(result).toBeDefined();
@@ -127,5 +127,27 @@ export function expectOperation(
                     textSpan: entry.textSpan,
                 })),
         ).toMatchSnapshot(type);
+    }
+    else if (type.startsWith("refactor.")) {
+        const refactors = languageService.getApplicableRefactors(sourceFile.fileName, start, {});
+
+        outer: for (const info of refactors) {
+            for (const action of info.actions) {
+                if (action.kind !== type) {
+                    continue;
+                }
+                const editInfo = languageService.getEditsForRefactor(
+                    sourceFile.fileName,
+                    {},
+                    start,
+                    info.name,
+                    action.name,
+                    {},
+                );
+                expect(editInfo).toBeDefined();
+                expect(editInfo!.edits).toMatchSnapshot("refactor");
+                break outer;
+            }
+        }
     }
 }
