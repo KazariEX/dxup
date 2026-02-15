@@ -131,7 +131,7 @@ export function expectOperation(
     else if (type.startsWith("refactor.")) {
         const refactors = languageService.getApplicableRefactors(sourceFile.fileName, start, {});
 
-        outer: for (const info of refactors) {
+        for (const info of refactors) {
             for (const action of info.actions) {
                 if (action.kind !== type) {
                     continue;
