@@ -300,18 +300,37 @@ function visitPageMeta(
 
     switch (node.name.text) {
         case "layout": {
-            if (!ts.isStringLiteralLike(node.initializer)) {
+            let literal: ts.StringLiteralLike | undefined;
+
+            if (ts.isStringLiteralLike(node.initializer)) {
+                literal = node.initializer;
+            }
+            else if (ts.isObjectLiteralExpression(node.initializer)) {
+                for (const prop of node.initializer.properties) {
+                    if (
+                        ts.isPropertyAssignment(prop) &&
+                        ts.isIdentifier(prop.name) &&
+                        prop.name.text === "name" &&
+                        ts.isStringLiteralLike(prop.initializer)
+                    ) {
+                        literal = prop.initializer;
+                        break;
+                    }
+                }
+            }
+
+            if (!literal) {
                 return;
             }
 
-            const start = node.initializer.getStart(sourceFile);
-            const end = node.initializer.getEnd();
+            const start = literal.getStart(sourceFile);
+            const end = literal.getEnd();
 
             if (position < start || position > end) {
                 return;
             }
 
-            const path = data.layouts[node.initializer.text];
+            const path = data.layouts[literal.text];
             if (path === void 0) {
                 return;
             }
