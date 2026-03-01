@@ -13,9 +13,7 @@ export default defineNuxtConfig({
     compatibilityDate: "2025-07-15",
     experimental: {
         typedPages: true,
+        typescriptPlugin: true,
     },
     runtimeConfig,
-    modules: [
-        "../packages/nuxt/src/module/index.ts",
-    ],
 });
