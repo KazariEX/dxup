@@ -5,26 +5,26 @@ packages:
   - playground
 
 catalog:
-  "@nuxt/kit": ^4.2.2
-  "@types/node": ^25.0.3
-  "@volar/language-core": ^2.4.27
-  "@volar/typescript": ^2.4.27
+  "@nuxt/kit": ^4.3.1
+  "@types/node": ^25.3.3
+  "@volar/language-core": ^2.4.28
+  "@volar/typescript": ^2.4.28
   "@vscode/vsce": ^3.7.1
-  "@vue/language-core": ^3.2.1
-  "@vue/typescript-plugin": ^3.2.1
-  "@zinkawaii/eslint-config": ^0.4.1
+  "@vue/language-core": ^3.2.5
+  "@vue/typescript-plugin": ^3.2.5
+  "@zinkawaii/eslint-config": ^0.4.2
   "@zinkawaii/scripts": ^0.0.3
   "@zinkawaii/tsconfig": ^0.0.2
-  bumpp: ^10.3.2
+  bumpp: ^10.4.1
   chokidar: ^5.0.0
-  eslint: ^9.39.2
-  nuxt: ^4.2.2
+  eslint: ^10.0.2
+  nuxt: ^4.3.1
   pathe: ^2.0.3
   tinyglobby: ^0.2.15
-  tsdown: ^0.18.2
+  tsdown: ^0.20.3
   typescript: ^5.9.3
-  vitest: ^4.0.16
-  vue: ^3.5.26
+  vitest: ^4.0.18
+  vue: ^3.5.29
   vue-router: ^4.6.4
   zx: ^8.8.5
 
