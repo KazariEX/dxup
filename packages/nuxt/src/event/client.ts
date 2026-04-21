@@ -1,5 +1,5 @@
 import { Buffer } from "node:buffer";
-import EventEmitter from "node:events";
+import { EventEmitter } from "node:events";
 import { mkdir, open, writeFile } from "node:fs/promises";
 import { watch } from "chokidar";
 import { dirname, join } from "pathe";
@@ -40,7 +40,6 @@ export async function createEventClient(nuxt: Nuxt) {
         const match = text.match(responseRE);
         if (match) {
             const { key, value } = match.groups!;
-            // @ts-expect-error [any] cannot satisfy never
             client.emit(key, JSON.parse(value));
         }
     });

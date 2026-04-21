@@ -1,31 +1,36 @@
 shamefullyHoist: true
+shellEmulator: true
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - chokidar@4.0.3
+  - semver
 
 packages:
   - packages/*
   - playground
 
 catalog:
-  "@nuxt/kit": ^4.3.1
-  "@types/node": ^25.3.3
+  "@nuxt/kit": ^4.4.2
+  "@types/node": ^25.6.0
   "@volar/language-core": ^2.4.28
   "@volar/typescript": ^2.4.28
-  "@vscode/vsce": ^3.7.1
-  "@vue/language-core": ^3.2.5
-  "@vue/typescript-plugin": ^3.2.5
-  "@zinkawaii/eslint-config": ^0.4.2
+  "@vscode/vsce": ^3.9.1
+  "@vue/language-core": ^3.2.7
+  "@vue/typescript-plugin": ^3.2.7
+  "@zinkawaii/eslint-config": ^0.4.3
   "@zinkawaii/scripts": ^0.0.3
-  "@zinkawaii/tsconfig": ^0.0.2
-  bumpp: ^10.4.1
+  "@zinkawaii/tsconfig": ^0.1.0
+  bumpp: ^11.0.1
   chokidar: ^5.0.0
-  eslint: ^10.0.2
-  nuxt: ^4.3.1
+  eslint: ^10.2.1
+  nuxt: ^4.4.2
   pathe: ^2.0.3
-  tinyglobby: ^0.2.15
-  tsdown: ^0.20.3
-  typescript: ^5.9.3
-  vitest: ^4.0.18
-  vue: ^3.5.29
-  vue-router: ^4.6.4
+  tinyglobby: ^0.2.16
+  tsdown: ^0.21.9
+  typescript: ^6.0.3
+  vitest: ^4.1.5
+  vue: ^3.5.32
+  vue-router: ^5.0.4
   zx: ^8.8.5
 
 onlyBuiltDependencies:

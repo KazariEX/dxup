@@ -1,3 +1,5 @@
+/// <reference types="@nuxt/nitro-server" />
+
 import { addTemplate, defineNuxtModule, useNitro } from "@nuxt/kit";
 import * as packageJson from "../../package.json";
 import { createEventClient } from "../event/client";
