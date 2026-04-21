@@ -24,6 +24,11 @@
   "peerDependencies": {
     "typescript": "*"
   },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "@dxup/unimport": "workspace:^",
     "@nuxt/kit": "catalog:",
