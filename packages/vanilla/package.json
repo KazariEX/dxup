@@ -21,9 +21,6 @@
     "prepack": "pnpm run build",
     "release": "node ../../scripts/release.ts"
   },
-  "peerDependencies": {
-    "typescript": "*"
-  },
   "devDependencies": {
     "@dxup/shared": "workspace:",
     "typescript": "catalog:"
