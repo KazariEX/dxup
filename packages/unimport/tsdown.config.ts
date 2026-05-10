@@ -5,7 +5,9 @@ export default defineConfig({
         "cjs",
     ],
     exports: true,
-    noExternal: [
-        "@dxup/shared",
-    ],
+    deps: {
+        alwaysBundle: [
+            "@dxup/shared",
+        ],
+    },
 });

@@ -1,0 +1,37 @@
+{
+  "name": "@dxup/nuxt-layout-slots",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Layout slots support for Nuxt",
+  "author": "KazariEX",
+  "license": "MIT",
+  "repository": "KazariEX/dxup",
+  "exports": {
+    "./language": "./dist/language.cjs",
+    "./module": "./dist/module.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/module.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown -w --sourcemap",
+    "prepack": "pnpm run build",
+    "release": "node ../../scripts/release.ts"
+  },
+  "dependencies": {
+    "@nuxt/kit": "catalog:",
+    "@vue/compiler-dom": "catalog:",
+    "knitwork": "catalog:",
+    "magic-string": "catalog:",
+    "oxc-walker": "catalog:",
+    "pathe": "catalog:",
+    "unplugin": "catalog:"
+  },
+  "devDependencies": {
+    "@vue/language-core": "catalog:",
+    "typescript": "catalog:"
+  }
+}

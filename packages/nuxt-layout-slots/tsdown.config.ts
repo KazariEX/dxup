@@ -2,7 +2,7 @@ import { defineConfig } from "tsdown";
 
 export default defineConfig([{
     entry: {
-        module: "src/module/index.ts",
+        module: "src/module.ts",
     },
     deps: {
         neverBundle: [
@@ -11,14 +11,12 @@ export default defineConfig([{
     },
 }, {
     entry: {
-        typescript: "src/typescript/index.ts",
+        language: "src/language.ts",
     },
-    format: [
-        "cjs",
-    ],
+    format: "cjs",
     deps: {
-        alwaysBundle: [
-            "@dxup/shared",
+        neverBundle: [
+            "@vue/language-core",
         ],
     },
 }]);

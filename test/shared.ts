@@ -44,7 +44,7 @@ interface Operation extends ts.TextSpan {
     type: string;
 }
 
-const scopeRE = /(?:\/\*|<!--) -{14} (?<scope>[ \w]+) -{14} (?:\*\/|-->)/;
+const scopeRE = /(?:\/\*|<!--) -{14} (?<scope>[ \w-]+) -{14} (?:\*\/|-->)/;
 const rangeRE = /\^—*\^/;
 const operationRE = /(?<range>\^—*\^)\((?<type>.+?)\)(?<skip>\.skip\(\))?/g;
 
