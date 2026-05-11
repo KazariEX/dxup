@@ -48,7 +48,7 @@ ${Object.values(app.layouts).map((layout) => (
         });
 
         addComponent({
-            filePath: resolver.resolve("components/forward.ts"),
+            filePath: resolver.resolve("components/forward"),
             name: "LayoutSlotsForward",
         });
 
