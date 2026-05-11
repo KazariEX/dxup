@@ -55,8 +55,8 @@ export const ProvideSlotsPlugin = (options: ProvideSlotsOptions) => createUnplug
 
             const prefix = "\n" + genImport("#build/dxup/layouts.mjs", ["LayoutSlotsSymbol"]);
             const suffix = `
-const __nuxt_layout_slots = shallowRef({});
-provide(LayoutSlotsSymbol, __nuxt_layout_slots);\n`;
+const __dxup_layoutSlots = ref({});
+provide(LayoutSlotsSymbol, __dxup_layoutSlots);\n`;
 
             if (scriptSetup) {
                 s.appendLeft(scriptSetup.innerLoc!.start.offset, prefix);
@@ -69,8 +69,8 @@ provide(LayoutSlotsSymbol, __nuxt_layout_slots);\n`;
             s.appendLeft(
                 layout.children.at(-1)!.loc.end.offset,
                 `
-<template v-for="slot, name in __nuxt_layout_slots" #[name]="props">
-    <component :is="slot" v-bind="props"/>
+<template v-for="name in $route.meta.layoutSlots ?? []" :key="name" #[name]="props">
+    <component :is="__dxup_layoutSlots[name]" v-bind="props"/>
 </template>`,
             );
 

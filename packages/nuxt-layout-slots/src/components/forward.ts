@@ -1,16 +1,10 @@
-import { defineComponent, inject, reactive, type ShallowRef, useSlots, watch } from "vue";
+import { defineComponent, inject, type Ref } from "vue";
 // @ts-expect-error virtual file
 import { LayoutSlotsSymbol } from "#build/dxup/layouts.mjs";
 
-export default defineComponent(() => {
-    const slots = useSlots();
-    const layoutSlots = inject(LayoutSlotsSymbol) as ShallowRef<typeof slots>;
+export default defineComponent((props, ctx) => {
+    const slots = inject(LayoutSlotsSymbol) as Ref<typeof ctx.slots>;
+    slots.value = ctx.slots;
 
-    watch(reactive(slots), (val) => {
-        layoutSlots.value = val;
-    }, {
-        immediate: true,
-    });
-
-    return () => slots.default?.();
+    return () => ctx.slots.default?.();
 });

@@ -26,6 +26,7 @@
     "@vue/compiler-dom": "catalog:",
     "knitwork": "catalog:",
     "magic-string": "catalog:",
+    "oxc-walker": "catalog:",
     "pathe": "catalog:",
     "unplugin": "catalog:"
   },
