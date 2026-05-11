@@ -9,6 +9,7 @@ export default defineConfig([{
         neverBundle: [
             /#build\/.*/,
             "@nuxt/schema",
+            "vue",
         ],
     },
 }, {
