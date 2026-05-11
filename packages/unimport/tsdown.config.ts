@@ -1,9 +1,7 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-    format: [
-        "cjs",
-    ],
+    format: "cjs",
     exports: true,
     deps: {
         alwaysBundle: [

@@ -1,18 +1,18 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig([{
-    entry: {
-        module: "src/module.ts",
-    },
+    entry: [
+        "src/components/*.ts",
+        "src/module.ts",
+    ],
     deps: {
         neverBundle: [
+            /#build\/.*/,
             "@nuxt/schema",
         ],
     },
 }, {
-    entry: {
-        language: "src/language.ts",
-    },
+    entry: "src/language.ts",
     format: "cjs",
     deps: {
         neverBundle: [

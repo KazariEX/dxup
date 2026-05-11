@@ -17,6 +17,6 @@ export default defineNuxtConfig({
     },
     runtimeConfig,
     modules: [
-        "@dxup/nuxt-layout-slots",
+        "../packages/nuxt-layout-slots/src/module.ts",
     ],
 });

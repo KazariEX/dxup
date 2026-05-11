@@ -1,15 +1,17 @@
-import { addBuildPlugin, addTypeTemplate, defineNuxtModule } from "@nuxt/kit";
+import { addBuildPlugin, addComponent, addTemplate, addTypeTemplate, createResolver, defineNuxtModule } from "@nuxt/kit";
 import { genInlineTypeImport, genObjectKey } from "knitwork";
 import { join } from "pathe";
 import packageJson from "../package.json";
-import { createPlugin } from "./plugin";
+import { InjectSlotsPlugin } from "./plugins/inject-slots";
+import { ProvideSlotsPlugin } from "./plugins/provide-slots";
 
 export default defineNuxtModule({
     meta: {
         name: packageJson.name,
     },
     setup(options, nuxt) {
-        const pagesDirs = nuxt.options._layers.map((layer) => join(
+        const resolver = createResolver(import.meta.url);
+        const pageDirs = nuxt.options._layers.map((layer) => join(
             layer.config.srcDir,
             layer.config.dir?.pages ?? "pages",
         ));
@@ -17,11 +19,20 @@ export default defineNuxtModule({
         const pluginsVue = [{
             name: "@dxup/nuxt-layout-slots/language",
             options: {
-                dirs: pagesDirs,
+                dirs: pageDirs,
             },
         }];
 
         append(pluginsVue, nuxt.options, "typescript", "tsConfig", "vueCompilerOptions");
+
+        addTemplate({
+            filename: "dxup/layouts.mjs",
+            getContents() {
+                return `
+export const LayoutSlotsSymbol = Symbol();
+`.trimStart();
+            },
+        });
 
         addTypeTemplate({
             filename: "dxup/layouts.d.ts",
@@ -36,7 +47,18 @@ ${Object.values(app.layouts).map((layout) => (
             },
         });
 
-        addBuildPlugin(createPlugin(pagesDirs, !!nuxt.options.sourcemap.client));
+        addComponent({
+            filePath: resolver.resolve("components/forward.ts"),
+            name: "LayoutSlotsForward",
+        });
+
+        addBuildPlugin(InjectSlotsPlugin({
+            dirs: pageDirs,
+            sourcemap: !!nuxt.options.sourcemap.client,
+        }));
+        addBuildPlugin(ProvideSlotsPlugin({
+            sourcemap: !!nuxt.options.sourcemap.client,
+        }));
     },
 });
 

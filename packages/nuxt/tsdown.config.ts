@@ -13,9 +13,7 @@ export default defineConfig([{
     entry: {
         typescript: "src/typescript/index.ts",
     },
-    format: [
-        "cjs",
-    ],
+    format: "cjs",
     deps: {
         alwaysBundle: [
             "@dxup/shared",

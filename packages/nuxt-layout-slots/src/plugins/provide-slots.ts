@@ -1,0 +1,85 @@
+import { type ElementNode, NodeTypes, parse } from "@vue/compiler-dom";
+import { genImport } from "knitwork";
+import MagicString from "magic-string";
+import { createUnplugin } from "unplugin";
+import packageJson from "../../package.json";
+import { isVue } from "../utils";
+
+interface ProvideSlotsOptions {
+    sourcemap: boolean;
+}
+
+export const ProvideSlotsPlugin = (options: ProvideSlotsOptions) => createUnplugin(() => ({
+    name: packageJson.name + ":provide-slots",
+    enforce: "pre",
+    transformInclude: isVue,
+    transform: {
+        filter: {
+            code: /<(?:nuxt-layout|NuxtLayout)/,
+        },
+        handler(code) {
+            const sfc = parse(code, {
+                parseMode: "sfc",
+            });
+
+            let scriptSetup: ElementNode | undefined;
+            let template: ElementNode | undefined;
+
+            for (const node of sfc.children) {
+                if (node.type !== NodeTypes.ELEMENT) {
+                    continue;
+                }
+                if (
+                    node.tag === "script" && node.props.some((prop) => (
+                        prop.type === NodeTypes.ATTRIBUTE && prop.name === "setup"
+                    ))
+                ) {
+                    scriptSetup = node;
+                }
+                else if (node.tag === "template") {
+                    template = node;
+                }
+            }
+
+            const layout = template?.children.find((node): node is ElementNode => (
+                node.type === NodeTypes.ELEMENT && (
+                    node.tag === "nuxt-layout" || node.tag === "NuxtLayout"
+                )
+            ));
+
+            if (!layout?.children.length) {
+                return;
+            }
+
+            const s = new MagicString(code);
+
+            const prefix = "\n" + genImport("#build/dxup/layouts.mjs", ["LayoutSlotsSymbol"]);
+            const suffix = `
+const __nuxt_layout_slots = shallowRef({});
+provide(LayoutSlotsSymbol, __nuxt_layout_slots);\n`;
+
+            if (scriptSetup) {
+                s.appendLeft(scriptSetup.innerLoc!.start.offset, prefix);
+                s.appendLeft(scriptSetup.innerLoc!.end.offset, suffix);
+            }
+            else {
+                s.prepend(`<script setup>${prefix + suffix}</script>\n\n`);
+            }
+
+            s.appendLeft(
+                layout.children.at(-1)!.loc.end.offset,
+                `
+<template v-for="slot, name in __nuxt_layout_slots" #[name]="props">
+    <component :is="slot" v-bind="props"/>
+</template>`,
+            );
+
+            return {
+                code: s.toString(),
+                map: options.sourcemap
+                    ? s.generateMap({ hires: true })
+                    : void 0,
+            };
+        },
+    },
+}));
