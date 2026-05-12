@@ -55,7 +55,7 @@ export const ProvideSlotsPlugin = (options: ProvideSlotsOptions) => createUnplug
 
             const prefix = "\n" + genImport("#build/dxup/layouts.mjs", ["LayoutSlotsSymbol"]);
             const suffix = `
-const __dxup_layoutSlots = ref({});
+const __dxup_layoutSlots = shallowRef({});
 provide(LayoutSlotsSymbol, __dxup_layoutSlots);\n`;
 
             if (scriptSetup) {
@@ -70,7 +70,7 @@ provide(LayoutSlotsSymbol, __dxup_layoutSlots);\n`;
                 layout.children.at(-1)!.loc.end.offset,
                 `
 <template v-for="name in $route.meta.layoutSlots ?? []" :key="name" #[name]="props">
-    <component :is="__dxup_layoutSlots[name]" v-bind="props"/>
+    <component :is="() => __dxup_layoutSlots[name]?.(props)"/>
 </template>`,
             );
 

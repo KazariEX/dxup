@@ -1,5 +1,5 @@
-import { addBuildPlugin, addComponent, addTemplate, addTypeTemplate, createResolver, defineNuxtModule } from "@nuxt/kit";
-import { genInlineTypeImport, genObjectKey } from "knitwork";
+import { addBuildPlugin, addTemplate, addTypeTemplate, createResolver, defineNuxtModule } from "@nuxt/kit";
+import { genExport, genInlineTypeImport, genObjectKey } from "knitwork";
 import { join } from "pathe";
 import packageJson from "../package.json";
 import { InjectSlotsPlugin } from "./plugins/inject-slots";
@@ -29,6 +29,10 @@ export default defineNuxtModule({
             filename: "dxup/layouts.mjs",
             getContents() {
                 return `
+${genExport(resolver.resolve("components/forward.ts"), [{
+    name: "default",
+    as: "LayoutSlotsForward",
+}])}
 export const LayoutSlotsSymbol = Symbol();
 `.trimStart();
             },
@@ -45,11 +49,6 @@ ${Object.values(app.layouts).map((layout) => (
 }
 `.trimStart();
             },
-        });
-
-        addComponent({
-            filePath: resolver.resolve("components/forward"),
-            name: "LayoutSlotsForward",
         });
 
         addBuildPlugin(InjectSlotsPlugin({

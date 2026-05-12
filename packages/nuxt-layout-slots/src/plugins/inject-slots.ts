@@ -1,4 +1,5 @@
 import { type AttributeNode, type DirectiveNode, type ElementNode, ElementTypes, NodeTypes, parse } from "@vue/compiler-dom";
+import { genImport } from "knitwork";
 import MagicString from "magic-string";
 import { parseAndWalk } from "oxc-walker";
 import { createUnplugin } from "unplugin";
@@ -92,10 +93,13 @@ export const InjectSlotsPlugin = (options: InjectSlotsOptions) => createUnplugin
         });
 
         const s = new MagicString(code);
+        const imports = genImport("#build/dxup/layouts.mjs", ["LayoutSlotsForward"]);
         const expression = `layoutSlots: [${slots.map((slot) => JSON.stringify(slot)).join(", ")}],\n`;
 
         if (scriptSetup) {
             const start = scriptSetup.innerLoc!.start.offset;
+
+            s.appendLeft(start, `\n${imports}\n`);
 
             if (meta) {
                 s.appendLeft(meta.properties[0].start + start, expression);
@@ -105,7 +109,7 @@ export const InjectSlotsPlugin = (options: InjectSlotsOptions) => createUnplugin
             }
         }
         else {
-            s.prepend(`<script setup>\ndefinePageMeta({\n${expression}});\n</script>\n\n`);
+            s.prepend(`<script setup>\n${imports}\ndefinePageMeta({\n${expression}});\n</script>\n\n`);
         }
 
         s.appendLeft(template.innerLoc!.start.offset, `<LayoutSlotsForward>`);
