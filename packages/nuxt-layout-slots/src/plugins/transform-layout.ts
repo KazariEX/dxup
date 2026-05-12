@@ -9,8 +9,8 @@ interface ProvideSlotsOptions {
     sourcemap: boolean;
 }
 
-export const ProvideSlotsPlugin = (options: ProvideSlotsOptions) => createUnplugin(() => ({
-    name: packageJson.name + ":provide-slots",
+export const TransformLayoutPlugin = (options: ProvideSlotsOptions) => createUnplugin(() => ({
+    name: packageJson.name + ":transform-layout",
     enforce: "pre",
     transformInclude: isVue,
     transform: {

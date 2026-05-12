@@ -12,8 +12,8 @@ interface InjectSlotsOptions {
     sourcemap: boolean;
 }
 
-export const InjectSlotsPlugin = (options: InjectSlotsOptions) => createUnplugin(() => ({
-    name: packageJson.name + ":inject-slots",
+export const TransformPagePlugin = (options: InjectSlotsOptions) => createUnplugin(() => ({
+    name: packageJson.name + ":transform-page",
     enforce: "pre",
     transformInclude: isVue,
     transform(code, id) {

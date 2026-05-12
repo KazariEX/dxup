@@ -2,8 +2,8 @@ import { addBuildPlugin, addTemplate, addTypeTemplate, createResolver, defineNux
 import { genExport, genInlineTypeImport, genObjectKey } from "knitwork";
 import { join } from "pathe";
 import packageJson from "../package.json";
-import { InjectSlotsPlugin } from "./plugins/inject-slots";
-import { ProvideSlotsPlugin } from "./plugins/provide-slots";
+import { TransformLayoutPlugin } from "./plugins/transform-layout";
+import { TransformPagePlugin } from "./plugins/transform-page";
 
 export default defineNuxtModule({
     meta: {
@@ -29,7 +29,7 @@ export default defineNuxtModule({
             filename: "dxup/layouts.mjs",
             getContents() {
                 return `
-${genExport(resolver.resolve("components/forward.ts"), [{
+${genExport(resolver.resolve("components/forward"), [{
     name: "default",
     as: "LayoutSlotsForward",
 }])}
@@ -51,11 +51,11 @@ ${Object.values(app.layouts).map((layout) => (
             },
         });
 
-        addBuildPlugin(InjectSlotsPlugin({
+        addBuildPlugin(TransformPagePlugin({
             dirs: pageDirs,
             sourcemap: !!nuxt.options.sourcemap.client,
         }));
-        addBuildPlugin(ProvideSlotsPlugin({
+        addBuildPlugin(TransformLayoutPlugin({
             sourcemap: !!nuxt.options.sourcemap.client,
         }));
     },
