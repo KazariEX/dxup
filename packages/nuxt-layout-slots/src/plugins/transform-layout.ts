@@ -5,11 +5,11 @@ import { createUnplugin } from "unplugin";
 import packageJson from "../../package.json";
 import { isVue } from "../utils";
 
-interface ProvideSlotsOptions {
+interface TransformLayoutOptions {
     sourcemap: boolean;
 }
 
-export const TransformLayoutPlugin = (options: ProvideSlotsOptions) => createUnplugin(() => ({
+export const TransformLayoutPlugin = (options: TransformLayoutOptions) => createUnplugin(() => ({
     name: packageJson.name + ":transform-layout",
     enforce: "pre",
     transformInclude: isVue,

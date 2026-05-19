@@ -7,12 +7,12 @@ import type { ObjectExpression } from "oxc-parser";
 import packageJson from "../../package.json";
 import { isVue } from "../utils";
 
-interface InjectSlotsOptions {
+interface TransformPageOptions {
     dirs: string[];
     sourcemap: boolean;
 }
 
-export const TransformPagePlugin = (options: InjectSlotsOptions) => createUnplugin(() => ({
+export const TransformPagePlugin = (options: TransformPageOptions) => createUnplugin(() => ({
     name: packageJson.name + ":transform-page",
     enforce: "pre",
     transformInclude: isVue,
