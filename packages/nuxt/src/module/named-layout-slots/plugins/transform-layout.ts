@@ -32,10 +32,8 @@ export const TransformLayoutPlugin = (options: TransformLayoutOptions) => create
 
       const s = new MagicString(code);
 
-      const prefix = "\n" + genImport("#build/dxup/layouts.mjs", ["LayoutSlotsSymbol"]);
-      const suffix = `
-const __dxup_layoutSlots = shallowRef({});
-provide(LayoutSlotsSymbol, __dxup_layoutSlots);\n`;
+      const prefix = "\n" + genImport("#build/dxup/layouts.mjs", ["provideLayoutSlots"]);
+      const suffix = `\nconst __dxup_layoutSlots = provideLayoutSlots();\n`;
 
       if (scriptSetup) {
         s.appendLeft(scriptSetup.innerLoc!.start.offset, prefix);
