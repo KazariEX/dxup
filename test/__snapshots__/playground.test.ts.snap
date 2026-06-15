@@ -180,21 +180,21 @@ exports[`playground > app/pages/testify.vue > runtime config > definition 1`] = 
     "fileName": "layers/archer/nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 82,
+      "start": 70,
     },
   },
   {
     "fileName": "layers/berserker/nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 82,
+      "start": 70,
     },
   },
   {
     "fileName": "nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 43,
+      "start": 37,
     },
   },
 ]
@@ -206,14 +206,14 @@ exports[`playground > app/pages/testify.vue > runtime config > definition 2`] = 
     "fileName": "layers/berserker/nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 102,
+      "start": 84,
     },
   },
   {
     "fileName": "nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 59,
+      "start": 49,
     },
   },
 ]
@@ -225,7 +225,7 @@ exports[`playground > app/pages/testify.vue > runtime config > definition 3`] = 
     "fileName": "nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 75,
+      "start": 61,
     },
   },
 ]
@@ -237,7 +237,7 @@ exports[`playground > app/pages/testify.vue > runtime config > definition 4`] = 
     "fileName": "nuxt.config.ts",
     "textSpan": {
       "length": 5,
-      "start": 112,
+      "start": 90,
     },
   },
 ]
@@ -285,7 +285,7 @@ exports[`playground > app/utils/index.ts > auto imports > references 1`] = `
     "fileName": "app/pages/testify.vue",
     "textSpan": {
       "length": 3,
-      "start": 755,
+      "start": 705,
     },
   },
 ]

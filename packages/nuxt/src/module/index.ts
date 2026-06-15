@@ -7,152 +7,152 @@ import { onComponentsRename } from "./events";
 import type { Data } from "../typescript/types";
 
 interface Plugin {
-    name: string;
-    options?: Record<string, any>;
+  name: string;
+  options?: Record<string, any>;
 }
 
 export interface ModuleOptions {
-    features?: {
-        /**
-         * Whether to update references when renaming auto imported component files.
-         * @default true
-         */
-        components?: boolean;
-        /**
-         * Whether to enable Go to Definition for dynamic imports with glob patterns.
-         * @default true
-         */
-        importGlob?: boolean;
-        /**
-         * Whether to enable Go to Definition for nitro routes in data fetching methods.
-         * @default true
-         */
-        nitroRoutes?: boolean;
-        /**
-         * Whether to enable Go to Definition for page metadata.
-         * @default true
-         */
-        pageMeta?: boolean;
-        /**
-         * Whether to enable Go to Definition for runtime config.
-         * @default true
-         */
-        runtimeConfig?: boolean;
-        /**
-         * Whether to enable Go to Definition for typed pages.
-         * @default true
-         */
-        typedPages?: boolean;
-        /**
-         * Whether to enable enhanced navigation for auto imported APIs.
-         * @default true
-         */
-        unimport?: boolean;
-        /**
-         * Whether to enable unofficial features for Vue itself.
-         * - find references for SFC on `<template>`
-         * @default true
-         */
-        unofficial?: boolean;
-    };
+  features?: {
+    /**
+     * Whether to update references when renaming auto imported component files.
+     * @default true
+     */
+    components?: boolean;
+    /**
+     * Whether to enable Go to Definition for dynamic imports with glob patterns.
+     * @default true
+     */
+    importGlob?: boolean;
+    /**
+     * Whether to enable Go to Definition for nitro routes in data fetching methods.
+     * @default true
+     */
+    nitroRoutes?: boolean;
+    /**
+     * Whether to enable Go to Definition for page metadata.
+     * @default true
+     */
+    pageMeta?: boolean;
+    /**
+     * Whether to enable Go to Definition for runtime config.
+     * @default true
+     */
+    runtimeConfig?: boolean;
+    /**
+     * Whether to enable Go to Definition for typed pages.
+     * @default true
+     */
+    typedPages?: boolean;
+    /**
+     * Whether to enable enhanced navigation for auto imported APIs.
+     * @default true
+     */
+    unimport?: boolean;
+    /**
+     * Whether to enable unofficial features for Vue itself.
+     * - find references for SFC on `<template>`
+     * @default true
+     */
+    unofficial?: boolean;
+  };
 }
 
 export default defineNuxtModule<ModuleOptions>().with({
-    meta: {
-        name: packageJson.name,
-        configKey: "dxup",
+  meta: {
+    name: packageJson.name,
+    configKey: "dxup",
+  },
+  defaults: {
+    features: {
+      components: true,
+      importGlob: true,
+      nitroRoutes: true,
+      pageMeta: true,
+      runtimeConfig: true,
+      typedPages: true,
+      unimport: true,
+      unofficial: true,
     },
-    defaults: {
-        features: {
-            components: true,
-            importGlob: true,
-            nitroRoutes: true,
-            pageMeta: true,
-            runtimeConfig: true,
-            typedPages: true,
-            unimport: true,
-            unofficial: true,
-        },
-    },
-    async setup(options, nuxt) {
-        const pluginsTs: Plugin[] = [{ name: "@dxup/nuxt" }];
+  },
+  async setup(options, nuxt) {
+    const pluginsTs: Plugin[] = [{ name: "@dxup/nuxt" }];
 
-        if (options.features?.unimport) {
-            pluginsTs.unshift({ name: "@dxup/unimport" });
-        }
+    if (options.features?.unimport) {
+      pluginsTs.unshift({ name: "@dxup/unimport" });
+    }
 
-        append(pluginsTs, nuxt.options, "typescript", "tsConfig", "compilerOptions");
-        append(pluginsTs, nuxt.options.nitro, "typescript", "tsConfig", "compilerOptions");
-        append(pluginsTs, nuxt.options, "typescript", "sharedTsConfig", "compilerOptions");
-        append(pluginsTs, nuxt.options, "typescript", "nodeTsConfig", "compilerOptions");
+    append(pluginsTs, nuxt.options, "typescript", "tsConfig", "compilerOptions");
+    append(pluginsTs, nuxt.options.nitro, "typescript", "tsConfig", "compilerOptions");
+    append(pluginsTs, nuxt.options, "typescript", "sharedTsConfig", "compilerOptions");
+    append(pluginsTs, nuxt.options, "typescript", "nodeTsConfig", "compilerOptions");
 
-        addTemplate({
-            filename: "dxup/data.json",
-            write: true,
-            getContents({ nuxt, app }) {
-                const layouts = Object.fromEntries(
-                    Object.values(app.layouts).map((item) => [item.name, item.file]),
-                );
+    addTemplate({
+      filename: "dxup/data.json",
+      write: true,
+      getContents({ nuxt, app }) {
+        const layouts = Object.fromEntries(
+          Object.values(app.layouts).map((item) => [item.name, item.file]),
+        );
 
-                const middleware = app.middleware.reduce((acc, item) => {
-                    if (!item.global) {
-                        acc[item.name] = item.path;
-                    }
-                    return acc;
-                }, {} as Data["middleware"]);
+        const middleware = app.middleware.reduce((acc, item) => {
+          if (!item.global) {
+            acc[item.name] = item.path;
+          }
+          return acc;
+        }, {} as Data["middleware"]);
 
-                const nitro = useNitro();
-                const nitroRoutes = nitro.scannedHandlers.reduce((acc, item) => {
-                    if (item.route && item.method) {
-                        (acc[item.route] ??= {})[item.method] = item.handler;
-                    }
-                    return acc;
-                }, {} as Data["nitroRoutes"]);
+        const nitro = useNitro();
+        const nitroRoutes = nitro.scannedHandlers.reduce((acc, item) => {
+          if (item.route && item.method) {
+            (acc[item.route] ??= {})[item.method] = item.handler;
+          }
+          return acc;
+        }, {} as Data["nitroRoutes"]);
 
-                const typedPages = app.pages?.reduce(function reducer(acc, page) {
-                    if (page.name && page.file) {
-                        acc[page.name] = page.file;
-                    }
-                    if (page.children) {
-                        for (const child of page.children) {
-                            reducer(acc, child);
-                        }
-                    }
-                    return acc;
-                }, {} as Data["typedPages"]);
+        const typedPages = app.pages?.reduce(function reducer(acc, page) {
+          if (page.name && page.file) {
+            acc[page.name] = page.file;
+          }
+          if (page.children) {
+            for (const child of page.children) {
+              reducer(acc, child);
+            }
+          }
+          return acc;
+        }, {} as Data["typedPages"]);
 
-                const data = {
-                    buildDir: nuxt.options.buildDir,
-                    publicDir: nuxt.options.dir.public,
-                    configFiles: [
-                        ...nuxt.options._nuxtConfigFiles,
-                        ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
-                    ],
-                    layouts,
-                    middleware,
-                    nitroRoutes,
-                    typedPages,
-                    features: options.features,
-                };
-                return JSON.stringify(data, null, 2);
-            },
-        });
+        const data = {
+          buildDir: nuxt.options.buildDir,
+          publicDir: nuxt.options.dir.public,
+          configFiles: [
+            ...nuxt.options._nuxtConfigFiles,
+            ...nuxt.options._layers.map((layer) => layer._configFile).filter(Boolean),
+          ],
+          layouts,
+          middleware,
+          nitroRoutes,
+          typedPages,
+          features: options.features,
+        };
+        return JSON.stringify(data, null, 2);
+      },
+    });
 
-        if (nuxt.options.dev) {
-            const client = await createEventClient(nuxt);
-            client.on("components:rename", (data) => onComponentsRename(nuxt, data));
-        }
-    },
+    if (nuxt.options.dev) {
+      const client = await createEventClient(nuxt);
+      client.on("components:rename", (data) => onComponentsRename(nuxt, data));
+    }
+  },
 });
 
 function append<
-    T extends Record<string, any>,
-    K0 extends keyof T,
-    K1 extends keyof NonNullable<T[K0]>,
-    K2 extends keyof NonNullable<NonNullable<T[K0]>[K1]>,
+  T extends Record<string, any>,
+  K0 extends keyof T,
+  K1 extends keyof NonNullable<T[K0]>,
+  K2 extends keyof NonNullable<NonNullable<T[K0]>[K1]>,
 >(plugins: any[], target: T, ...keys: [K0, K1?, K2?]) {
-    for (const key of keys) {
-        target = (target as any)[key] ??= {};
-    }
-    ((target as any).plugins ??= []).push(...plugins);
+  for (const key of keys) {
+    target = (target as any)[key] ??= {};
+  }
+  ((target as any).plugins ??= []).push(...plugins);
 }

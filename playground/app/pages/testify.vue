@@ -1,64 +1,64 @@
 <script lang="tsx" setup>
-    import type { RouteLocationRaw } from "vue-router";
-    import { NuxtLink } from "#components";
+  import type { RouteLocationRaw } from "vue-router";
+  import { NuxtLink } from "#components";
 
-    /* -------------- page meta -------------- */
+  /* -------------- page meta -------------- */
 
-    definePageMeta({
-        layout: "center",
-        //      ^——————^(definition)
-        middleware: ["auth"],
-        //           ^————^(definition)
-    });
+  definePageMeta({
+    layout: "center",
+    //      ^——————^(definition)
+    middleware: ["auth"],
+    //           ^————^(definition)
+  });
 
-    /* -------------- runtime config -------------- */
+  /* -------------- runtime config -------------- */
 
-    const config = useRuntimeConfig();
+  const config = useRuntimeConfig();
 
-    void config.foo.bar;
-    //              ^—^(definition)
-    void config.foo.baz;
-    //              ^—^(definition)
-    void config.foo.qux;
-    //              ^—^(definition)
-    void config.public.hello;
-    //                 ^———^(definition)
+  void config.foo.bar;
+  //              ^—^(definition)
+  void config.foo.baz;
+  //              ^—^(definition)
+  void config.foo.qux;
+  //              ^—^(definition)
+  void config.public.hello;
+  //                 ^———^(definition)
 
-    /* -------------- auto imports -------------- */
+  /* -------------- auto imports -------------- */
 
-    void foo;
-    //   ^—^(definition)
+  void foo;
+  //   ^—^(definition)
 
-    /* -------------- import glob -------------- */
+  /* -------------- import glob -------------- */
 
-    import(`~/assets/${name}.webp`);
-    //     ^—————————————————————^(definition)
-    import.meta.glob("~/assets/*.webp");
-    //               ^———————————————^(definition)
+  import(`~/assets/${name}.webp`);
+  //     ^—————————————————————^(definition)
+  import.meta.glob("~/assets/*.webp");
+  //               ^———————————————^(definition)
 
-    /* -------------- nitro routes -------------- */
+  /* -------------- nitro routes -------------- */
 
-    $fetch("/sitemap");
-    //     ^————————^(definition)
-    $fetch("/fallback.json");
-    //     ^——————————————^(definition)
-    useFetch("/api/foo");
-    //       ^————————^(definition)
-    useLazyFetch("/api/foo", { method: "post" });
-    //           ^————————^(definition)
+  $fetch("/sitemap");
+  //     ^————————^(definition)
+  $fetch("/fallback.json");
+  //     ^——————————————^(definition)
+  useFetch("/api/foo");
+  //       ^————————^(definition)
+  useLazyFetch("/api/foo", { method: "post" });
+  //           ^————————^(definition)
 
-    /* -------------- typed pages -------------- */
+  /* -------------- typed pages -------------- */
 
-    <NuxtLink to={{ name: "about" }} />;
-    //                    ^—————^(definition)
-    computed<RouteLocationRaw>(() => ({ name: "contact" }));
-    //                                        ^———————^(definition)
-    [{ name: "about" }] satisfies MaybeRefOrGetter<RouteLocationRaw>[];
-    //       ^—————^(definition)
+  <NuxtLink to={{ name: "about" }} />;
+  //                    ^—————^(definition)
+  computed<RouteLocationRaw>(() => ({ name: "contact" }));
+  //                                        ^———————^(definition)
+  [{ name: "about" }] satisfies MaybeRefOrGetter<RouteLocationRaw>[];
+  //       ^—————^(definition)
 </script>
 
 <!-- eslint-disable vue/component-name-in-template-casing -->
 <template>
-    <FooBar />
-    <lazy-foo-bar />
+  <FooBar />
+  <lazy-foo-bar />
 </template>

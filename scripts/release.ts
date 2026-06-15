@@ -8,10 +8,10 @@ const name = JSON.parse(text).name;
 const scope = name.slice("@dxup/".length);
 
 await versionBump({
-    push: false,
-    tag: `${name}@%s`,
-    commit: `release(${scope}): v%s`,
-    files: scope === "vanilla"
-        ? ["package.json", "../vscode/package.json"]
-        : ["package.json"],
+  push: false,
+  tag: `${name}@%s`,
+  commit: `release(${scope}): v%s`,
+  files: scope === "vanilla"
+    ? ["package.json", "../vscode/package.json"]
+    : ["package.json"],
 });

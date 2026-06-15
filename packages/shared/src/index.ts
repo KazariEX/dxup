@@ -1,52 +1,52 @@
 import type ts from "typescript";
 
 export function* forEachTouchingNode(
-    ts: typeof import("typescript"),
-    sourceFile: ts.SourceFile,
-    position: number,
+  ts: typeof import("typescript"),
+  sourceFile: ts.SourceFile,
+  position: number,
 ) {
-    yield* binaryVisit(ts, sourceFile, sourceFile, position);
+  yield* binaryVisit(ts, sourceFile, sourceFile, position);
 }
 
 function* binaryVisit(
-    ts: typeof import("typescript"),
-    sourceFile: ts.SourceFile,
-    node: ts.Node,
-    position: number,
+  ts: typeof import("typescript"),
+  sourceFile: ts.SourceFile,
+  node: ts.Node,
+  position: number,
 ): Generator<ts.Node> {
-    const nodes: ts.Node[] = [];
-    ts.forEachChild(node, (child) => {
-        nodes.push(child);
-    });
+  const nodes: ts.Node[] = [];
+  ts.forEachChild(node, (child) => {
+    nodes.push(child);
+  });
 
-    let left = 0;
-    let right = nodes.length - 1;
+  let left = 0;
+  let right = nodes.length - 1;
 
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        const node = nodes[mid];
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    const node = nodes[mid];
 
-        if (position > node.getEnd()) {
-            left = mid + 1;
-        }
-        else if (position < node.getStart(sourceFile)) {
-            right = mid - 1;
-        }
-        else {
-            yield node;
-            yield* binaryVisit(ts, sourceFile, node, position);
-            return;
-        }
+    if (position > node.getEnd()) {
+      left = mid + 1;
     }
+    else if (position < node.getStart(sourceFile)) {
+      right = mid - 1;
+    }
+    else {
+      yield node;
+      yield* binaryVisit(ts, sourceFile, node, position);
+      return;
+    }
+  }
 }
 
 export function isTextSpanWithin(
-    node: ts.Node,
-    textSpan: ts.TextSpan,
-    sourceFile: ts.SourceFile,
+  node: ts.Node,
+  textSpan: ts.TextSpan,
+  sourceFile: ts.SourceFile,
 ) {
-    return (
-        textSpan.start + textSpan.length <= node.getEnd() &&
-        textSpan.start >= node.getStart(sourceFile)
-    );
+  return (
+    textSpan.start + textSpan.length <= node.getEnd() &&
+    textSpan.start >= node.getStart(sourceFile)
+  );
 }

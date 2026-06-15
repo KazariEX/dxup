@@ -20,7 +20,7 @@ pnpm i -D @dxup/nuxt-layout-slots
    export default defineNuxtConfig({
      modules: [
        "@dxup/nuxt-layout-slots",
-    ],
+     ],
    });
    ```
 

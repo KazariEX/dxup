@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-    definePageMeta({
-        name: "contact",
-    });
+  definePageMeta({
+    name: "contact",
+  });
 </script>
 
 <template>
-    <div>Contact Page</div>
+  <div>Contact Page</div>
 </template>
