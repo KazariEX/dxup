@@ -2,7 +2,7 @@ import { type ElementNode, NodeTypes } from "@vue/compiler-dom";
 import { genImport } from "knitwork";
 import MagicString from "magic-string";
 import { createUnplugin } from "unplugin";
-import packageJson from "../../package.json";
+import packageJson from "../../../../package.json";
 import { isVue, parseSFC } from "../utils";
 
 interface TransformLayoutOptions {

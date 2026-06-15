@@ -4,7 +4,7 @@ import MagicString from "magic-string";
 import { parseAndWalk } from "oxc-walker";
 import { createUnplugin } from "unplugin";
 import type { ObjectExpression } from "oxc-parser";
-import packageJson from "../../package.json";
+import packageJson from "../../../../package.json";
 import { isInDir, isVue, parseSFC } from "../utils";
 
 interface TransformPageOptions {

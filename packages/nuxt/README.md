@@ -50,7 +50,9 @@ import.meta.glob("~/assets/*.webp");
 //               ^^^^^^^^^^^^^^^^^
 ```
 
-### 3. nitroRoutes
+### 3. namedLayoutSlots
+
+### 4. nitroRoutes
 
 Go to definition for nitro routes in data fetching methods.
 
@@ -62,7 +64,7 @@ useFetch("/api/foo");
 
 It will fallback to resolve the URL from your `public` directory when no nitro routes match.
 
-### 4. pageMeta
+### 5. pageMeta
 
 Go to definition for page metadata.
 
@@ -75,7 +77,7 @@ definePageMeta({
 });
 ```
 
-### 5. runtimeConfig
+### 6. runtimeConfig
 
 Go to definition for runtime config.
 
@@ -86,7 +88,7 @@ Go to definition for runtime config.
 </template>
 ```
 
-### 6. typedPages
+### 7. typedPages
 
 Go to definition for typed pages.
 
@@ -99,11 +101,11 @@ Go to definition for typed pages.
 
 It can be triggered on the `name` property of an object literal constrained by the `RouteLocationRaw` type.
 
-### 7. unimport
+### 8. unimport
 
 Please refer to the [@dxup/unimport](/packages/unimport) package for more details.
 
-### 8. unofficial
+### 9. unofficial
 
 Find references for SFC on `<template>`.
 

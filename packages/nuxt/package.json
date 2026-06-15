@@ -8,6 +8,8 @@
   "repository": "KazariEX/dxup",
   "exports": {
     ".": "./dist/module.mjs",
+    "./components/*": "./dist/components/*",
+    "./languages/*": "./dist/languages/*",
     "./package.json": "./package.json"
   },
   "main": "./dist/typescript.cjs",
@@ -24,9 +26,14 @@
   "dependencies": {
     "@dxup/unimport": "workspace:^",
     "@nuxt/kit": "catalog:",
+    "@vue/compiler-dom": "catalog:",
     "chokidar": "catalog:",
+    "knitwork": "catalog:",
+    "magic-string": "catalog:",
+    "oxc-walker": "catalog:",
     "pathe": "catalog:",
-    "tinyglobby": "catalog:"
+    "tinyglobby": "catalog:",
+    "unplugin": "catalog:"
   },
   "devDependencies": {
     "@dxup/shared": "workspace:",

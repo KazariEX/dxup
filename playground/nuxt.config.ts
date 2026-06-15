@@ -16,7 +16,9 @@ export default defineNuxtConfig({
     typescriptPlugin: true,
   },
   runtimeConfig,
-  modules: [
-    "../packages/nuxt-layout-slots/src/module.ts",
-  ],
+  dxup: {
+    features: {
+      namedLayoutSlots: true,
+    },
+  },
 });
