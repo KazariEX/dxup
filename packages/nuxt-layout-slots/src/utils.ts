@@ -1,4 +1,5 @@
 import { type ElementNode, NodeTypes, parse } from "@vue/compiler-dom";
+import { isAbsolute, relative } from "pathe";
 
 const vueRE = /[?&]vue(?:&|$)/;
 const typeRE = /[?&]type=[^&]*/;
@@ -24,6 +25,11 @@ export function isVue(id: string) {
     }
 
     return true;
+}
+
+export function isInDir(path: string, dir: string) {
+    const rel = relative(dir, path);
+    return rel !== ".." && !rel.startsWith("../") && !isAbsolute(rel);
 }
 
 export function parseSFC(code: string) {

@@ -5,7 +5,7 @@ import { parseAndWalk } from "oxc-walker";
 import { createUnplugin } from "unplugin";
 import type { ObjectExpression } from "oxc-parser";
 import packageJson from "../../package.json";
-import { isVue, parseSFC } from "../utils";
+import { isInDir, isVue, parseSFC } from "../utils";
 
 interface TransformPageOptions {
     dirs: string[];
@@ -17,7 +17,7 @@ export const TransformPagePlugin = (options: TransformPageOptions) => createUnpl
     enforce: "pre",
     transformInclude: isVue,
     transform(code, id) {
-        if (!options.dirs.some((dir) => id.startsWith(dir))) {
+        if (!options.dirs.some((dir) => isInDir(id, dir))) {
             return;
         }
 

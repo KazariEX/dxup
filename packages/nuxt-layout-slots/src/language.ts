@@ -1,6 +1,7 @@
 import type CompilerDOM from "@vue/compiler-dom";
 import type { VueLanguagePlugin } from "@vue/language-core";
 import type ts from "typescript";
+import { isInDir } from "./utils";
 
 interface Config {
     options: {
@@ -19,7 +20,7 @@ const plugin: VueLanguagePlugin<Config> = ({
             return;
         }
 
-        if (!options.dirs.some((dir) => fileName.startsWith(dir))) {
+        if (!options.dirs.some((dir) => isInDir(fileName, dir))) {
             return;
         }
 
