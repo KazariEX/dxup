@@ -5,6 +5,7 @@ Dxup is a collection of plugins to improve your development experience.
 ## Packages
 
 - [@dxup/nuxt](/packages/nuxt)
+- [@dxup/nuxt-layout-slots](/packages/nuxt-layout-slots)
 - [@dxup/unimport](/packages/unimport)
 - [@dxup/vanilla](/packages/vanilla)
 
