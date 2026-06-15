@@ -6,28 +6,28 @@ exports[`playground > app/components/foo-bar.vue > unimport > references 1`] = `
     "fileName": "app/components/foo-bar.vue",
     "textSpan": {
       "length": 6,
-      "start": 38,
+      "start": 36,
     },
   },
   {
     "fileName": "app/components/foo-bar.vue",
     "textSpan": {
       "length": 6,
-      "start": 77,
+      "start": 73,
     },
   },
   {
     "fileName": "app/pages/testify.vue",
     "textSpan": {
       "length": 6,
-      "start": 1814,
+      "start": 1718,
     },
   },
   {
     "fileName": "app/pages/testify.vue",
     "textSpan": {
       "length": 12,
-      "start": 1829,
+      "start": 1731,
     },
   },
 ]
@@ -39,7 +39,7 @@ exports[`playground > app/pages/about.vue > layout-slots > definition 1`] = `
     "fileName": "app/layouts/center.vue",
     "textSpan": {
       "length": 3,
-      "start": 51,
+      "start": 47,
     },
   },
 ]
