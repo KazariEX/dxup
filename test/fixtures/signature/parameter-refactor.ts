@@ -37,6 +37,6 @@ o4(2, "3", true, Symbol(5));
  * property with type query
  */
 const o5: { swap: typeof swap } = {
-    swap: (foo, bar, baz, qux) => {},
+  swap: (foo, bar, baz, qux) => {},
 };
 o5.swap(2, "3", true, Symbol(5));

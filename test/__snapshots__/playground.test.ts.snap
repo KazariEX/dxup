@@ -135,21 +135,21 @@ exports[`playground > app/app.vue > runtime config > definition 1`] = `
     "fileName": "layers/archer/nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 82,
+      "start": 70,
     },
   },
   {
     "fileName": "layers/berserker/nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 82,
+      "start": 70,
     },
   },
   {
     "fileName": "nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 43,
+      "start": 37,
     },
   },
 ]
@@ -161,14 +161,14 @@ exports[`playground > app/app.vue > runtime config > definition 2`] = `
     "fileName": "layers/berserker/nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 102,
+      "start": 84,
     },
   },
   {
     "fileName": "nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 59,
+      "start": 49,
     },
   },
 ]
@@ -180,7 +180,7 @@ exports[`playground > app/app.vue > runtime config > definition 3`] = `
     "fileName": "nuxt.config.ts",
     "textSpan": {
       "length": 3,
-      "start": 75,
+      "start": 61,
     },
   },
 ]
@@ -192,7 +192,7 @@ exports[`playground > app/app.vue > runtime config > definition 4`] = `
     "fileName": "nuxt.config.ts",
     "textSpan": {
       "length": 5,
-      "start": 112,
+      "start": 90,
     },
   },
 ]
@@ -240,28 +240,28 @@ exports[`playground > app/components/foo-bar.vue > unimport > references 1`] = `
     "fileName": "app/components/foo-bar.vue",
     "textSpan": {
       "length": 6,
-      "start": 38,
+      "start": 36,
     },
   },
   {
     "fileName": "app/components/foo-bar.vue",
     "textSpan": {
       "length": 6,
-      "start": 77,
+      "start": 73,
     },
   },
   {
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 6,
-      "start": 1814,
+      "start": 1718,
     },
   },
   {
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 12,
-      "start": 1829,
+      "start": 1731,
     },
   },
 ]
@@ -273,7 +273,7 @@ exports[`playground > app/utils/index.ts > auto imports > references 1`] = `
     "fileName": "app/app.vue",
     "textSpan": {
       "length": 3,
-      "start": 755,
+      "start": 705,
     },
   },
 ]

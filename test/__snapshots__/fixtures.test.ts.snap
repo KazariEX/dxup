@@ -142,28 +142,28 @@ exports[`fixtures > signature/parameter-refactor.ts > refactor 1`] = `
         "newText": "baz",
         "span": {
           "length": 3,
-          "start": 746,
+          "start": 744,
         },
       },
       {
         "newText": "bar",
         "span": {
           "length": 3,
-          "start": 751,
+          "start": 749,
         },
       },
       {
         "newText": "true",
         "span": {
           "length": 3,
-          "start": 782,
+          "start": 780,
         },
       },
       {
         "newText": ""3"",
         "span": {
           "length": 4,
-          "start": 787,
+          "start": 785,
         },
       },
       {

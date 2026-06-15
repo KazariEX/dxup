@@ -1,19 +1,19 @@
 const runtimeConfig = {
-    foo: {
-        bar: 1,
-        baz: 2,
-        qux: 3,
-    },
-    public: {
-        hello: 2333,
-    },
+  foo: {
+    bar: 1,
+    baz: 2,
+    qux: 3,
+  },
+  public: {
+    hello: 2333,
+  },
 };
 
 export default defineNuxtConfig({
-    compatibilityDate: "2025-07-15",
-    experimental: {
-        typedPages: true,
-        typescriptPlugin: true,
-    },
-    runtimeConfig,
+  compatibilityDate: "2025-07-15",
+  experimental: {
+    typedPages: true,
+    typescriptPlugin: true,
+  },
+  runtimeConfig,
 });
