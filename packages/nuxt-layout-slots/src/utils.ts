@@ -1,3 +1,5 @@
+import { type ElementNode, NodeTypes, parse } from "@vue/compiler-dom";
+
 const vueRE = /[?&]vue(?:&|$)/;
 const typeRE = /[?&]type=[^&]*/;
 
@@ -22,4 +24,34 @@ export function isVue(id: string) {
     }
 
     return true;
+}
+
+export function parseSFC(code: string) {
+    const sfc = parse(code, {
+        parseMode: "sfc",
+    });
+
+    let scriptSetup: ElementNode | undefined;
+    let template: ElementNode | undefined;
+
+    for (const node of sfc.children) {
+        if (node.type !== NodeTypes.ELEMENT) {
+            continue;
+        }
+        if (
+            node.tag === "script" && node.props.some((prop) => (
+                prop.type === NodeTypes.ATTRIBUTE && (prop.name === "setup" || prop.name === "vapor")
+            ))
+        ) {
+            scriptSetup = node;
+        }
+        else if (node.tag === "template") {
+            template = node;
+        }
+    }
+
+    return {
+        scriptSetup,
+        template,
+    };
 }

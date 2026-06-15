@@ -1,11 +1,11 @@
-import { type AttributeNode, type DirectiveNode, type ElementNode, ElementTypes, NodeTypes, parse } from "@vue/compiler-dom";
+import { type AttributeNode, type DirectiveNode, ElementTypes, NodeTypes } from "@vue/compiler-dom";
 import { genImport } from "knitwork";
 import MagicString from "magic-string";
 import { parseAndWalk } from "oxc-walker";
 import { createUnplugin } from "unplugin";
 import type { ObjectExpression } from "oxc-parser";
 import packageJson from "../../package.json";
-import { isVue } from "../utils";
+import { isVue, parseSFC } from "../utils";
 
 interface TransformPageOptions {
     dirs: string[];
@@ -21,30 +21,8 @@ export const TransformPagePlugin = (options: TransformPageOptions) => createUnpl
             return;
         }
 
-        const sfc = parse(code, {
-            parseMode: "sfc",
-        });
-
-        let scriptSetup: ElementNode | undefined;
-        let template: ElementNode | undefined;
-
-        for (const node of sfc.children) {
-            if (node.type !== NodeTypes.ELEMENT) {
-                continue;
-            }
-            if (
-                node.tag === "script" && node.props.some((prop) => (
-                    prop.type === NodeTypes.ATTRIBUTE && prop.name === "setup"
-                ))
-            ) {
-                scriptSetup = node;
-            }
-            else if (node.tag === "template") {
-                template = node;
-            }
-        }
-
-        if (!scriptSetup || !template) {
+        const { scriptSetup, template } = parseSFC(code);
+        if (!template) {
             return;
         }
 
@@ -71,34 +49,32 @@ export const TransformPagePlugin = (options: TransformPageOptions) => createUnpl
             return;
         }
 
-        let meta: ObjectExpression | undefined;
-
-        parseAndWalk(scriptSetup.innerLoc!.source, id, {
-            parseOptions: {
-                lang: scriptSetup.props.find((prop): prop is AttributeNode => (
-                    prop.type === NodeTypes.ATTRIBUTE && prop.name === "lang"
-                ))?.value?.content as any ?? "ts",
-            },
-            enter(node) {
-                if (
-                    node.type === "CallExpression" &&
-                    node.callee.type === "Identifier" &&
-                    node.callee.name === "definePageMeta" &&
-                    node.arguments[0]?.type === "ObjectExpression"
-                ) {
-                    meta = node.arguments[0];
-                    this.skip();
-                }
-            },
-        });
-
         const s = new MagicString(code);
         const imports = genImport("#build/dxup/layouts.mjs", ["LayoutSlotsForward"]);
         const expression = `layoutSlots: [${slots.map((slot) => JSON.stringify(slot)).join(", ")}],\n`;
 
         if (scriptSetup) {
-            const start = scriptSetup.innerLoc!.start.offset;
+            let meta: ObjectExpression | undefined;
+            parseAndWalk(scriptSetup.innerLoc!.source, id, {
+                parseOptions: {
+                    lang: scriptSetup.props.find((prop): prop is AttributeNode => (
+                        prop.type === NodeTypes.ATTRIBUTE && prop.name === "lang"
+                    ))?.value?.content as any ?? "ts",
+                },
+                enter(node) {
+                    if (
+                        node.type === "CallExpression" &&
+                        node.callee.type === "Identifier" &&
+                        node.callee.name === "definePageMeta" &&
+                        node.arguments[0]?.type === "ObjectExpression"
+                    ) {
+                        meta = node.arguments[0];
+                        this.skip();
+                    }
+                },
+            });
 
+            const start = scriptSetup.innerLoc!.start.offset;
             s.appendLeft(start, `\n${imports}\n`);
 
             if (meta) {

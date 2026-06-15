@@ -1,9 +1,9 @@
-import { type ElementNode, NodeTypes, parse } from "@vue/compiler-dom";
+import { type ElementNode, NodeTypes } from "@vue/compiler-dom";
 import { genImport } from "knitwork";
 import MagicString from "magic-string";
 import { createUnplugin } from "unplugin";
 import packageJson from "../../package.json";
-import { isVue } from "../utils";
+import { isVue, parseSFC } from "../utils";
 
 interface TransformLayoutOptions {
     sourcemap: boolean;
@@ -18,28 +18,7 @@ export const TransformLayoutPlugin = (options: TransformLayoutOptions) => create
             code: /<(?:nuxt-layout|NuxtLayout)/,
         },
         handler(code) {
-            const sfc = parse(code, {
-                parseMode: "sfc",
-            });
-
-            let scriptSetup: ElementNode | undefined;
-            let template: ElementNode | undefined;
-
-            for (const node of sfc.children) {
-                if (node.type !== NodeTypes.ELEMENT) {
-                    continue;
-                }
-                if (
-                    node.tag === "script" && node.props.some((prop) => (
-                        prop.type === NodeTypes.ATTRIBUTE && prop.name === "setup"
-                    ))
-                ) {
-                    scriptSetup = node;
-                }
-                else if (node.tag === "template") {
-                    template = node;
-                }
-            }
+            const { scriptSetup, template } = parseSFC(code);
 
             const layout = template?.children.find((node): node is ElementNode => (
                 node.type === NodeTypes.ELEMENT && (
