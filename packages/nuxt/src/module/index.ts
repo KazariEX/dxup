@@ -4,6 +4,7 @@ import { addTemplate, defineNuxtModule, useNitro } from "@nuxt/kit";
 import * as packageJson from "../../package.json";
 import { createEventClient } from "../event/client";
 import { onComponentsRename } from "./events";
+import { setup as setupNamedLayoutSlots } from "./named-layout-slots/module";
 import type { Data } from "../typescript/types";
 
 interface Plugin {
@@ -23,6 +24,11 @@ export interface ModuleOptions {
      * @default true
      */
     importGlob?: boolean;
+    /**
+     * Whether to enable named layout slots support in the pages.
+     * @default false
+     */
+    namedLayoutSlots?: boolean;
     /**
      * Whether to enable Go to Definition for nitro routes in data fetching methods.
      * @default true
@@ -66,6 +72,7 @@ export default defineNuxtModule<ModuleOptions>().with({
     features: {
       components: true,
       importGlob: true,
+      namedLayoutSlots: false,
       nitroRoutes: true,
       pageMeta: true,
       runtimeConfig: true,
@@ -76,8 +83,13 @@ export default defineNuxtModule<ModuleOptions>().with({
   },
   async setup(options, nuxt) {
     const pluginsTs: Plugin[] = [{ name: "@dxup/nuxt" }];
+    const pluginsVue: Plugin[] = [];
 
-    if (options.features?.unimport) {
+    if (options.features.namedLayoutSlots) {
+      setupNamedLayoutSlots(nuxt, pluginsVue);
+    }
+
+    if (options.features.unimport) {
       pluginsTs.unshift({ name: "@dxup/unimport" });
     }
 
@@ -85,6 +97,7 @@ export default defineNuxtModule<ModuleOptions>().with({
     append(pluginsTs, nuxt.options.nitro, "typescript", "tsConfig", "compilerOptions");
     append(pluginsTs, nuxt.options, "typescript", "sharedTsConfig", "compilerOptions");
     append(pluginsTs, nuxt.options, "typescript", "nodeTsConfig", "compilerOptions");
+    append(pluginsVue, nuxt.options, "typescript", "tsConfig", "vueCompilerOptions");
 
     addTemplate({
       filename: "dxup/data.json",

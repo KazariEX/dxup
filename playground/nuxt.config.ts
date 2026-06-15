@@ -16,4 +16,9 @@ export default defineNuxtConfig({
     typescriptPlugin: true,
   },
   runtimeConfig,
+  dxup: {
+    features: {
+      namedLayoutSlots: true,
+    },
+  },
 });

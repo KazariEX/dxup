@@ -1,11 +1,11 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  format: [
-    "cjs",
-  ],
+  format: "cjs",
   exports: true,
-  noExternal: [
-    "@dxup/shared",
-  ],
+  deps: {
+    alwaysBundle: [
+      "@dxup/shared",
+    ],
+  },
 });
