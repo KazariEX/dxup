@@ -52,6 +52,35 @@ import.meta.glob("~/assets/*.webp");
 
 ### 3. namedLayoutSlots
 
+Write top-level named slots in your pages:
+
+```vue
+<!-- layouts/center.vue -->
+<template>
+  <slot></slot>
+  <slot name="side" one="one"></slot>
+</template>
+```
+
+```vue
+<!-- pages/about.vue -->
+<script lang="ts" setup>
+  definePageMeta({
+    layout: "center",
+  });
+</script>
+
+<template>
+  <template #side="{ one }">
+    This "{{ one }}" comes from the layout slot.
+    <!--     ^^^ -->
+  </template>
+  <div>About Page</div>
+</template>
+```
+
+And them will be forwarded to the active layout automatically.
+
 ### 4. nitroRoutes
 
 Go to definition for nitro routes in data fetching methods.
