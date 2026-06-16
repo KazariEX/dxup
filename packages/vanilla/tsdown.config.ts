@@ -7,5 +7,8 @@ export default defineConfig({
     alwaysBundle: [
       "@dxup/shared",
     ],
+    neverBundle: [
+      "typescript",
+    ],
   },
 });
