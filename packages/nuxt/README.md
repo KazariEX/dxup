@@ -52,6 +52,8 @@ import.meta.glob("~/assets/*.webp");
 
 ### 3. namedLayoutSlots
 
+**Default:** `false`
+
 Write top-level named slots in your pages:
 
 ```vue
