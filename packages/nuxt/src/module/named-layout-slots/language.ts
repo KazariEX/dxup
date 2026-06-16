@@ -9,6 +9,8 @@ interface Config {
   };
 }
 
+const resolvedAsts = new WeakSet<CompilerDOM.RootNode>();
+
 const plugin: VueLanguagePlugin<Config> = ({
   modules: { typescript: ts, "@vue/compiler-dom": CompilerDOM },
   config: { options },
@@ -24,16 +26,10 @@ const plugin: VueLanguagePlugin<Config> = ({
       return;
     }
 
-    if (!sfc.template?.ast) {
+    if (!sfc.template?.ast || resolvedAsts.has(sfc.template.ast)) {
       return;
     }
-
-    if (sfc.template.ast.children.length === 1) {
-      const root = sfc.template.ast.children[0];
-      if (root.loc.start.offset === Number.MAX_VALUE) {
-        return;
-      }
-    }
+    resolvedAsts.add(sfc.template.ast);
 
     let layoutName = "default";
     if (sfc.scriptSetup) {

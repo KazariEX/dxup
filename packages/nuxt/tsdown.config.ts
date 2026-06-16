@@ -24,7 +24,10 @@ export default defineConfig([
   },
   {
     entry: {
-      "languages/named-layout-slots": "src/module/named-layout-slots/language.ts",
+      "languages/*": "src/module/*/language.ts",
+    },
+    outputOptions: {
+      entryFileNames: ({ name }) => `${name.replace("/language", "")}.cjs`,
     },
     format: "cjs",
     deps: {
