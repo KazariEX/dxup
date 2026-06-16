@@ -24,6 +24,12 @@ This is a TypeScript plugin that improves Nuxt DX.
      experimental: {
        typescriptPlugin: true,
      },
+     dxup: {
+       features: {
+         // Enable opt-in features
+         namedLayoutSlots: true,
+       },
+     },
    });
    ```
 
