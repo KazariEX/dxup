@@ -32,8 +32,8 @@ export const TransformLayoutPlugin = (options: TransformLayoutOptions) => create
 
       const s = new MagicString(code);
 
-      const prefix = "\n" + genImport("#build/dxup/layouts.mjs", ["provideLayoutSlots"]);
-      const suffix = `\nconst __dxup_layoutSlots = provideLayoutSlots();\n`;
+      const prefix = "\n" + genImport("#build/dxup/layouts.mjs", ["LayoutSlot", "provideLayoutSlots"]);
+      const suffix = `\nprovideLayoutSlots();\n`;
 
       if (scriptSetup) {
         s.appendLeft(scriptSetup.innerLoc!.start.offset, prefix);
@@ -47,7 +47,7 @@ export const TransformLayoutPlugin = (options: TransformLayoutOptions) => create
         layout.children.at(-1)!.loc.end.offset,
         `
 <template v-for="name in $route.meta.layoutSlots ?? []" :key="name" #[name]="props">
-    <component :is="() => __dxup_layoutSlots[name]?.(props)"/>
+    <LayoutSlot :name :props/>
 </template>`,
       );
 

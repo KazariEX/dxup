@@ -8,7 +8,6 @@
   "repository": "KazariEX/dxup",
   "exports": {
     ".": "./dist/module.mjs",
-    "./components/*": "./dist/components/*",
     "./languages/*": "./dist/languages/*",
     "./package.json": "./package.json"
   },

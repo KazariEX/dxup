@@ -13,11 +13,10 @@ export default defineConfig([
   },
   {
     entry: {
-      "components/*": "src/module/named-layout-slots/components/*.ts",
+      "runtime/*": "src/module/named-layout-slots/runtime/**/*.ts",
     },
     deps: {
       neverBundle: [
-        /^#build\//,
         "vue",
       ],
     },

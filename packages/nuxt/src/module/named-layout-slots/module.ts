@@ -1,5 +1,5 @@
 import { addBuildPlugin, addTemplate, addTypeTemplate, createResolver } from "@nuxt/kit";
-import { genExport, genImport, genInlineTypeImport, genObjectKey } from "knitwork";
+import { genExport, genInlineTypeImport, genObjectKey } from "knitwork";
 import { join } from "pathe";
 import type { Nuxt } from "@nuxt/schema";
 import { TransformLayoutPlugin } from "./plugins/transform-layout";
@@ -22,22 +22,7 @@ export function setup(nuxt: Nuxt, pluginsVue: any[]) {
   addTemplate({
     filename: "dxup/layouts.mjs",
     getContents() {
-      return `
-${genImport("vue", ["inject", "provide", "shallowRef"])}
-${genExport(resolver.resolve("components/forward"), [{
-  name: "default",
-  as: "LayoutSlotsForward",
-}])}
-const injectionKey = Symbol();
-export function provideLayoutSlots() {
-  const slots = shallowRef({});
-  provide(injectionKey, slots);
-  return slots;
-}
-export function injectLayoutSlots() {
-  return inject(injectionKey);
-}
-`.trimStart();
+      return genExport(resolver.resolve("runtime/layouts.mjs"), "*");
     },
   });
 
