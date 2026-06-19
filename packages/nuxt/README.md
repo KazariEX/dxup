@@ -89,6 +89,8 @@ Write top-level named slots in your pages:
 
 And them will be forwarded to the active layout automatically.
 
+Due to design limitations, dynamic slots are currently not supported.
+
 ### 4. nitroRoutes
 
 Go to definition for nitro routes in data fetching methods.
