@@ -41,9 +41,6 @@ export default defineConfig([
     },
     format: "cjs",
     deps: {
-      alwaysBundle: [
-        "@dxup/shared",
-      ],
       neverBundle: [
         "typescript",
       ],
