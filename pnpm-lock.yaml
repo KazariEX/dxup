@@ -34,8 +34,8 @@ catalogs:
       specifier: ^0.4.5
       version: 0.4.5
     '@zinkawaii/scripts':
-      specifier: ^0.0.3
-      version: 0.0.3
+      specifier: ^0.0.5
+      version: 0.0.5
     '@zinkawaii/tsconfig':
       specifier: ^0.1.0
       version: 0.1.0
@@ -63,6 +63,9 @@ catalogs:
     pathe:
       specifier: ^2.0.3
       version: 2.0.3
+    tinyexec:
+      specifier: ^1.2.4
+      version: 1.2.4
     tinyglobby:
       specifier: ^0.2.17
       version: 0.2.17
@@ -84,9 +87,6 @@ catalogs:
     vue-router:
       specifier: ^5.1.0
       version: 5.1.0
-    zx:
-      specifier: ^8.8.5
-      version: 8.8.5
 
 importers:
 
@@ -100,7 +100,7 @@ importers:
         version: 0.4.5(@typescript-eslint/rule-tester@8.61.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(@typescript-eslint/typescript-estree@8.61.1(typescript@6.0.3))(@typescript-eslint/utils@8.61.1(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(@vue/compiler-sfc@3.5.38)(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3)(vitest@4.1.9(@types/node@26.0.0)(vite@7.3.5(@types/node@26.0.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)))
       '@zinkawaii/scripts':
         specifier: 'catalog:'
-        version: 0.0.3
+        version: 0.0.5
       '@zinkawaii/tsconfig':
         specifier: 'catalog:'
         version: 0.1.0
@@ -113,15 +113,15 @@ importers:
       pathe:
         specifier: 'catalog:'
         version: 2.0.3
+      tinyexec:
+        specifier: 'catalog:'
+        version: 1.2.4
       tsdown:
         specifier: 'catalog:'
         version: 0.22.3(typescript@6.0.3)
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(vite@7.3.5(@types/node@26.0.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
-      zx:
-        specifier: 'catalog:'
-        version: 8.8.5
 
   packages/nuxt:
     dependencies:
@@ -2370,8 +2370,8 @@ packages:
   '@zinkawaii/eslint-config@0.4.5':
     resolution: {integrity: sha512-dnGOSnMnpcYtWko+LHRCu3bAfBDhvRaV/aZ/NlADGmUpHXlN0RuTMWQvUZhkyA00EUsRHUiip+tRLzY6Bh/IlA==}
 
-  '@zinkawaii/scripts@0.0.3':
-    resolution: {integrity: sha512-b291zg4rlf+sg/wNJ4KLSYtbLeznS12PdD6yzT0EJtfTU5kjrjxcg9WbAPYbwCFQ8nCBQb8pn9gNqnbcYDnQ7Q==}
+  '@zinkawaii/scripts@0.0.5':
+    resolution: {integrity: sha512-e/M5PS4a9bCc2lwMb0gvDSXnLFuJ6G3ZeGpAfh6rfl0Btyvh0Ni7u5oTuI20VP11HZLxM2GvZSDrV7oMwJigRQ==}
     hasBin: true
 
   '@zinkawaii/tsconfig@0.1.0':
@@ -5812,11 +5812,6 @@ packages:
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
-  zx@8.8.5:
-    resolution: {integrity: sha512-SNgDF5L0gfN7FwVOdEFguY3orU5AkfFZm9B5YSHog/UDHv+lvmd82ZAsOenOkQixigwH2+yyH198AwNdKhj+RA==}
-    engines: {node: '>= 12.17.0'}
-    hasBin: true
-
 snapshots:
 
   '@antfu/eslint-config@9.0.0(@typescript-eslint/rule-tester@8.61.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(@typescript-eslint/typescript-estree@8.61.1(typescript@6.0.3))(@typescript-eslint/utils@8.61.1(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(@vue/compiler-sfc@3.5.38)(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3)(vitest@4.1.9(@types/node@26.0.0)(vite@7.3.5(@types/node@26.0.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)))':
@@ -8144,11 +8139,11 @@ snapshots:
       - typescript
       - vitest
 
-  '@zinkawaii/scripts@0.0.3':
+  '@zinkawaii/scripts@0.0.5':
     dependencies:
-      citty: 0.1.6
+      citty: 0.2.2
       consola: 3.4.2
-      zx: 8.8.5
+      tinyexec: 1.2.4
 
   '@zinkawaii/tsconfig@0.1.0': {}
 
@@ -12220,5 +12215,3 @@ snapshots:
       readable-stream: 4.7.0
 
   zwitch@2.0.4: {}
-
-  zx@8.8.5: {}

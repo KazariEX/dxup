@@ -17,8 +17,8 @@
     "bumpp": "catalog:",
     "eslint": "catalog:",
     "pathe": "catalog:",
+    "tinyexec": "catalog:",
     "tsdown": "catalog:",
-    "vitest": "catalog:",
-    "zx": "catalog:"
+    "vitest": "catalog:"
   }
 }
