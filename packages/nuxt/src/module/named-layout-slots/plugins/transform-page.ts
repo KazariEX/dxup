@@ -1,9 +1,9 @@
-import { type AttributeNode, type DirectiveNode, ElementTypes, NodeTypes } from "@vue/compiler-dom";
+import { type DirectiveNode, ElementTypes, NodeTypes } from "@vue/compiler-dom";
 import { genImport } from "knitwork";
 import MagicString from "magic-string";
 import { parseAndWalk } from "oxc-walker";
 import { createUnplugin } from "unplugin";
-import type { ObjectExpression } from "oxc-parser";
+import type { ObjectExpression, ParserOptions } from "oxc-parser";
 import packageJson from "../../../../package.json";
 import { isInDir, isVue, parseSFC } from "../utils";
 
@@ -54,12 +54,19 @@ export const TransformPagePlugin = (options: TransformPageOptions) => createUnpl
     const expression = `layoutSlots: [${slots.map((slot) => JSON.stringify(slot)).join(", ")}],\n`;
 
     if (scriptSetup) {
+      let lang: ParserOptions["lang"] = "js";
       let meta: ObjectExpression | undefined;
+
+      for (const prop of scriptSetup.props) {
+        if (prop.type === NodeTypes.ATTRIBUTE && prop.name === "lang" && prop.value) {
+          lang = prop.value.content as any;
+          break;
+        }
+      }
+
       parseAndWalk(scriptSetup.innerLoc!.source, id, {
         parseOptions: {
-          lang: scriptSetup.props.find((prop): prop is AttributeNode => (
-            prop.type === NodeTypes.ATTRIBUTE && prop.name === "lang"
-          ))?.value?.content as any ?? "ts",
+          lang,
         },
         enter(node) {
           if (
