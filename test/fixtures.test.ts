@@ -1,11 +1,11 @@
-import { relative, resolve } from "pathe";
+import { join, relative } from "pathe";
 import ts from "typescript";
 import { describe, it } from "vitest";
 import { collectOperations, expectOperation, projectService } from "./shared";
 
 describe("fixtures", () => {
-  const fixturesRoot = resolve(import.meta.dirname, "fixtures");
-  const signaturePath = resolve(fixturesRoot, "index.ts");
+  const fixturesRoot = join(import.meta.dirname, "fixtures");
+  const signaturePath = join(fixturesRoot, "index.ts");
   projectService.openClientFile(signaturePath);
 
   const project = projectService.getDefaultProjectForFile(ts.server.toNormalizedPath(signaturePath), true)!;

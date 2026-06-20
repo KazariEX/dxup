@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "pathe";
+import { dirname, join } from "pathe";
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
@@ -12,7 +12,7 @@ export default defineConfig({
     {
       name: "redirect",
       async buildStart() {
-        const path = resolve(import.meta.dirname, "node_modules/@dxup/vanilla/index.js");
+        const path = join(import.meta.dirname, "node_modules/@dxup/vanilla/index.js");
         await mkdir(dirname(path), { recursive: true });
         await writeFile(path, `module.exports = require("../../../dist/plugin.cjs");\n`);
       },

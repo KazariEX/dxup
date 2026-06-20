@@ -1,15 +1,15 @@
 import { nextTick } from "node:process";
 import { promisify } from "node:util";
-import { relative, resolve } from "pathe";
+import { join, relative } from "pathe";
 import ts from "typescript";
 import { describe, it } from "vitest";
 import type { Language } from "@volar/language-core";
 import { collectOperations, expectOperation, projectService } from "./shared";
 
 describe("playground", async () => {
-  const playgroundRoot = resolve(import.meta.dirname, "../playground");
-  const appVuePath = resolve(playgroundRoot, "app/app.vue");
-  const buildDir = resolve(playgroundRoot, ".nuxt");
+  const playgroundRoot = join(import.meta.dirname, "../playground");
+  const appVuePath = join(playgroundRoot, "app/app.vue");
+  const buildDir = join(playgroundRoot, ".nuxt");
   projectService.openClientFile(appVuePath);
 
   // wait for the postprocess of language service to complete
