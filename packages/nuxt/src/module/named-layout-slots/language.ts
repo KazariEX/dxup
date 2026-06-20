@@ -48,10 +48,24 @@ const plugin: VueLanguagePlugin<Config> = ({
           if (
             ts.isPropertyAssignment(prop) &&
             ts.isIdentifier(prop.name) &&
-            prop.name.text === "layout" &&
-            ts.isStringLiteral(prop.initializer)
+            prop.name.text === "layout"
           ) {
-            layoutName = prop.initializer.text;
+            if (ts.isStringLiteralLike(prop.initializer)) {
+              layoutName = prop.initializer.text;
+            }
+            else if (ts.isObjectLiteralExpression(prop.initializer)) {
+              for (const sub of prop.initializer.properties) {
+                if (
+                  ts.isPropertyAssignment(sub) &&
+                  ts.isIdentifier(sub.name) &&
+                  sub.name.text === "name" &&
+                  ts.isStringLiteralLike(sub.initializer)
+                ) {
+                  layoutName = sub.initializer.text;
+                  break;
+                }
+              }
+            }
             break;
           }
         }
