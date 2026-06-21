@@ -86,7 +86,7 @@ export default defineNuxtModule<ModuleOptions>().with({
     const pluginsVue: Plugin[] = [];
 
     if (options.features.namedLayoutSlots) {
-      setupNamedLayoutSlots(nuxt, pluginsVue);
+      await setupNamedLayoutSlots(nuxt, pluginsVue);
     }
 
     if (options.features.unimport) {

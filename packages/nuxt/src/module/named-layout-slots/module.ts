@@ -1,11 +1,10 @@
 import { addBuildPlugin, addTemplate, addTypeTemplate, createResolver } from "@nuxt/kit";
 import { genExport, genInlineTypeImport, genObjectKey } from "knitwork";
-import { join } from "pathe";
+import { join, relative } from "pathe";
 import type { Nuxt } from "@nuxt/schema";
-import { TransformLayoutPlugin } from "./plugins/transform-layout";
-import { TransformPagePlugin } from "./plugins/transform-page";
+import { TransformPagePlugin } from "./transform";
 
-export function setup(nuxt: Nuxt, pluginsVue: any[]) {
+export async function setup(nuxt: Nuxt, pluginsVue: any[]) {
   const resolver = createResolver(import.meta.url);
   const pageDirs = nuxt.options._layers.map((layer) => join(
     layer.config.srcDir,
@@ -19,20 +18,39 @@ export function setup(nuxt: Nuxt, pluginsVue: any[]) {
     },
   });
 
+  nuxt.hook("components:extend", (components) => {
+    for (const comp of components) {
+      if (comp.pascalName === "NuxtLayout") {
+        comp.declarationPath = comp.filePath;
+        comp.filePath = join(nuxt.options.buildDir, "dxup/layouts.mjs");
+        break;
+      }
+    }
+  });
+
+  const layoutPath = join(
+    await resolver.resolvePath("nuxt", { cwd: nuxt.options.rootDir }),
+    "../app/components/nuxt-layout.js",
+  );
+
   addTemplate({
     filename: "dxup/layouts.mjs",
     getContents() {
-      return genExport(resolver.resolve("runtime/layouts.mjs"), "*");
+      return [
+        genExport(resolver.resolve("runtime/layouts.mjs"), ["default", "LayoutSlotsForward"]),
+        genExport(layoutPath, [{ name: "default", as: "NuxtLayout" }]),
+      ].join("\n");
     },
   });
 
   addTypeTemplate({
     filename: "dxup/layouts.d.ts",
     getContents({ app }) {
+      const currentDir = join(nuxt.options.buildDir, "dxup");
       return `
 export interface Layouts {
 ${Object.values(app.layouts).map((layout) => (
-  `    ${genObjectKey(layout.name)}: ${genInlineTypeImport(layout.file)};`
+  `  ${genObjectKey(layout.name)}: ${genInlineTypeImport(relative(currentDir, layout.file))};`
 )).join("\n")}
 }
 `.trimStart();
@@ -41,10 +59,6 @@ ${Object.values(app.layouts).map((layout) => (
 
   addBuildPlugin(TransformPagePlugin({
     dirs: pageDirs,
-    sourcemap: !!nuxt.options.sourcemap.client,
-  }));
-
-  addBuildPlugin(TransformLayoutPlugin({
     sourcemap: !!nuxt.options.sourcemap.client,
   }));
 }

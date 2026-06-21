@@ -1,11 +1,11 @@
-import { type DirectiveNode, ElementTypes, NodeTypes } from "@vue/compiler-dom";
+import { ElementTypes, NodeTypes } from "@vue/compiler-dom";
 import { genImport } from "knitwork";
 import MagicString from "magic-string";
 import { parseAndWalk } from "oxc-walker";
 import { createUnplugin } from "unplugin";
 import type { ObjectExpression, ParserOptions } from "oxc-parser";
-import packageJson from "../../../../package.json";
-import { isInDir, isVue, parseSFC } from "../utils";
+import packageJson from "../../../package.json";
+import { isInDir, isVue, parseSFC } from "./utils";
 
 interface TransformPageOptions {
   dirs: string[];
@@ -32,16 +32,18 @@ export const TransformPagePlugin = (options: TransformPageOptions) => createUnpl
       if (node.type !== NodeTypes.ELEMENT || node.tagType !== ElementTypes.TEMPLATE) {
         continue;
       }
-      const dir = node.props.find((prop): prop is DirectiveNode => (
-        prop.type === NodeTypes.DIRECTIVE && prop.name === "slot"
-      ));
-      if (
-        dir?.arg?.type === NodeTypes.SIMPLE_EXPRESSION &&
-        dir.arg.isStatic &&
-        dir.arg.content !== "" &&
-        dir.arg.content !== "default"
-      ) {
-        slots.push(dir.arg.content);
+      for (const prop of node.props) {
+        if (
+          prop.type === NodeTypes.DIRECTIVE &&
+          prop.name === "slot" &&
+          prop.arg?.type === NodeTypes.SIMPLE_EXPRESSION &&
+          prop.arg.isStatic &&
+          prop.arg.content !== "" &&
+          prop.arg.content !== "default"
+        ) {
+          slots.push(prop.arg.content);
+          break;
+        }
       }
     }
 
