@@ -2,10 +2,15 @@ import { addBuildPlugin, addTemplate, addTypeTemplate, createResolver } from "@n
 import { genExport, genInlineTypeImport, genObjectKey } from "knitwork";
 import { join, relative } from "pathe";
 import type { Nuxt } from "@nuxt/schema";
-import { TransformPagePlugin } from "./transform";
+import { TransformPlugins } from "./transform";
 
 export async function setup(nuxt: Nuxt, pluginsVue: any[]) {
   const resolver = createResolver(import.meta.url);
+
+  const layoutDirs = nuxt.options._layers.map((layer) => join(
+    layer.config.srcDir,
+    layer.config.dir?.layouts ?? "layouts",
+  ));
   const pageDirs = nuxt.options._layers.map((layer) => join(
     layer.config.srcDir,
     layer.config.dir?.pages ?? "pages",
@@ -37,7 +42,8 @@ export async function setup(nuxt: Nuxt, pluginsVue: any[]) {
     filename: "dxup/layouts.mjs",
     getContents() {
       return [
-        genExport(resolver.resolve("runtime/layouts.mjs"), ["default", "LayoutSlotsForward"]),
+        genExport(resolver.resolve("runtime/layouts.mjs"), "*"),
+        genExport(resolver.resolve("runtime/layouts.mjs"), ["default"]),
         genExport(layoutPath, [{ name: "default", as: "NuxtLayout" }]),
       ].join("\n");
     },
@@ -57,8 +63,9 @@ ${Object.values(app.layouts).map((layout) => (
     },
   });
 
-  addBuildPlugin(TransformPagePlugin({
-    dirs: pageDirs,
+  addBuildPlugin(TransformPlugins({
+    layoutDirs,
+    pageDirs,
     sourcemap: !!nuxt.options.sourcemap.client,
   }));
 }

@@ -1,8 +1,6 @@
 import { defineComponent, h, inject, provide, shallowRef, type ShallowRef, type Slots } from "vue";
 // @ts-expect-error virtual file
 import { NuxtLayout } from "#build/dxup/layouts.mjs";
-// @ts-expect-error runtime alias
-import { useRoute } from "#imports";
 
 interface LayoutSlotsRegistry {
   slots: ShallowRef<Slots>;
@@ -13,7 +11,6 @@ interface LayoutSlotsRegistry {
 const injectionKey = Symbol();
 
 export default defineComponent((props, ctx) => {
-  const route = useRoute();
   const slots = shallowRef<Slots>({});
   let resolveReady: () => void;
 
@@ -28,32 +25,19 @@ export default defineComponent((props, ctx) => {
     },
   });
 
-  return () => h(NuxtLayout, props, {
-    ...ctx.slots,
-    ...Object.fromEntries(
-      route.meta.layoutSlots?.map((name: string) => [
-        name,
-        // eslint-disable-next-line ts/no-use-before-define
-        (props: Record<string, any>) => h(LayoutSlot, { name, props }),
-      ]) ?? [],
-    ),
-  });
+  return () => h(NuxtLayout, props, ctx.slots);
 });
 
-const LayoutSlot = defineComponent({
+export const LayoutSlot = defineComponent({
   props: {
     name: {
       type: String,
       required: true,
     },
-    props: {
-      type: Object,
-      default: () => ({}),
-    },
   },
-  setup(props) {
+  setup(props, ctx) {
     const { slots, ready } = inject<LayoutSlotsRegistry>(injectionKey)!;
-    const render = () => slots.value[props.name]?.(props.props);
+    const render = () => slots.value[props.name]?.(ctx.attrs);
 
     if (import.meta.server && !slots.value[props.name]) {
       return ready.then(() => render);

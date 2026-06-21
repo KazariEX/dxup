@@ -17,7 +17,7 @@ export default defineConfig([
     },
     deps: {
       neverBundle: [
-        /^#(?:build|imports)(?:\/|$)/,
+        /^#build\//,
         "vue",
       ],
     },

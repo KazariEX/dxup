@@ -1,4 +1,4 @@
-import { type ElementNode, NodeTypes, parse } from "@vue/compiler-dom";
+import { type ElementNode, NodeTypes, parse, type RootNode, type TemplateChildNode } from "@vue/compiler-dom";
 import { isAbsolute, relative } from "pathe";
 
 const vueRE = /[?&]vue(?:&|$)/;
@@ -60,4 +60,27 @@ export function parseSFC(code: string) {
     scriptSetup,
     template,
   };
+}
+
+export function* forEachElementNode(node: RootNode | TemplateChildNode): Generator<ElementNode> {
+  if (
+    node.type === NodeTypes.ROOT ||
+    node.type === NodeTypes.FOR ||
+    node.type === NodeTypes.IF_BRANCH
+  ) {
+    for (const child of node.children) {
+      yield* forEachElementNode(child);
+    }
+  }
+  else if (node.type === NodeTypes.ELEMENT) {
+    yield node;
+    for (const child of node.children) {
+      yield* forEachElementNode(child);
+    }
+  }
+  else if (node.type === NodeTypes.IF) {
+    for (const branch of node.branches) {
+      yield* forEachElementNode(branch);
+    }
+  }
 }

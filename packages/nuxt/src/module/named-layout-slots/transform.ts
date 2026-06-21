@@ -1,110 +1,113 @@
-import { ElementTypes, NodeTypes } from "@vue/compiler-dom";
+import { ElementTypes, NodeTypes, type SlotOutletNode } from "@vue/compiler-dom";
 import { genImport } from "knitwork";
 import MagicString from "magic-string";
-import { parseAndWalk } from "oxc-walker";
 import { createUnplugin } from "unplugin";
-import type { ObjectExpression, ParserOptions } from "oxc-parser";
 import packageJson from "../../../package.json";
-import { isInDir, isVue, parseSFC } from "./utils";
+import { forEachElementNode, isInDir, isVue, parseSFC } from "./utils";
 
-interface TransformPageOptions {
-  dirs: string[];
+interface TransformOptions {
+  layoutDirs: string[];
+  pageDirs: string[];
   sourcemap: boolean;
 }
 
-export const TransformPagePlugin = (options: TransformPageOptions) => createUnplugin(() => ({
-  name: packageJson.name + ":transform-page",
-  enforce: "pre",
-  transformInclude: isVue,
-  transform(code, id) {
-    if (!options.dirs.some((dir) => isInDir(id, dir))) {
-      return;
-    }
-
-    const { scriptSetup, template } = parseSFC(code);
-    if (!template) {
-      return;
-    }
-
-    const slots: string[] = [];
-
-    for (const node of template.children) {
-      if (node.type !== NodeTypes.ELEMENT || node.tagType !== ElementTypes.TEMPLATE) {
-        continue;
+export const TransformPlugins = (options: TransformOptions) => createUnplugin(() => [
+  {
+    name: packageJson.name + ":transform-layout",
+    enforce: "pre",
+    transformInclude: isVue,
+    transform(code, id) {
+      if (!options.layoutDirs.some((dir) => isInDir(id, dir))) {
+        return;
       }
-      for (const prop of node.props) {
+
+      const { scriptSetup, template } = parseSFC(code);
+      if (!template) {
+        return;
+      }
+
+      const slots: SlotOutletNode[] = [];
+
+      for (const node of forEachElementNode(template)) {
         if (
-          prop.type === NodeTypes.DIRECTIVE &&
-          prop.name === "slot" &&
-          prop.arg?.type === NodeTypes.SIMPLE_EXPRESSION &&
-          prop.arg.isStatic &&
-          prop.arg.content !== "" &&
-          prop.arg.content !== "default"
+          node.tagType === ElementTypes.SLOT &&
+          node.props.length &&
+          node.props.every((prop) => (
+            prop.name !== "name" ||
+            prop.type !== NodeTypes.ATTRIBUTE ||
+            prop.value && prop.value.content !== "default"
+          ))
         ) {
-          slots.push(prop.arg.content);
-          break;
-        }
-      }
-    }
-
-    if (!slots.length) {
-      return;
-    }
-
-    const s = new MagicString(code);
-    const imports = genImport("#build/dxup/layouts.mjs", ["LayoutSlotsForward"]);
-    const expression = `layoutSlots: [${slots.map((slot) => JSON.stringify(slot)).join(", ")}],\n`;
-
-    if (scriptSetup) {
-      let lang: ParserOptions["lang"] = "js";
-      let meta: ObjectExpression | undefined;
-
-      for (const prop of scriptSetup.props) {
-        if (prop.type === NodeTypes.ATTRIBUTE && prop.name === "lang" && prop.value) {
-          lang = prop.value.content as any;
-          break;
+          slots.push(node);
         }
       }
 
-      parseAndWalk(scriptSetup.innerLoc!.source, id, {
-        parseOptions: {
-          lang,
-        },
-        enter(node) {
-          if (
-            node.type === "CallExpression" &&
-            node.callee.type === "Identifier" &&
-            node.callee.name === "definePageMeta" &&
-            node.arguments[0]?.type === "ObjectExpression"
-          ) {
-            meta = node.arguments[0];
-            this.skip();
-          }
-        },
-      });
+      if (!slots.length) {
+        return;
+      }
 
-      const start = scriptSetup.innerLoc!.start.offset;
-      s.appendLeft(start, `\n${imports}\n`);
+      const s = new MagicString(code);
+      const imports = genImport("#build/dxup/layouts.mjs", ["LayoutSlot"]);
 
-      if (meta) {
-        s.appendLeft(meta.properties[0].start + start, expression);
+      if (scriptSetup) {
+        const start = scriptSetup.innerLoc!.start.offset;
+        s.appendLeft(start, `\n${imports}\n`);
       }
       else {
-        s.appendLeft(scriptSetup.innerLoc!.start.offset, `\ndefinePageMeta({\n${expression}});\n`);
+        s.prepend(`<script setup>\n${imports}\n</script>\n\n`);
       }
-    }
-    else {
-      s.prepend(`<script setup>\n${imports}\ndefinePageMeta({\n${expression}});\n</script>\n\n`);
-    }
 
-    s.appendLeft(template.innerLoc!.start.offset, `<LayoutSlotsForward>`);
-    s.appendLeft(template.innerLoc!.end.offset, "</LayoutSlotsForward>");
+      for (const slot of slots) {
+        for (const offset of new Set([
+          slot.loc.start.offset + slot.loc.source.indexOf("slot"),
+          slot.loc.start.offset + slot.loc.source.lastIndexOf("slot"),
+        ])) {
+          s.overwrite(offset, offset + "slot".length, "LayoutSlot");
+        }
+      }
 
-    return {
-      code: s.toString(),
-      map: options.sourcemap
-        ? s.generateMap({ hires: true })
-        : void 0,
-    };
+      return {
+        code: s.toString(),
+        map: options.sourcemap
+          ? s.generateMap({ hires: true })
+          : void 0,
+      };
+    },
   },
-}));
+  {
+    name: packageJson.name + ":transform-page",
+    enforce: "pre",
+    transformInclude: isVue,
+    transform(code, id) {
+      if (!options.pageDirs.some((dir) => isInDir(id, dir))) {
+        return;
+      }
+
+      const { scriptSetup, template } = parseSFC(code);
+      if (!template) {
+        return;
+      }
+
+      const s = new MagicString(code);
+      const imports = genImport("#build/dxup/layouts.mjs", ["LayoutSlotsForward"]);
+
+      if (scriptSetup) {
+        const start = scriptSetup.innerLoc!.start.offset;
+        s.appendLeft(start, `\n${imports}\n`);
+      }
+      else {
+        s.prepend(`<script setup>\n${imports}\n</script>\n\n`);
+      }
+
+      s.appendLeft(template.innerLoc!.start.offset, `<LayoutSlotsForward>`);
+      s.appendLeft(template.innerLoc!.end.offset, "</LayoutSlotsForward>");
+
+      return {
+        code: s.toString(),
+        map: options.sourcemap
+          ? s.generateMap({ hires: true })
+          : void 0,
+      };
+    },
+  },
+]);
