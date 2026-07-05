@@ -8,7 +8,7 @@ interface LayoutSlotsRegistry {
   set: (slots: Slots) => void;
 }
 
-const injectionKey = Symbol();
+const injectionKey = Symbol.for("dxup:layout-slots");
 
 export default defineComponent((props, ctx) => {
   const slots = shallowRef<Slots>({});
