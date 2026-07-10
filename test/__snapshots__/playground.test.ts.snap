@@ -36,10 +36,10 @@ exports[`playground > app/components/foo-bar.vue > unimport > references 1`] = `
 exports[`playground > app/pages/about.vue > layout-slots > definition 1`] = `
 [
   {
-    "fileName": "app/layouts/center.vue",
+    "fileName": "app/layouts/default.vue",
     "textSpan": {
       "length": 3,
-      "start": 47,
+      "start": 49,
     },
   },
 ]

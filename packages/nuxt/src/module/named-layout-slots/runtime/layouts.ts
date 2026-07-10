@@ -1,4 +1,4 @@
-import { defineComponent, h, inject, provide, shallowRef, type ShallowRef, type Slots } from "vue";
+import { defineComponent, getCurrentInstance, h, inject, provide, shallowRef, type ShallowRef, type Slots } from "vue";
 // @ts-expect-error virtual file
 import { NuxtLayout } from "#build/dxup/layouts.mjs";
 
@@ -37,7 +37,13 @@ export const LayoutSlot = defineComponent({
   },
   setup(props, ctx) {
     const { slots, ready } = inject<LayoutSlotsRegistry>(injectionKey)!;
-    const render = () => slots.value[props.name]?.(ctx.attrs);
+    const currentInstance = getCurrentInstance();
+
+    const render = () => (
+      // for nested layouts or explicit imports,
+      // the parent layout should be able to render the raw slots as fallback
+      slots.value[props.name] ?? currentInstance?.parent?.slots[props.name]
+    )?.(ctx.attrs);
 
     if (import.meta.server && !slots.value[props.name]) {
       return ready.then(() => render);
