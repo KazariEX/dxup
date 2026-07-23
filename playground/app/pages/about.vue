@@ -12,5 +12,11 @@
     <!--                    ^—^(definition) -->
     This "{{ one satisfies string }}" comes from the layout slot.
   </template>
-  <div>About Page</div>
+  <div>
+    About Page [
+    <nuxt-link :to="{ name: `about` }">about</nuxt-link> /
+    <nuxt-link :to="{ name: `contact` }">contact</nuxt-link>
+    ]
+  </div>
+  <nuxt-page />
 </template>

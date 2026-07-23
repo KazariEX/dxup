@@ -1,17 +1,17 @@
-import { defineComponent, getCurrentInstance, h, inject, provide, shallowRef, type ShallowRef, type Slots } from "vue";
+import { defineComponent, getCurrentInstance, h, inject, onScopeDispose, provide, shallowRef, type ShallowRef, type Slots } from "vue";
 // @ts-expect-error virtual file
 import { NuxtLayout } from "#build/dxup/layouts.mjs";
 
 interface LayoutSlotsRegistry {
-  slots: ShallowRef<Slots>;
+  slots: ShallowRef<Slots | null>;
   ready: Promise<void>;
-  set: (slots: Slots) => void;
+  use: (slots: Slots) => void;
 }
 
 const injectionKey = Symbol.for("dxup:layout-slots");
 
 export default defineComponent((props, ctx) => {
-  const slots = shallowRef<Slots>({});
+  const slots = shallowRef<Slots | null>(null);
   let resolveReady: () => void;
 
   provide<LayoutSlotsRegistry>(injectionKey, {
@@ -19,8 +19,14 @@ export default defineComponent((props, ctx) => {
     ready: new Promise((resolve) => {
       resolveReady = resolve;
     }),
-    set(value) {
-      slots.value = value;
+    use(value) {
+      // only allow top-level pages to forward slots
+      slots.value ??= (
+        onScopeDispose(() => {
+          slots.value = null;
+        }),
+        value
+      );
       resolveReady?.();
     },
   });
@@ -42,10 +48,10 @@ export const LayoutSlot = defineComponent({
     const render = () => (
       // for nested layouts or explicit imports,
       // the parent layout should be able to render the raw slots as fallback
-      slots.value[props.name] ?? currentInstance?.parent?.slots[props.name]
+      slots.value?.[props.name] ?? currentInstance?.parent?.slots[props.name]
     )?.(ctx.attrs);
 
-    if (import.meta.server && !slots.value[props.name]) {
+    if (import.meta.server && !slots.value?.[props.name]) {
       return ready.then(() => render);
     }
     return render;
@@ -53,8 +59,8 @@ export const LayoutSlot = defineComponent({
 });
 
 export const LayoutSlotsForward = defineComponent((props, ctx) => {
-  const { set } = inject<LayoutSlotsRegistry>(injectionKey)!;
-  set(ctx.slots);
+  const { use } = inject<LayoutSlotsRegistry>(injectionKey)!;
+  use(ctx.slots);
 
   return () => ctx.slots.default?.();
 });
