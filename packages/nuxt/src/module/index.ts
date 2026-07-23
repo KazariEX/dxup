@@ -1,4 +1,4 @@
-/// <reference types="@nuxt/nitro-server" />
+/// <reference types="@nuxt/nitro-server/augments" />
 
 import { addTemplate, defineNuxtModule, useNitro } from "@nuxt/kit";
 import * as packageJson from "../../package.json";

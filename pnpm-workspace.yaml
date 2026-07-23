@@ -3,39 +3,43 @@ shamefullyHoist: true
 shellEmulator: true
 trustPolicy: no-downgrade
 trustPolicyExclude:
-  - semver
+  - semver@5.7.2
+  - semver@6.3.1
 
 packages:
   - packages/*
   - playground
 
+overrides:
+  rolldown: ^1.2.0
+
 catalog:
-  "@nuxt/kit": ^4.4.8
-  "@types/node": ^26.1.0
+  "@nuxt/kit": ^4.5.0
+  "@types/node": ^26.1.1
   "@volar/language-core": ^2.4.28
   "@volar/typescript": ^2.4.28
   "@vscode/vsce": ^3.9.2
-  "@vue/compiler-dom": ^3.5.39
-  "@vue/language-core": ^3.3.6
-  "@vue/typescript-plugin": ^3.3.6
+  "@vue/compiler-dom": ^3.5.40
+  "@vue/language-core": ^3.3.8
+  "@vue/typescript-plugin": ^3.3.8
   "@zinkawaii/eslint-config": ^0.4.5
   "@zinkawaii/scripts": ^0.0.5
   "@zinkawaii/tsconfig": ^0.1.0
-  bumpp: ^11.1.0
+  bumpp: ^12.0.0
   chokidar: ^5.0.0
-  eslint: ^10.6.0
+  eslint: ^10.7.0
   knitwork: ^1.3.0
-  magic-string: ^0.30.21
-  nuxt: ^4.4.8
+  magic-string: ^1.1.0
+  nuxt: ^4.5.0
   pathe: ^2.0.3
   tinyexec: ^1.2.4
   tinyglobby: ^0.2.17
-  tsdown: ^0.22.3
+  tsdown: ^0.22.13
   typescript: ^6.0.3
   unplugin: ^3.3.0
-  vitest: ^4.1.9
-  vue: ^3.5.39
-  vue-router: ^5.1.0
+  vitest: ^4.1.10
+  vue: ^3.5.40
+  vue-router: ^5.2.0
 
 allowBuilds:
   "@parcel/watcher": true
