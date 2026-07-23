@@ -18,5 +18,15 @@
     <nuxt-link :to="{ name: `contact` }">contact</nuxt-link>
     ]
   </div>
-  <nuxt-page />
+  <nuxt-page :transition="{ name: `fade`, appear: true }"/>
 </template>
+
+<style scoped>
+  :where(.fade-enter-active, .fade-leave-active) {
+    transition: opacity 0.5s;
+  }
+
+  :where(.fade-enter-from, .fade-leave-to) {
+    opacity: 0;
+  }
+</style>

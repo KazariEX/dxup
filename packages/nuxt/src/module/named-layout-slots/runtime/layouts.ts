@@ -62,5 +62,9 @@ export const LayoutSlotsForward = defineComponent((props, ctx) => {
   const { use } = inject<LayoutSlotsRegistry>(injectionKey)!;
   use(ctx.slots);
 
-  return () => ctx.slots.default?.();
+  return () => {
+    const vnodes = ctx.slots.default?.();
+    // do not break the single-root structure of page components
+    return vnodes?.length === 1 ? vnodes[0] : vnodes;
+  };
 });
