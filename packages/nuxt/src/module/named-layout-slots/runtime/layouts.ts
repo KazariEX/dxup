@@ -51,7 +51,7 @@ export const LayoutSlot = defineComponent({
         // the parent layout should be able to render the raw slots as fallback
         slots.value?.[props.name] ?? currentInstance?.parent?.slots[props.name];
       // an unprovided slot falls back to the children of the original `<slot>`
-      return slot ? slot(ctx.attrs) : ctx.slots.default?.();
+      return slot?.(ctx.attrs) ?? ctx.slots.default?.();
     };
 
     if (import.meta.server && !slots.value?.[props.name]) {
