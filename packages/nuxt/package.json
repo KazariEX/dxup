@@ -1,7 +1,7 @@
 {
   "name": "@dxup/nuxt",
   "type": "module",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "TypeScript plugin for Nuxt",
   "author": "KazariEX",
   "license": "MIT",
