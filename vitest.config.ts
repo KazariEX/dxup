@@ -9,7 +9,7 @@ export default defineConfig({
           include: ["test/*.test.ts"],
         },
       },
-      "test/layout-slots/vitest.config.ts",
+      "test/named-layout-slots/vitest.config.ts",
     ],
   },
 });
