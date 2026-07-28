@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { defineComponent, h } from "vue";
 import { renderToString } from "vue/server-renderer";
-import NuxtLayout, { LayoutSlot, LayoutSlotsForward } from "../packages/nuxt/src/module/named-layout-slots/runtime/layouts";
+import NuxtLayout, { LayoutSlot, LayoutSlotsForward } from "../../packages/nuxt/src/module/named-layout-slots/runtime/layouts";
 
 const Layout = defineComponent((props, ctx) => {
   return () => [

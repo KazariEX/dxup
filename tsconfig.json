@@ -3,6 +3,7 @@
   "include": [
     "packages/**/*.ts",
     "scripts/**/*.ts",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "vitest.config.ts"
   ]
 }
