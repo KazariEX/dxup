@@ -1,17 +1,18 @@
-import { defineComponent, getCurrentInstance, h, inject, onScopeDispose, provide, shallowRef, type ShallowRef, type Slots } from "vue";
+import { type ComponentInternalInstance, defineComponent, getCurrentInstance, h, inject, onScopeDispose, provide, shallowRef, type ShallowRef, type Slots } from "vue";
 // @ts-expect-error virtual file
 import { NuxtLayout } from "#build/dxup/layouts.mjs";
 
 interface LayoutSlotsRegistry {
   slots: ShallowRef<Slots | null>;
   ready: Promise<void>;
-  use: (slots: Slots) => void;
+  use: (slots: Slots, owner: ComponentInternalInstance | null) => void;
 }
 
 const injectionKey = Symbol.for("dxup:layout-slots");
 
 export default defineComponent((props, ctx) => {
   const slots = shallowRef<Slots | null>(null);
+  let currentOwner: ComponentInternalInstance | null = null;
   let resolveReady: () => void;
 
   provide<LayoutSlotsRegistry>(injectionKey, {
@@ -19,14 +20,26 @@ export default defineComponent((props, ctx) => {
     ready: new Promise((resolve) => {
       resolveReady = resolve;
     }),
-    use(value) {
-      // only allow top-level pages to forward slots
-      slots.value ??= (
-        onScopeDispose(() => {
+    use(value, owner) {
+      // a nested page must not override the slots of its top-level page
+      if (currentOwner) {
+        for (let parent = owner?.parent; parent; parent = parent.parent) {
+          if (parent === currentOwner) {
+            return;
+          }
+        }
+      }
+
+      slots.value = value;
+      currentOwner = owner;
+      onScopeDispose(() => {
+        // the next page can finish setup before this page is disposed
+        // in that case, the old page no longer owns the registry and must not clear it
+        if (currentOwner === owner) {
           slots.value = null;
-        }),
-        value
-      );
+          currentOwner = null;
+        }
+      });
       resolveReady?.();
     },
   });
@@ -63,7 +76,9 @@ export const LayoutSlot = defineComponent({
 
 export const LayoutSlotsForward = defineComponent((props, ctx) => {
   const { use } = inject<LayoutSlotsRegistry>(injectionKey)!;
-  use(ctx.slots);
+  const currentInstance = getCurrentInstance();
+
+  use(ctx.slots, currentInstance);
 
   return () => {
     const vnodes = ctx.slots.default?.();
