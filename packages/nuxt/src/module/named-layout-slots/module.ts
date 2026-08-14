@@ -66,6 +66,6 @@ ${Object.values(app.layouts).map((layout) => (
   addBuildPlugin(TransformPlugins({
     layoutDirs,
     pageDirs,
-    sourcemap: !!nuxt.options.sourcemap.client,
+    sourcemap: !!(nuxt.options.sourcemap.client || nuxt.options.sourcemap.server),
   }));
 }
