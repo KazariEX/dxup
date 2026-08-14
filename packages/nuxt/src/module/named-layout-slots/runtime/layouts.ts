@@ -55,30 +55,30 @@ export const LayoutSlot = defineComponent({
     },
   },
   setup(props, ctx) {
-    const { slots, ready } = inject<LayoutSlotsRegistry>(injectionKey)!;
+    const registry = inject<LayoutSlotsRegistry>(injectionKey);
     const currentInstance = getCurrentInstance();
 
     const render = () => {
       const slot =
         // for nested layouts or explicit imports,
         // the parent layout should be able to render the raw slots as fallback
-        slots.value?.[props.name] ?? currentInstance?.parent?.slots[props.name];
+        registry?.slots.value?.[props.name] ?? currentInstance?.parent?.slots[props.name];
       // an unprovided slot falls back to the children of the original `<slot>`
       return slot?.(ctx.attrs) ?? ctx.slots.default?.();
     };
 
-    if (import.meta.server && !slots.value?.[props.name]) {
-      return ready.then(() => render);
+    if (import.meta.server && registry && !registry.slots.value?.[props.name]) {
+      return registry.ready.then(() => render);
     }
     return render;
   },
 });
 
 export const LayoutSlotsForward = defineComponent((props, ctx) => {
-  const { use } = inject<LayoutSlotsRegistry>(injectionKey)!;
+  const registry = inject<LayoutSlotsRegistry>(injectionKey);
   const currentInstance = getCurrentInstance();
 
-  use(ctx.slots, currentInstance);
+  registry?.use(ctx.slots, currentInstance);
 
   return () => {
     const vnodes = ctx.slots.default?.();

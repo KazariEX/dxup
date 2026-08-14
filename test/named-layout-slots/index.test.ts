@@ -51,4 +51,22 @@ describe("named layout slots", () => {
 
     expect(html).toContain("<main><div>page</div></main>");
   });
+
+  it("should render a page without a layout", async () => {
+    const render = () => renderToString(
+      h(LayoutSlotsForward, null, {
+        default: () => h("div", "page"),
+      }),
+    );
+
+    expect(render()).resolves.not.toThrow();
+  });
+
+  it("should render a layout slot fallback without a layout provider", async () => {
+    const render = () => renderToString(
+      h(LayoutSlot, { name: "header" }, () => "fallback"),
+    );
+
+    expect(render()).resolves.not.toThrow();
+  });
 });
