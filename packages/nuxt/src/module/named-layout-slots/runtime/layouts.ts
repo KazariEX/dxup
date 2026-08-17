@@ -1,4 +1,4 @@
-import { type ComponentInternalInstance, defineComponent, getCurrentInstance, h, inject, onScopeDispose, provide, shallowRef, type ShallowRef, type Slots } from "vue";
+import { type ComponentInternalInstance, computed, defineComponent, getCurrentInstance, h, inject, onScopeDispose, provide, shallowRef, type ShallowRef, type Slots } from "vue";
 // @ts-expect-error virtual file
 import { NuxtLayout } from "#build/dxup/layouts.mjs";
 
@@ -46,6 +46,14 @@ export default defineComponent((props, ctx) => {
 
   return () => h(NuxtLayout, props, ctx.slots);
 });
+
+/**
+ * Returns the slots forwarded by the active page via named layout slots.
+ */
+export function useLayoutSlots() {
+  const registry = inject<LayoutSlotsRegistry | null>(injectionKey, null);
+  return computed<Slots>(() => registry?.slots.value ?? {});
+}
 
 export const LayoutSlot = defineComponent({
   props: {
