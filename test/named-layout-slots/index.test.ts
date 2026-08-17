@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { defineComponent, h } from "vue";
 import { renderToString } from "vue/server-renderer";
-import NuxtLayout, { LayoutSlot, LayoutSlotsForward } from "../../packages/nuxt/src/module/named-layout-slots/runtime/layouts";
+import NuxtLayout, { LayoutSlot, LayoutSlotsForward, useLayoutSlots } from "../../packages/nuxt/src/module/named-layout-slots/runtime/layouts";
 
 const Layout = defineComponent((props, ctx) => {
   return () => [
@@ -68,5 +68,40 @@ describe("named layout slots", () => {
     );
 
     expect(render()).resolves.not.toThrow();
+  });
+
+  it("should expose the slots provided by the page via useLayoutSlots", async () => {
+    let slots!: ReturnType<typeof useLayoutSlots>;
+
+    const Layout = defineComponent((props, ctx) => {
+      slots = useLayoutSlots();
+      return () => h("main", ctx.slots.default?.());
+    });
+
+    await renderToString(
+      h(NuxtLayout, null, {
+        default: () => h(Layout, null, {
+          default: () => h(LayoutSlotsForward, null, {
+            default: () => h("div", "page"),
+            header: () => "from page",
+          }),
+        }),
+      }),
+    );
+
+    expect(Object.keys(slots.value)).toEqual(["default", "header"]);
+  });
+
+  it("should return empty slots via useLayoutSlots without a layout provider", async () => {
+    let slots!: ReturnType<typeof useLayoutSlots>;
+
+    await renderToString(
+      h(defineComponent(() => {
+        slots = useLayoutSlots();
+        return () => h("div", "page");
+      })),
+    );
+
+    expect(slots.value).toEqual({});
   });
 });
