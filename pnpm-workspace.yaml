@@ -10,9 +10,9 @@ packages:
   - playground
 
 overrides:
-  "@nuxt/kit": npm:@nuxt/kit-nightly@^5.0.0-29777508.1792fe11
-  "@nuxt/schema": npm:@nuxt/schema-nightly@^5.0.0-29777508.1792fe11
-  nuxt: npm:nuxt-nightly@^5.0.0-29777508.1792fe11
+  "@nuxt/kit": npm:@nuxt/kit-nightly@^5.0.0-29782515.650ee625
+  "@nuxt/schema": npm:@nuxt/schema-nightly@^5.0.0-29782515.650ee625
+  nuxt: npm:nuxt-nightly@^5.0.0-29782515.650ee625
   typescript: npm:typescript-native-bridge@^6.0.3-bridge.13.tsgo.7.0.2
   # @nuxt/devtools > unstorage@1.17.5
   unstorage: ^2.0.0-alpha.7
@@ -24,8 +24,8 @@ catalog:
   "@volar/typescript": ^2.4.28
   "@vscode/vsce": ^3.9.2
   "@vue/compiler-dom": ^3.5.41
-  "@vue/language-core": ^3.3.9
-  "@vue/typescript-plugin": ^3.3.9
+  "@vue/language-core": ^3.3.10
+  "@vue/typescript-plugin": ^3.3.10
   "@zinkawaii/eslint-config": ^0.5.3
   "@zinkawaii/scripts": ^0.0.5
   "@zinkawaii/tsconfig": ^0.1.0

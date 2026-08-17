@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { defineComponent, h } from "vue";
+import { type ComputedRef, defineComponent, h, type Slots } from "vue";
 import { renderToString } from "vue/server-renderer";
 import NuxtLayout, { LayoutSlot, LayoutSlotsForward, useLayoutSlots } from "../../packages/nuxt/src/module/named-layout-slots/runtime/layouts";
 
-const Layout = defineComponent((props, ctx) => {
+const DefaultLayout = defineComponent((props, ctx) => {
   return () => [
     h("header", [
       h(LayoutSlot, { name: "header" }, () => "fallback"),
@@ -15,7 +15,7 @@ const Layout = defineComponent((props, ctx) => {
 function render(page: Record<string, unknown>) {
   return renderToString(
     h(NuxtLayout, null, {
-      default: () => h(Layout, null, {
+      default: () => h(DefaultLayout, null, {
         default: () => h(LayoutSlotsForward, null, page),
       }),
     }),
@@ -71,7 +71,7 @@ describe("named layout slots", () => {
   });
 
   it("should expose the slots provided by the page via useLayoutSlots", async () => {
-    let slots!: ReturnType<typeof useLayoutSlots>;
+    let slots!: ComputedRef<Slots>;
 
     const Layout = defineComponent((props, ctx) => {
       slots = useLayoutSlots();
@@ -93,7 +93,7 @@ describe("named layout slots", () => {
   });
 
   it("should return empty slots via useLayoutSlots without a layout provider", async () => {
-    let slots!: ReturnType<typeof useLayoutSlots>;
+    let slots!: ComputedRef<Slots>;
 
     await renderToString(
       h(defineComponent(() => {

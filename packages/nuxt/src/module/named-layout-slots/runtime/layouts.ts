@@ -52,7 +52,7 @@ export default defineComponent((props, ctx) => {
  */
 export function useLayoutSlots() {
   const registry = inject<LayoutSlotsRegistry | null>(injectionKey, null);
-  return computed<Slots>(() => registry?.slots.value ?? {});
+  return computed(() => registry?.slots.value ?? {});
 }
 
 export const LayoutSlot = defineComponent({
