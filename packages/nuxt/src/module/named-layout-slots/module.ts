@@ -1,4 +1,4 @@
-import { addBuildPlugin, addTemplate, addTypeTemplate, createResolver } from "@nuxt/kit";
+import { addBuildPlugin, addImports, addTemplate, addTypeTemplate, createResolver } from "@nuxt/kit";
 import { genExport, genInlineTypeImport, genObjectKey } from "knitwork";
 import { join, relative } from "pathe";
 import type { Nuxt } from "@nuxt/schema";
@@ -21,6 +21,11 @@ export async function setup(nuxt: Nuxt, pluginsVue: any[]) {
     options: {
       dirs: pageDirs,
     },
+  });
+
+  addImports({
+    name: "useLayoutSlots",
+    from: resolver.resolve("runtime/layouts.mjs"),
   });
 
   nuxt.hook("components:extend", (components) => {

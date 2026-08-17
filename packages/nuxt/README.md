@@ -89,6 +89,22 @@ Write top-level named slots in your pages:
 
 And them will be forwarded to the active layout automatically.
 
+The layout can access the slots forwarded by the active page with the auto imported `useLayoutSlots` composable:
+
+```vue
+<!-- layouts/center.vue -->
+<script lang="ts" setup>
+  const slots = useLayoutSlots();
+</script>
+
+<template>
+  <slot></slot>
+  <aside v-if="slots.side">
+    <slot name="side"></slot>
+  </aside>
+</template>
+```
+
 ### 4. nitroRoutes
 
 Go to definition for nitro routes in data fetching methods.
