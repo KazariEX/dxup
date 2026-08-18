@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { type ComputedRef, defineComponent, h, type Slots } from "vue";
 import { renderToString } from "vue/server-renderer";
-import NuxtLayout, { LayoutSlot, LayoutSlotsForward, useLayoutSlots } from "../../packages/nuxt/src/module/named-layout-slots/runtime/layouts";
+import NuxtLayout, { LayoutSlot, LayoutSlotsForward, useLayoutSlots } from "../../../packages/nuxt/src/module/named-layout-slots/runtime/layouts";
 
 const DefaultLayout = defineComponent((props, ctx) => {
   return () => [

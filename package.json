@@ -12,15 +12,20 @@
     "dev": "pnpm -r --parallel dev",
     "prepare": "zin link vscode",
     "publish": "node scripts/publish.ts",
-    "test": "vitest"
+    "test": "vitest",
+    "test:e2e": "pnpm run test:prepare && vitest run --project named-layout-slots-e2e",
+    "test:prepare": "pnpm --filter @dxup/nuxt build && nuxt prepare test/named-layout-slots/e2e/fixture"
   },
   "devDependencies": {
+    "@nuxt/test-utils": "catalog:",
     "@types/node": "catalog:",
+    "@vue/test-utils": "catalog:",
     "@zinkawaii/eslint-config": "catalog:",
     "@zinkawaii/scripts": "catalog:",
     "@zinkawaii/tsconfig": "catalog:",
     "bumpp": "catalog:",
     "eslint": "catalog:",
+    "happy-dom": "catalog:",
     "pathe": "catalog:",
     "tinyexec": "catalog:",
     "tsdown": "catalog:",
