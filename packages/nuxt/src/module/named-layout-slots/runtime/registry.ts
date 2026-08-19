@@ -5,6 +5,7 @@ export interface LayoutSlotsRegistry {
   ready: Promise<void>;
   use: (slots: Slots) => void;
   invalidate: () => void;
+  getOwner: (name: string) => number | undefined;
 }
 
 export const injectionKey = Symbol.for("dxup:layout-slots") as InjectionKey<LayoutSlotsRegistry>;

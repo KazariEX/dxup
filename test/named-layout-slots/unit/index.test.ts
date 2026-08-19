@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { type ComputedRef, defineComponent, h, inject, type Slots } from "vue";
 import { renderToString } from "vue/server-renderer";
 import NuxtLayout, { LayoutSlot, LayoutSlotsForward, useLayoutSlots } from "../../../packages/nuxt/src/module/named-layout-slots/runtime/layouts";
-import { injectionKey } from "../../../packages/nuxt/src/module/named-layout-slots/runtime/registry";
+import { injectionKey, type LayoutSlotsRegistry } from "../../../packages/nuxt/src/module/named-layout-slots/runtime/registry";
 
 const DefaultLayout = defineComponent((props, ctx) => {
   return () => [
@@ -107,6 +107,76 @@ describe("named layout slots", () => {
     pageSlots.header = () => "after";
 
     expect(slots.value.header?.()).toBe("after");
+  });
+
+  it("should attribute a slot to the innermost forward providing it", async () => {
+    let registry!: LayoutSlotsRegistry;
+
+    const Layout = defineComponent((props, ctx) => {
+      registry = inject(injectionKey)!;
+      return () => h("main", ctx.slots.default?.());
+    });
+
+    await renderToString(
+      h(NuxtLayout, null, {
+        default: () => h(Layout, null, {
+          default: () => h(LayoutSlotsForward, null, {
+            default: () => h(LayoutSlotsForward, null, {
+              default: () => h("div", "child"),
+              header: () => "from child",
+            }),
+            header: () => "from parent",
+            footer: () => "from parent",
+          }),
+        }),
+      }),
+    );
+
+    const headerOwner = registry.getOwner("header");
+    expect(headerOwner).toBeDefined();
+    // the child forward owns the slots it provides, including the shared ones
+    expect(registry.getOwner("default")).toBe(headerOwner);
+    // the parent forward owns only the slots the child does not provide
+    expect(registry.getOwner("footer")).not.toBe(headerOwner);
+    expect(registry.getOwner("missing")).toBeUndefined();
+  });
+
+  it("should move the ownership when the innermost forward stops providing a slot", async () => {
+    let registry!: LayoutSlotsRegistry;
+    const pageSlots: Record<string, (() => string) | undefined> = {
+      header: () => "inner",
+    };
+
+    const InnerPage = defineComponent(() => {
+      registry.use(pageSlots as Slots);
+      return () => h("div", "page");
+    });
+
+    const Layout = defineComponent((props, ctx) => {
+      registry = inject(injectionKey)!;
+      return () => h("main", ctx.slots.default?.());
+    });
+
+    await renderToString(
+      h(NuxtLayout, null, {
+        default: () => h(Layout, null, {
+          default: () => h(LayoutSlotsForward, null, {
+            default: () => h(InnerPage),
+            header: () => "outer",
+            footer: () => "outer",
+          }),
+        }),
+      }),
+    );
+
+    const innerOwner = registry.getOwner("header");
+    const outerOwner = registry.getOwner("footer");
+    expect(innerOwner).not.toBe(outerOwner);
+
+    delete pageSlots.header;
+    registry.invalidate();
+
+    expect(registry.getOwner("header")).toBe(outerOwner);
   });
 
   it("should render a page without a layout", async () => {

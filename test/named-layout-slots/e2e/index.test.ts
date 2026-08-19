@@ -93,6 +93,8 @@ describe("named layout slots navigation", () => {
     // the existing page keeps providing its slot while the new page's setup is pending
     expect(wrapper.find(`[data-testid="sidebar"]`).text()).toContain("Detail 1");
     expect(wrapper.find(`[data-testid="page-detail"]`).exists()).toBe(true);
+    // and its slot content stays mounted
+    expect(recorded.getTypes()).not.toContain("content:unmounted");
 
     // the slot swaps once the setup resolves and the new page mounts
     releasePage("slow");
@@ -154,6 +156,37 @@ describe("named layout slots navigation", () => {
     await vi.waitFor(() => {
       expect(wrapper.find(`[data-testid="panel-cached"]`).exists()).toBe(true);
     });
+  });
+
+  it("should remount the slot content when the providing page changes", async () => {
+    await openPageWithSlot(1);
+    await wrapper.find(`[data-testid="content-state"]`).trigger("click");
+    expect(wrapper.find(`[data-testid="content-state"]`).text()).toBe("dirty");
+
+    const recorded = recordEvents();
+    await openPageWithSlot(2);
+
+    // the state belongs to the page, so it must not carry state across pages
+    expect(recorded.getTypes()).toContain("content:unmounted");
+    expect(wrapper.find(`[data-testid="content-state"]`).text()).toBe("clean");
+  });
+
+  it("should keep the slot content instance when the providing page re-renders its slots", async () => {
+    await navigateTo("/multi");
+    await vi.waitFor(() => {
+      expect(wrapper.find(`[data-testid="page-multi"]`).exists()).toBe(true);
+    });
+    await wrapper.find(`[data-testid="content-state"]`).trigger("click");
+
+    const recorded = recordEvents();
+    // toggling another conditional slot invalidates the page's forwarded slots
+    await wrapper.find(`[data-testid="toggle-aside"]`).trigger("click");
+    await vi.waitFor(() => {
+      expect(wrapper.find(`[data-testid="aside-content"]`).exists()).toBe(true);
+    });
+
+    expect(recorded.getTypes()).not.toContain("content:unmounted");
+    expect(wrapper.find(`[data-testid="content-state"]`).text()).toBe("dirty");
   });
 
   it("should update the page slot when a page toggles it conditionally", async () => {

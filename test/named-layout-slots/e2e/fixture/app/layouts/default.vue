@@ -24,6 +24,9 @@
       <panel-probe />
       <slot name="panel" ></slot>
     </aside>
+    <aside v-if="pageSlots.aside" data-testid="aside">
+      <slot name="aside" ></slot>
+    </aside>
     <main>
       <slot ></slot>
     </main>

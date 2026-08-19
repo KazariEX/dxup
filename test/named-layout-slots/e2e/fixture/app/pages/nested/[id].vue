@@ -8,6 +8,7 @@
 <template>
   <template #panel>
     <span data-testid="panel-detail">Detail {{ id }}</span>
+    <content-probe />
   </template>
   <div data-testid="page-detail">Detail</div>
 </template>
