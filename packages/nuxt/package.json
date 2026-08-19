@@ -5,7 +5,11 @@
   "description": "TypeScript plugin for Nuxt",
   "author": "KazariEX",
   "license": "MIT",
-  "repository": "KazariEX/dxup",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KazariEX/dxup.git",
+    "directory": "packages/nuxt"
+  },
   "exports": {
     ".": "./dist/module.mjs",
     "./languages/*": "./dist/languages/*",

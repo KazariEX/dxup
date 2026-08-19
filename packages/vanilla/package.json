@@ -5,7 +5,11 @@
   "description": "TypeScript plugin for Vanilla JS",
   "author": "KazariEX",
   "license": "MIT",
-  "repository": "KazariEX/dxup",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KazariEX/dxup.git",
+    "directory": "packages/vanilla"
+  },
   "exports": {
     ".": "./dist/index.cjs",
     "./package.json": "./package.json"
