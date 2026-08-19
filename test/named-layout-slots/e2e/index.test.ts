@@ -37,11 +37,11 @@ function releaseAllPages() {
   }
 }
 
-async function settlePage(key: string) {
+/** Waits until the gated page is mounted and awaiting its setup */
+async function waitForPendingPage(key: string) {
   await vi.waitFor(() => {
     expect(pageGates.get(key)?.length ?? 0).toBeGreaterThan(0);
   });
-  releasePage(key);
 }
 
 describe("named layout slots navigation", () => {
@@ -88,12 +88,19 @@ describe("named layout slots navigation", () => {
 
     const recorded = recordEvents();
     await navigateTo("/slow");
-    await settlePage("slow");
+    await waitForPendingPage("slow");
 
+    // the existing page keeps providing its slot while the new page's setup is pending
+    expect(wrapper.find(`[data-testid="sidebar"]`).text()).toContain("Detail 1");
+    expect(wrapper.find(`[data-testid="page-detail"]`).exists()).toBe(true);
+
+    // the slot swaps once the setup resolves and the new page mounts
+    releasePage("slow");
     await vi.waitFor(() => {
       expect(wrapper.find(`[data-testid="page-slow"]`).exists()).toBe(true);
       expect(wrapper.find(`[data-testid="sidebar"]`).text()).toContain("Slow");
     });
+    expect(wrapper.find(`[data-testid="sidebar"]`).text()).not.toContain("Detail 1");
 
     for (const event of recorded.ofType("slots")) {
       expect(event.keys).toContain("panel");
