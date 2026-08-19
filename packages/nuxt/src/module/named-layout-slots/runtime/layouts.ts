@@ -1,46 +1,51 @@
-import { type ComponentInternalInstance, computed, defineComponent, getCurrentInstance, h, inject, onScopeDispose, provide, shallowRef, type ShallowRef, type Slots } from "vue";
+import { computed, defineComponent, getCurrentInstance, h, inject, onActivated, onDeactivated, onScopeDispose, onUpdated, provide, shallowRef, type Slots } from "vue";
 // @ts-expect-error virtual file
 import { NuxtLayout } from "#build/dxup/layouts.mjs";
-
-interface LayoutSlotsRegistry {
-  slots: ShallowRef<Slots | null>;
-  ready: Promise<void>;
-  use: (slots: Slots, owner: ComponentInternalInstance | null) => void;
-}
-
-const injectionKey = Symbol.for("dxup:layout-slots");
+import { injectionKey } from "./registry";
 
 export default defineComponent((props, ctx) => {
   const slots = shallowRef<Slots | null>(null);
-  let currentOwner: ComponentInternalInstance | null = null;
+  const layers: Slots[] = [];
   let resolveReady: () => void;
 
-  provide<LayoutSlotsRegistry>(injectionKey, {
+  function update() {
+    // a single active page needs no merging
+    slots.value = layers.length > 1
+      ? mergeLayers([...layers])
+      : layers[0] ?? null;
+  }
+
+  provide(injectionKey, {
     slots,
-    ready: new Promise((resolve) => {
+    ready: new Promise<void>((resolve) => {
       resolveReady = resolve;
     }),
-    use(value, owner) {
-      // a nested page must not override the slots of its top-level page
-      if (currentOwner) {
-        for (let parent = owner?.parent; parent; parent = parent.parent) {
-          if (parent === currentOwner) {
-            return;
-          }
+    use(value) {
+      const add = () => {
+        if (layers.includes(value)) return;
+        layers.push(value);
+        update();
+      };
+      const remove = () => {
+        const index = layers.indexOf(value);
+        if (index !== -1) {
+          layers.splice(index, 1);
+          update();
         }
-      }
+      };
 
-      slots.value = value;
-      currentOwner = owner;
-      onScopeDispose(() => {
-        // the next page can finish setup before this page is disposed
-        // in that case, the old page no longer owns the registry and must not clear it
-        if (currentOwner === owner) {
-          slots.value = null;
-          currentOwner = null;
-        }
-      });
+      add();
+      // a page keeps providing its slots until it is unmounted,
+      // so a navigation only switches the slots once the next page has settled
+      onScopeDispose(remove);
+      // a page cached by <KeepAlive> must not provide slots while inactive
+      onDeactivated(remove);
+      onActivated(add);
       resolveReady?.();
+    },
+    invalidate() {
+      // always expose a fresh object; reactivity propagates correctly only on identity change
+      slots.value = layers.length ? mergeLayers([...layers]) : null;
     },
   });
 
@@ -48,10 +53,39 @@ export default defineComponent((props, ctx) => {
 });
 
 /**
+ * Merges the slots of all mounted pages. The most recently mounted pages have
+ * a higher priority.
+ * @param layers
+ */
+function mergeLayers(layers: Slots[]): Slots {
+  const merged: Slots = {};
+  for (let i = layers.length - 1; i >= 0; i--) {
+    for (const key in layers[i]) {
+      if (!(key in merged)) {
+        Object.defineProperty(merged, key, {
+          enumerable: true,
+          configurable: true,
+          // resolve lazily, so re-rendered pages provide their current slot functions
+          get: () => {
+            for (let j = layers.length - 1; j >= 0; j--) {
+              const slot = layers[j][key];
+              if (slot) {
+                return slot;
+              }
+            }
+          },
+        });
+      }
+    }
+  }
+  return merged;
+}
+
+/**
  * Returns the slots forwarded by the active page via named layout slots.
  */
 export function useLayoutSlots() {
-  const registry = inject<LayoutSlotsRegistry | null>(injectionKey, null);
+  const registry = inject(injectionKey, null);
   return computed(() => registry?.slots.value ?? {});
 }
 
@@ -63,7 +97,7 @@ export const LayoutSlot = defineComponent({
     },
   },
   setup(props, ctx) {
-    const registry = inject<LayoutSlotsRegistry>(injectionKey);
+    const registry = inject(injectionKey);
     const currentInstance = getCurrentInstance();
 
     const render = () => {
@@ -83,10 +117,21 @@ export const LayoutSlot = defineComponent({
 });
 
 export const LayoutSlotsForward = defineComponent((props, ctx) => {
-  const registry = inject<LayoutSlotsRegistry>(injectionKey);
-  const currentInstance = getCurrentInstance();
+  const registry = inject(injectionKey);
 
-  registry?.use(ctx.slots, currentInstance);
+  registry?.use(ctx.slots);
+
+  // invalidate the registry when conditional slots are re-rendered (`ctx.slots` is mutated in place)
+  if (import.meta.client && registry) {
+    let keys = Object.keys(ctx.slots).join("\0");
+    onUpdated(() => {
+      const next = Object.keys(ctx.slots).join("\0");
+      if (next !== keys) {
+        keys = next;
+        registry.invalidate();
+      }
+    });
+  }
 
   return () => {
     const vnodes = ctx.slots.default?.();
