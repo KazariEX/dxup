@@ -45,7 +45,7 @@ async function waitForPendingPage(key: string) {
 }
 
 describe("named layout slots navigation", () => {
-  let wrapper: Awaited<ReturnType<typeof mountSuspended>>;
+  let wrapper: Awaited<ReturnType<typeof mountSuspended<typeof App>>>;
 
   /** Opens the nested detail page, which provides the `panel` slot. */
   async function openPageWithSlot(id: number) {
