@@ -5,5 +5,8 @@
     "scripts/**/*.ts",
     "test/**/*.ts",
     "vitest.config.ts"
+  ],
+  "exclude": [
+    "test/named-layout-slots/e2e/fixture"
   ]
 }

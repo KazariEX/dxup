@@ -21,5 +21,8 @@ jobs:
       - name: Prepare Playground
         run: pnpm nuxt prepare playground
 
+      - name: Prepare E2E Fixture
+        run: pnpm nuxt prepare test/named-layout-slots/e2e/fixture
+
       - name: Run Tests
         run: pnpm run test
