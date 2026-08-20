@@ -16,7 +16,7 @@ export default defineComponent((props, ctx) => {
 
   function update() {
     // a single active page needs no merging
-    slots.value = layers.length > 1 ? mergeLayers(...layers) : layers[0]?.slots ?? null;
+    slots.value = layers.length > 1 ? mergeLayers([...layers]) : layers[0]?.slots ?? null;
   }
 
   provide(injectionKey, {
@@ -54,7 +54,7 @@ export default defineComponent((props, ctx) => {
     },
     invalidate() {
       // always expose a fresh object; reactivity propagates correctly only on identity change
-      slots.value = layers.length ? mergeLayers(...layers) : null;
+      slots.value = layers.length ? mergeLayers([...layers]) : null;
     },
     getOwner(name) {
       for (let i = layers.length - 1; i >= 0; i--) {
@@ -73,7 +73,7 @@ export default defineComponent((props, ctx) => {
  * a higher priority.
  * @param layers
  */
-function mergeLayers(...layers: SlotsLayer[]): Slots {
+function mergeLayers(layers: SlotsLayer[]): Slots {
   const merged: Slots = Object.create(null);
   for (let i = layers.length - 1; i >= 0; i--) {
     for (const key in layers[i].slots) {
