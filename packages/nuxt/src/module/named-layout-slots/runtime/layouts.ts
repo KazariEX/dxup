@@ -9,16 +9,14 @@ interface SlotsLayer {
 }
 
 export default defineComponent((props, ctx) => {
-  const slots = shallowRef<Slots | null>(null);
   const layers: SlotsLayer[] = [];
+  const slots = shallowRef<Slots | null>(null);
   let layerUid = 0;
   let resolveReady: () => void;
 
   function update() {
     // a single active page needs no merging
-    slots.value = layers.length > 1
-      ? mergeLayers([...layers])
-      : layers[0]?.slots ?? null;
+    slots.value = layers.length > 1 ? mergeLayers(...layers) : layers[0]?.slots ?? null;
   }
 
   provide(injectionKey, {
@@ -27,19 +25,23 @@ export default defineComponent((props, ctx) => {
       resolveReady = resolve;
     }),
     use(value) {
-      const layer: SlotsLayer = { slots: value, uid: layerUid++ };
-      const add = () => {
-        if (layers.some((entry) => entry.slots === value)) return;
-        layers.push(layer);
-        update();
+      const layer: SlotsLayer = {
+        slots: value,
+        uid: layerUid++,
       };
-      const remove = () => {
+      function add() {
+        if (layers.every((entry) => entry.slots !== value)) {
+          layers.push(layer);
+          update();
+        }
+      }
+      function remove() {
         const index = layers.findIndex((entry) => entry.slots === value);
         if (index !== -1) {
           layers.splice(index, 1);
           update();
         }
-      };
+      }
 
       add();
       // a page keeps providing its slots until it is unmounted,
@@ -52,7 +54,7 @@ export default defineComponent((props, ctx) => {
     },
     invalidate() {
       // always expose a fresh object; reactivity propagates correctly only on identity change
-      slots.value = layers.length ? mergeLayers([...layers]) : null;
+      slots.value = layers.length ? mergeLayers(...layers) : null;
     },
     getOwner(name) {
       for (let i = layers.length - 1; i >= 0; i--) {
@@ -71,8 +73,8 @@ export default defineComponent((props, ctx) => {
  * a higher priority.
  * @param layers
  */
-function mergeLayers(layers: SlotsLayer[]): Slots {
-  const merged: Slots = {};
+function mergeLayers(...layers: SlotsLayer[]): Slots {
+  const merged: Slots = Object.create(null);
   for (let i = layers.length - 1; i >= 0; i--) {
     for (const key in layers[i].slots) {
       if (!(key in merged)) {
@@ -123,7 +125,7 @@ export const LayoutSlot = defineComponent({
       const children = slot?.(ctx.attrs) ?? ctx.slots.default?.();
       // key the content by the forward that provides it, so it lives and dies
       // with its page instead of being patched across page boundaries
-      return h(Fragment, { key: registry?.getOwner(props.name) ?? -1 }, children ?? []);
+      return h(Fragment, { key: registry?.getOwner(props.name) ?? -1 }, children);
     };
 
     if (import.meta.server && registry && !registry.slots.value?.[props.name]) {
