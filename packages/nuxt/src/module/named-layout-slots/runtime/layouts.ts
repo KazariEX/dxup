@@ -122,7 +122,8 @@ export const LayoutSlot = defineComponent({
         // the parent layout should be able to render the raw slots as fallback
         registry?.slots.value?.[props.name] ?? currentInstance?.parent?.slots[props.name];
       // an unprovided slot falls back to the children of the original `<slot>`
-      const children = slot?.(ctx.attrs) ?? ctx.slots.default?.();
+      // ensure the `<Fragment>` always receives an array so Vue SSR can safely render it
+      const children = slot?.(ctx.attrs) ?? ctx.slots.default?.() ?? [];
       // key the content by the forward that provides it, so it lives and dies
       // with its page instead of being patched across page boundaries
       return h(Fragment, { key: registry?.getOwner(props.name) ?? -1 }, children);

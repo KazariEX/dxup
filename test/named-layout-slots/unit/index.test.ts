@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type ComputedRef, defineComponent, h, inject, type Slots } from "vue";
+import { type Component, type ComputedRef, defineComponent, h, inject, type Slots } from "vue";
 import { renderToString } from "vue/server-renderer";
 import NuxtLayout, { LayoutSlot, LayoutSlotsForward, useLayoutSlots } from "../../../packages/nuxt/src/module/named-layout-slots/runtime/layouts";
 import { injectionKey, type LayoutSlotsRegistry } from "../../../packages/nuxt/src/module/named-layout-slots/runtime/registry";
@@ -13,10 +13,10 @@ const DefaultLayout = defineComponent((props, ctx) => {
   ];
 });
 
-function render(page: Record<string, unknown>) {
+function renderForwarded(layout: Component, page: Record<string, unknown>) {
   return renderToString(
     h(NuxtLayout, null, {
-      default: () => h(DefaultLayout, null, {
+      default: () => h(layout, null, {
         default: () => h(LayoutSlotsForward, null, page),
       }),
     }),
@@ -25,7 +25,7 @@ function render(page: Record<string, unknown>) {
 
 describe("named layout slots", () => {
   it("should prefer the slot provided by the page", async () => {
-    const html = await render({
+    const html = await renderForwarded(DefaultLayout, {
       default: () => h("div", "page"),
       header: () => "from page",
     });
@@ -34,7 +34,7 @@ describe("named layout slots", () => {
   });
 
   it("should render the fallback when the page does not provide the slot", async () => {
-    const html = await render({
+    const html = await renderForwarded(DefaultLayout, {
       default: () => h("div", "page"),
     });
 
@@ -46,7 +46,7 @@ describe("named layout slots", () => {
       return () => h("div", "page");
     });
 
-    const html = await render({
+    const html = await renderForwarded(DefaultLayout, {
       default: () => h(Page),
     });
 
@@ -54,7 +54,7 @@ describe("named layout slots", () => {
   });
 
   it("should prefer the innermost forward when nested pages provide the same slot", async () => {
-    const html = await render({
+    const html = await renderForwarded(DefaultLayout, {
       default: () => h(LayoutSlotsForward, null, {
         default: () => h("div", "child"),
         header: () => "from child",
@@ -66,7 +66,7 @@ describe("named layout slots", () => {
   });
 
   it("should keep the outer slots when a nested forward does not provide them", async () => {
-    const html = await render({
+    const html = await renderForwarded(DefaultLayout, {
       default: () => h(LayoutSlotsForward, null, {
         default: () => h("div", "child"),
       }),
@@ -84,6 +84,7 @@ describe("named layout slots", () => {
 
     const InnerPage = defineComponent(() => {
       const registry = inject(injectionKey)!;
+      // @ts-expect-error `() => string` is not assignable to `Slot`
       registry.use(pageSlots);
       return () => h("div", "page");
     });
@@ -93,16 +94,12 @@ describe("named layout slots", () => {
       return () => h("main", ctx.slots.default?.());
     });
 
-    await renderToString(
-      h(NuxtLayout, null, {
-        default: () => h(Layout, null, {
-          default: () => h(LayoutSlotsForward, null, {
-            default: () => h(InnerPage),
-            header: () => "outer",
-          }),
-        }),
+    await renderForwarded(Layout, {
+      default: () => h(LayoutSlotsForward, null, {
+        default: () => h(InnerPage),
+        header: () => "outer",
       }),
-    );
+    });
 
     pageSlots.header = () => "after";
 
@@ -117,20 +114,14 @@ describe("named layout slots", () => {
       return () => h("main", ctx.slots.default?.());
     });
 
-    await renderToString(
-      h(NuxtLayout, null, {
-        default: () => h(Layout, null, {
-          default: () => h(LayoutSlotsForward, null, {
-            default: () => h(LayoutSlotsForward, null, {
-              default: () => h("div", "child"),
-              header: () => "from child",
-            }),
-            header: () => "from parent",
-            footer: () => "from parent",
-          }),
-        }),
+    await renderForwarded(Layout, {
+      default: () => h(LayoutSlotsForward, null, {
+        default: () => h("div", "child"),
+        header: () => "from child",
       }),
-    );
+      header: () => "from parent",
+      footer: () => "from parent",
+    });
 
     const headerOwner = registry.getOwner("header");
     expect(headerOwner).toBeDefined();
@@ -157,17 +148,11 @@ describe("named layout slots", () => {
       return () => h("main", ctx.slots.default?.());
     });
 
-    await renderToString(
-      h(NuxtLayout, null, {
-        default: () => h(Layout, null, {
-          default: () => h(LayoutSlotsForward, null, {
-            default: () => h(InnerPage),
-            header: () => "outer",
-            footer: () => "outer",
-          }),
-        }),
-      }),
-    );
+    await renderForwarded(Layout, {
+      default: () => h(InnerPage),
+      header: () => "outer",
+      footer: () => "outer",
+    });
 
     const innerOwner = registry.getOwner("header");
     const outerOwner = registry.getOwner("footer");
@@ -197,6 +182,14 @@ describe("named layout slots", () => {
     expect(render()).resolves.not.toThrow();
   });
 
+  it("should render an empty layout slot without fallback", async () => {
+    const render = () => renderToString(
+      h(LayoutSlot, { name: "header" }),
+    );
+
+    expect(render()).resolves.not.toThrow();
+  });
+
   it("should expose the slots provided by the page via useLayoutSlots", async () => {
     let slots!: ComputedRef<Slots>;
 
@@ -205,16 +198,10 @@ describe("named layout slots", () => {
       return () => h("main", ctx.slots.default?.());
     });
 
-    await renderToString(
-      h(NuxtLayout, null, {
-        default: () => h(Layout, null, {
-          default: () => h(LayoutSlotsForward, null, {
-            default: () => h("div", "page"),
-            header: () => "from page",
-          }),
-        }),
-      }),
-    );
+    await renderForwarded(Layout, {
+      default: () => h("div", "page"),
+      header: () => "from page",
+    });
 
     expect(Object.keys(slots.value)).toEqual(["default", "header"]);
   });
