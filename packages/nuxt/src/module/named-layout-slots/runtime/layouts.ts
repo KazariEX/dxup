@@ -113,7 +113,7 @@ export const LayoutSlot = defineComponent({
     },
   },
   setup(props, ctx) {
-    const registry = inject(injectionKey);
+    const registry = inject(injectionKey, null);
     const currentInstance = getCurrentInstance();
 
     const render = () => {
@@ -137,7 +137,7 @@ export const LayoutSlot = defineComponent({
 });
 
 export const LayoutSlotsForward = defineComponent((props, ctx) => {
-  const registry = inject(injectionKey);
+  const registry = inject(injectionKey, null);
 
   registry?.use(ctx.slots);
 

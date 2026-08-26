@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { type Component, type ComputedRef, defineComponent, h, inject, type Slots } from "vue";
 import { renderToString } from "vue/server-renderer";
 import NuxtLayout, { LayoutSlot, LayoutSlotsForward, useLayoutSlots } from "../../../packages/nuxt/src/module/named-layout-slots/runtime/layouts";
@@ -172,6 +172,18 @@ describe("named layout slots", () => {
     );
 
     expect(render()).resolves.not.toThrow();
+  });
+
+  it("should not warn about the missing registry without a layout", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    await renderToString(h(LayoutSlotsForward, null, {
+      default: () => h("div", "page"),
+    }));
+    await renderToString(h(LayoutSlot, { name: "header" }, () => "fallback"));
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it("should render a layout slot fallback without a layout provider", async () => {
