@@ -164,6 +164,22 @@ describe("named layout slots", () => {
     expect(registry.getOwner("header")).toBe(outerOwner);
   });
 
+  it("should not warn about the missing registry without a layout", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    await renderToString(
+      h(LayoutSlotsForward, null, {
+        default: () => h("div", "page"),
+      })
+    );
+    await renderToString(
+      h(LayoutSlot, { name: "header" }, () => "fallback")
+    );
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   it("should render a page without a layout", async () => {
     const render = () => renderToString(
       h(LayoutSlotsForward, null, {
@@ -172,18 +188,6 @@ describe("named layout slots", () => {
     );
 
     expect(render()).resolves.not.toThrow();
-  });
-
-  it("should not warn about the missing registry without a layout", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-
-    await renderToString(h(LayoutSlotsForward, null, {
-      default: () => h("div", "page"),
-    }));
-    await renderToString(h(LayoutSlot, { name: "header" }, () => "fallback"));
-
-    expect(warn).not.toHaveBeenCalled();
-    warn.mockRestore();
   });
 
   it("should render a layout slot fallback without a layout provider", async () => {
