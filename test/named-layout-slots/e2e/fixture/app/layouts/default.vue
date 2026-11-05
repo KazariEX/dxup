@@ -22,13 +22,13 @@
   <div>
     <aside v-if="hasPanel" data-testid="sidebar">
       <panel-probe />
-      <slot name="panel" ></slot>
+      <slot name="panel"/>
     </aside>
     <aside v-if="pageSlots.aside" data-testid="aside">
-      <slot name="aside" ></slot>
+      <slot name="aside"/>
     </aside>
     <main>
-      <slot ></slot>
+      <slot />
     </main>
   </div>
 </template>

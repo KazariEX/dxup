@@ -65,8 +65,8 @@ Write top-level named slots in your pages:
 ```vue
 <!-- layouts/center.vue -->
 <template>
-  <slot></slot>
-  <slot name="side" one="one"></slot>
+  <slot />
+  <slot name="side" one="one"/>
 </template>
 ```
 
@@ -98,9 +98,9 @@ The layout can access the slots forwarded by the active page with the auto impor
 </script>
 
 <template>
-  <slot></slot>
+  <slot/>
   <aside v-if="slots.side">
-    <slot name="side"></slot>
+    <slot name="side"/>
   </aside>
 </template>
 ```

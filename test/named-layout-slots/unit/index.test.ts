@@ -187,7 +187,7 @@ describe("named layout slots", () => {
       }),
     );
 
-    expect(render()).resolves.not.toThrow();
+    await expect(render()).resolves.not.toThrow();
   });
 
   it("should render a layout slot fallback without a layout provider", async () => {
@@ -195,7 +195,7 @@ describe("named layout slots", () => {
       h(LayoutSlot, { name: "header" }, () => "fallback"),
     );
 
-    expect(render()).resolves.not.toThrow();
+    await expect(render()).resolves.not.toThrow();
   });
 
   it("should render an empty layout slot without fallback", async () => {
@@ -203,7 +203,7 @@ describe("named layout slots", () => {
       h(LayoutSlot, { name: "header" }),
     );
 
-    expect(render()).resolves.not.toThrow();
+    await expect(render()).resolves.not.toThrow();
   });
 
   it("should expose the slots provided by the page via useLayoutSlots", async () => {

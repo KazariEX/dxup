@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: pnpm/setup@v1
+      - uses: pnpm/setup@v3
 
       - name: Install Dependencies
         run: pnpm install
@@ -24,4 +24,4 @@ jobs:
         run: pnpm run build
 
       - name: Publish
-        run: pnpm run publish
+        run: pnpm zin publish --kind package.name

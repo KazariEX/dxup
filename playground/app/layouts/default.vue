@@ -1,4 +1,4 @@
 <template>
-  <slot></slot>
-  <slot name="inside" one="one"></slot>
+  <slot />
+  <slot name="inside" one="one"/>
 </template>
