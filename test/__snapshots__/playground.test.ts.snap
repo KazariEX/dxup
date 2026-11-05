@@ -39,7 +39,7 @@ exports[`playground > app/pages/about.vue > layout-slots > definition 1`] = `
     "fileName": "app/layouts/default.vue",
     "textSpan": {
       "length": 3,
-      "start": 49,
+      "start": 44,
     },
   },
 ]
